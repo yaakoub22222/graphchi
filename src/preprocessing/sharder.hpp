@@ -144,7 +144,7 @@ namespace graphchi {
             if (f >= 0) {
 
 #else
-            filedesc_t f = fopen(preprocessed_name().c_str(), "r");
+            filedesc_t f = fopen(preprocessed_name().c_str(), "rb");
             if (f != NULL) {
 #endif
 #ifndef WINDOWS
@@ -368,7 +368,7 @@ namespace graphchi {
                             " error: " << strerror(errno) << std::endl;
                         }
 #else
-                        shovelfs[i] = fopen(fname.c_str(), "w");
+                        shovelfs[i] = fopen(fname.c_str(), "w+b");
                         assert(shovelfs[i] != NULL);
 #endif
                        
@@ -468,7 +468,7 @@ namespace graphchi {
 #ifndef WINDOWS
                 filedesc_t shovelf = open(shovelfname.c_str(), O_RDONLY);
 #else
-                filedesc_t shovelf = fopen(shovelfname.c_str(), "r");
+                filedesc_t shovelf = fopen(shovelfname.c_str(), "rb");
 #endif
                 size_t shovelsize = readfull(shovelf, (char**) &shovelbuf);
                 size_t numedges = shovelsize / sizeof(edge_t);
@@ -489,7 +489,7 @@ namespace graphchi {
                 assert(trerr == 0);
                 
 #else
-                filedesc_t f = fopen(fname.c_str(), "w");
+                filedesc_t f = fopen(fname.c_str(), "wb");
                 if (f < 0) {
                     logstream(LOG_ERROR) << "Could not open " << fname << " error: " << strerror(errno) << std::endl;
                 }
@@ -508,7 +508,7 @@ namespace graphchi {
                 }
                 assert(ef >= 0);
 #else
-                filedesc_t ef = fopen(edfname.c_str(), "w");
+                filedesc_t ef = fopen(edfname.c_str(), "wb");
                 assert(ef != NULL);
 #endif
                 char * buf = (char*) malloc(SHARDER_BUFSIZE); 
@@ -634,7 +634,7 @@ namespace graphchi {
                 assert(false);
             }
 #else
-            filedesc_t degreeOutF = fopen(outputfname.c_str(), "w");
+            filedesc_t degreeOutF = fopen(outputfname.c_str(), "wb");
             if (degreeOutF == NULL) {
                 logstream(LOG_ERROR) << "Could not create: " << degreeOutF << std::endl;
                 assert(false);

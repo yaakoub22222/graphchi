@@ -81,6 +81,10 @@ namespace graphchi {
      * @param secondary_filename secondary filename if the first version is not found.
      */
     static std::map<std::string, std::string> loadconfig(std::string filename, std::string secondary_filename) {
+#ifdef WINDOWS
+        std::cout << "Windows mode enabled." << std::endl;
+#endif
+        
         FILE * f = fopen(filename.c_str(), "r");
         if (f == NULL) {
             f = fopen(secondary_filename.c_str(), "r");
