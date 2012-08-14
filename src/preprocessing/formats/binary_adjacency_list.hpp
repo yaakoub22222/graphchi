@@ -73,7 +73,7 @@ namespace graphchi {
     template <typename EdgeDataType>
     class binary_adjacency_list_reader {
         std::string filename;
-        int fd;
+        filedesc_t fd;
         size_t fpos;
         size_t blocklen;
         size_t blocksize;
@@ -99,13 +99,17 @@ namespace graphchi {
         
     public:
         binary_adjacency_list_reader(std::string filename) : filename(filename) {
+#ifndef WINDOWS
             fd = open(filename.c_str(), O_RDONLY);
             if (fd < 0) {
                 logstream(LOG_FATAL) << "Could not open file: " << filename << " error: " <<
                 strerror(errno) << std::endl;
             }
             assert(fd >= 0);
-            
+#else
+            fd = fopen(filename.c_str(), "r");
+            assert(fd != NULL);
+#endif
             blocksize = (size_t) get_option_long("preprocessing.bufsize", 64 * 1024 * 1024);
             block = (char*) malloc(blocksize);
             blockptr = block;
@@ -121,7 +125,11 @@ namespace graphchi {
         
         ~binary_adjacency_list_reader() {
             if (block != NULL) free(block);
+#ifndef WINDOWS
             close(fd);
+#else
+            fclose(fd);
+#endif
         }
         
         template <class Callback>
@@ -170,7 +178,7 @@ namespace graphchi {
     private:
         
         std::string filename;
-        int fd;
+        filedesc_t fd;
         bin_adj_header header;
         int bufsize;
         
@@ -187,11 +195,18 @@ namespace graphchi {
         binary_adjacency_list_writer(std::string filename) : filename(filename) {
             bufsize = (int) get_option_int("preprocessing.bufsize", 64 * 1024 * 1024);
             assert(bufsize > 1024 * 1024);
+#ifndef WINDOWS
             fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
             if (fd < 0) {
                 logstream(LOG_FATAL) << "Could not open file " << filename << " for writing. " <<
                 " Error: " << strerror(errno) << std::endl;
+                assert(false);
+
             }
+#else
+            fd = fopen(filename.c_str(), "w");
+            assert(fd != NULL);
+#endif
             
             header.format_version = FORMAT_VERSION;
             header.max_vertex_id = 0;
@@ -205,7 +220,6 @@ namespace graphchi {
             counter = 0;
             lastid = 0;
             initialized = false;
-            assert(fd >= 0);
         }
         
         ~binary_adjacency_list_writer() {
@@ -294,11 +308,15 @@ namespace graphchi {
             buf = NULL;
             
             write_header();
+#ifndef WINDOWS
             close(fd);
+#else
+            fclose(fd);
+#endif
         }
         /** Buffered write function */
         template <typename T>
-        void bwrite(int f, char * buf, char * &bufptr, T val) {
+        void bwrite(filedesc_t f, char * buf, char * &bufptr, T val) {
             if (bufptr + sizeof(T) - buf >=  bufsize) {
                 writea(f, buf, bufptr - buf);
                 bufptr = buf;

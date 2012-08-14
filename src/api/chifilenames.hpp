@@ -40,6 +40,7 @@
 #include <unistd.h>
 
 #include "logger/logger.hpp"
+ 
 
 namespace graphchi {
     
@@ -101,12 +102,16 @@ namespace graphchi {
       */
     static std::string filename_config();
     static std::string filename_config() {
+#ifndef WINDOWS
         char * chi_root = getenv("GRAPHCHI_ROOT");
         if (chi_root != NULL) {
             return std::string(chi_root) + "/conf/graphchi.cnf";
         } else {
             return "conf/graphchi.cnf";
         }
+#else
+        return "conf/graphchi.cnf";
+#endif
     }
     
     /**
@@ -115,22 +120,26 @@ namespace graphchi {
      */
     static std::string filename_config_local();
     static std::string filename_config_local() {
+#ifndef WINDOWS
         char * chi_root = getenv("GRAPHCHI_ROOT");
         if (chi_root != NULL) {
             return std::string(chi_root) + "/conf/graphchi.local.cnf";
         } else {
             return "conf/graphchi.local.cnf";
         }
+#else
+        return "conf/graphchi.local.cnf"; 
+#endif
     }
     
     
     bool shard_file_exists(std::string sname);
     bool shard_file_exists(std::string sname) {
-        int tryf = open(sname.c_str(), O_RDONLY);
-        if (tryf < 0) {
+        FILE * tryf = fopen(sname.c_str(), "r");
+        if (tryf == NULL) {
             return false;
         } else {
-            close(tryf);
+            fclose(tryf);
             return true;
         }
     }
@@ -157,10 +166,10 @@ namespace graphchi {
         for(try_shard_num=start_num; try_shard_num <= last_shard_num; try_shard_num++) {
             std::string last_shard_name = filename_shard_edata<EdgeDataType>(base_filename, try_shard_num - 1, try_shard_num);
             
-            int tryf = open(last_shard_name.c_str(), O_RDONLY);
-            if (tryf >= 0) {
+            FILE * tryf = fopen(last_shard_name.c_str(), "r");
+            if (tryf != NULL) {
                 // Found!
-                close(tryf);
+                fclose(tryf);
                 
                 int nshards_candidate = try_shard_num;
                 bool success = true;

@@ -26,9 +26,6 @@
  * I/O manager.
  */
 
-#ifdef WINDOWS
-#include "windows/stripedio.hpp"
-#else
 
 
 #ifndef DEF_STRIPEDIO_HPP
@@ -36,8 +33,6 @@
 
 #include <iostream> 
 
-#include <fcntl.h>
-#include <unistd.h>
 #include <assert.h>
 #include <stdint.h>
 #include <pthread.h>
@@ -64,8 +59,8 @@ namespace graphchi {
      */
     struct io_descriptor {
         std::string filename;    
-        std::vector<int> readdescs;
-        std::vector<int> writedescs;
+        std::vector<FILE *> readdescs;
+        std::vector<FILE *> writedescs;
         pinned_file * pinned_to_memory;
         int start_mplex;
         bool open;
@@ -86,7 +81,7 @@ namespace graphchi {
     
     struct iotask {
         BLOCK_ACTION action;
-        int fd;
+        FILE * fd;
         
         refcountptr * ptr;
         size_t length;
@@ -96,8 +91,8 @@ namespace graphchi {
         stripedio * iomgr;
         
         
-        iotask() : action(READ), fd(0), ptr(NULL), length(0), offset(0), ptroffset(0), free_after(false), iomgr(NULL) {}
-        iotask(stripedio * iomgr, BLOCK_ACTION act, int fd,  refcountptr * ptr, size_t length, size_t offset, size_t ptroffset, bool free_after=false) : 
+        iotask() : action(READ), fd(NULL), ptr(NULL), length(0), offset(0), ptroffset(0), free_after(false), iomgr(NULL) {}
+        iotask(stripedio * iomgr, BLOCK_ACTION act, FILE * fd,  refcountptr * ptr, size_t length, size_t offset, size_t ptroffset, bool free_after=false) : 
         action(act), fd(fd), ptr(ptr),length(length), offset(offset), ptroffset(ptroffset), free_after(free_after), iomgr(iomgr) {}
     };
     
@@ -308,25 +303,19 @@ namespace graphchi {
             for(int i=0; i<multiplex; i++) {
                 std::string fname = multiplexprefix(i) + filename;
                 for(int j=0; j<niothreads+(multiplex == 1 ? 1 : 0); j++) { // Hack to have one fd for synchronous
-                    int rddesc = open(fname.c_str(), O_RDONLY);
-                    if (rddesc < 0) logstream(LOG_ERROR)  << "Could not open: " << fname << " session: " << session_id 
+                    FILE * rddesc = fopen(fname.c_str(), "r");
+                    if (rddesc == NULL)logstream(LOG_ERROR)  << "Could not open: " << fname << " session: " << session_id 
                         << " error: " << strerror(errno) << std::endl;
-                    assert(rddesc>=0);
+                    assert(rddesc != NULL);
                     iodesc->readdescs.push_back(rddesc);
-#ifdef F_NOCACHE
-                    if (!readonly) 
-                        fcntl(rddesc, F_NOCACHE, 1);
-#endif
+ 
                     if (!readonly) {
-                        int wrdesc = open(fname.c_str(), O_RDWR);
+                        FILE * wrdesc = fopen(fname.c_str(), "rw");
 
-                        if (wrdesc < 0) logstream(LOG_ERROR)  << "Could not open for writing: " << fname << " session: " << session_id
+                        if (wrdesc == NULL) logstream(LOG_ERROR)  << "Could not open for writing: " << fname << " session: " << session_id
                             << " error: " << strerror(errno) << std::endl;
-                        assert(wrdesc>=0);
-#ifdef F_NOCACHE
-                        fcntl(wrdesc, F_NOCACHE, 1);
-                        
-#endif
+                        assert(wrdesc != NULL);
+ 
                         iodesc->writedescs.push_back(wrdesc);
                     }
                 }
@@ -352,11 +341,11 @@ namespace graphchi {
             iodesc->open = false;
             mlock.unlock();
             if (wasopen) {
-                for(std::vector<int>::iterator it=iodesc->readdescs.begin(); it!=iodesc->readdescs.end(); ++it) {
-                    close(*it);
+                for(std::vector<FILE *>::iterator it=iodesc->readdescs.begin(); it!=iodesc->readdescs.end(); ++it) {
+                    fclose(*it);
                 }
-                for(std::vector<int>::iterator it=iodesc->writedescs.begin(); it!=iodesc->writedescs.end(); ++it) {
-                    close(*it);
+                for(std::vector<FILE *>::iterator it=iodesc->writedescs.begin(); it!=iodesc->writedescs.end(); ++it) {
+                    fclose(*it);
                 }
             }
         }
@@ -418,68 +407,18 @@ namespace graphchi {
          * standard chifilenames.hpp -given filenames are used.
          */
         void allow_preloading(std::string filename) {
-            if (disable_preloading) {
-                return;
-            }
-            preload_lock.lock();
-            size_t filesize = get_filesize(filename);
-            if (preloaded_bytes + filesize <= max_preload_bytes) {
-                preloaded_bytes += filesize;
-                m.set("preload_bytes", preloaded_bytes);
-                
-                pinned_file * pfile = new pinned_file();
-                pfile->filename = filename;
-                pfile->length = filesize;
-                pfile->data = (uint8_t*) malloc(filesize);
-                pfile->touched = false;
-                assert(pfile->data != NULL);
-                
-                int fid = open(filename.c_str(), O_RDONLY);
-                if (fid < 0) {
-                    logstream(LOG_ERROR) << "Could not read file: " << filename 
-                    << " error: " << strerror(errno) << std::endl;
-                }
-                assert(fid >= 0);
-                /* Preload the file */
-                logstream(LOG_INFO) << "Preloading: " << filename << std::endl;
-                preada(fid, pfile->data, filesize, 0);    
-                close(fid);
-                preloaded_files.push_back(pfile);
-            }
-            preload_lock.unlock();
+            return;
         }
         
         void commit_preloaded() {
-            for(std::vector<pinned_file *>::iterator it=preloaded_files.begin(); 
-                it != preloaded_files.end(); ++it) {
-                pinned_file * preloaded = (*it);
-                if (preloaded->touched) {
-                    logstream(LOG_INFO) << "Commit preloaded file: " << preloaded->filename << std::endl;
-                    int fid = open(preloaded->filename.c_str(), O_WRONLY);
-                    if (fid < 0) {
-                        logstream(LOG_ERROR) << "Could not read file: " << preloaded->filename 
-                            << " error: " << strerror(errno) << std::endl;
-                        continue;
-                    }
-                    pwritea(fid, preloaded->data, preloaded->length, 0);
-                    close(fid);
-                }
-                preloaded->touched = false;
-            }
+           // Do nothing (disabled on windows)
+#ifndef WINDOWS
+            assert(false);
+#endif
         }
         
         pinned_file * is_preloaded(std::string filename) {
-            preload_lock.lock();
-            pinned_file * preloaded = NULL;
-            for(std::vector<pinned_file *>::iterator it=preloaded_files.begin(); 
-                it != preloaded_files.end(); ++it) {
-                if (filename == (*it)->filename) {
-                    preloaded = *it;
-                    break;
-                }
-            }
-            preload_lock.unlock();
-            return preloaded;
+            return false;
         }
         
         
@@ -612,7 +551,7 @@ namespace graphchi {
         void truncate(int session, size_t nbytes) {
             assert(!pinned_session(session));
             assert(multiplex <= 1);  // We do not support truncating on multiplex yet
-            int stat = ftruncate(sessions[session]->writedescs[0], nbytes); 
+            int stat = ftruncate(fileno(sessions[session]->writedescs[0]), nbytes); 
             if (stat != 0) {
                 logstream(LOG_ERROR) << "Could not truncate " << sessions[session]->filename <<
                 " error: " << strerror(errno) << std::endl;
@@ -704,8 +643,6 @@ namespace graphchi {
     
     static void * stream_read_loop(void * _info) {
         streaming_task * task = (streaming_task*)_info;
-        timeval start, end;
-        gettimeofday(&start, NULL);
         size_t bufsize = 32*1024*1024; // 32 megs
         char * tbuf;
         
@@ -724,24 +661,22 @@ namespace graphchi {
             task->iomgr->preada_now(task->session, tbuf + task->curpos, toread, task->curpos);
             __sync_add_and_fetch(&task->curpos, toread);
         }
-        
-        gettimeofday(&end, NULL);
-        
+            
         return NULL;
     }
     
     
     static size_t get_filesize(std::string filename) {
         std::string fname = filename;
-        int f = open(fname.c_str(), O_RDONLY);
+        FILE * f = fopen(fname.c_str(), "w");
         
-        if (f < 0) {
+        if (f == NULL) {
             logstream(LOG_ERROR) << "Could not open file " << filename << " error: " << strerror(errno) << std::endl;
             assert(false);
         }
         
-        off_t sz = lseek(f, 0, SEEK_END);
-        close(f);
+        off_t sz = fseek(f, 0, SEEK_END);
+        fclose(f);
         return sz;
     }
     
@@ -751,7 +686,5 @@ namespace graphchi {
 
 
 #endif
-
-#endif // WINDOWS
 
 

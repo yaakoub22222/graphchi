@@ -178,6 +178,8 @@
 		5F56F703159B771900423ECE /* bulksync_functional_test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bulksync_functional_test.cpp; sourceTree = "<group>"; };
 		5F56F713159B78BF00423ECE /* test_bulksync_functional */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_bulksync_functional; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F56F71E159B918100423ECE /* basic_smoketest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = basic_smoketest.cpp; sourceTree = "<group>"; };
+		5F78351A15DA9D5800954509 /* ioutil.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ioutil.hpp; sourceTree = "<group>"; };
+		5F78351B15DA9D5800954509 /* stripedio.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = stripedio.hpp; sourceTree = "<group>"; };
 		5F7A0FFB1589163E00748D0D /* graphchi_xcode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = graphchi_xcode; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F7A0FFF1589165D00748D0D /* graphchi_types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = graphchi_types.hpp; sourceTree = "<group>"; };
 		5F7A102F1589266800748D0D /* graph_objects.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = graph_objects.hpp; sourceTree = "<group>"; };
@@ -494,6 +496,15 @@
 			path = tests;
 			sourceTree = "<group>";
 		};
+		5F78351915DA9D5800954509 /* windows */ = {
+			isa = PBXGroup;
+			children = (
+				5F78351A15DA9D5800954509 /* ioutil.hpp */,
+				5F78351B15DA9D5800954509 /* stripedio.hpp */,
+			);
+			path = windows;
+			sourceTree = "<group>";
+		};
 		5F7A0FE31589162F00748D0D /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -508,6 +519,7 @@
 				5F7A10461589266800748D0D /* shards */,
 				5F56F702159B771900423ECE /* tests */,
 				5F7A104A1589266800748D0D /* util */,
+				5F78351915DA9D5800954509 /* windows */,
 				5FCC1DD71599194B0003D0E9 /* graphchi_basic_includes.hpp */,
 				5F7A0FFF1589165D00748D0D /* graphchi_types.hpp */,
 			);
@@ -995,6 +1007,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = WINDOWS;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = graphchi_xcode;
 			};
@@ -1006,6 +1019,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = WINDOWS;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = graphchi_xcode;
 			};

@@ -25,6 +25,13 @@ namespace graphchi {
     
     typedef uint32_t vid_t;
     
+#ifndef WINDOWS
+    typedef int filedesc_t;    
+#else
+    typedef FILE * filedesc_t;
+
+#endif
+    
     
     /** 
       * PairContainer encapsulates a pair of values of some type.
