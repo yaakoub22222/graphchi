@@ -303,14 +303,14 @@ namespace graphchi {
             for(int i=0; i<multiplex; i++) {
                 std::string fname = multiplexprefix(i) + filename;
                 for(int j=0; j<niothreads+(multiplex == 1 ? 1 : 0); j++) { // Hack to have one fd for synchronous
-                    FILE * rddesc = fopen(fname.c_str(), "r");
+                    FILE * rddesc = fopen(fname.c_str(), (readonly ? "rb" : "r+b"));
                     if (rddesc == NULL)logstream(LOG_ERROR)  << "Could not open: " << fname << " session: " << session_id 
                         << " error: " << strerror(errno) << std::endl;
                     assert(rddesc != NULL);
                     iodesc->readdescs.push_back(rddesc);
  
                     if (!readonly) {
-                        FILE * wrdesc = fopen(fname.c_str(), "rw");
+                        FILE * wrdesc = rddesc; // Can use same one
 
                         if (wrdesc == NULL) logstream(LOG_ERROR)  << "Could not open for writing: " << fname << " session: " << session_id
                             << " error: " << strerror(errno) << std::endl;
@@ -342,9 +342,6 @@ namespace graphchi {
             mlock.unlock();
             if (wasopen) {
                 for(std::vector<FILE *>::iterator it=iodesc->readdescs.begin(); it!=iodesc->readdescs.end(); ++it) {
-                    fclose(*it);
-                }
-                for(std::vector<FILE *>::iterator it=iodesc->writedescs.begin(); it!=iodesc->writedescs.end(); ++it) {
                     fclose(*it);
                 }
             }
@@ -668,14 +665,15 @@ namespace graphchi {
     
     static size_t get_filesize(std::string filename) {
         std::string fname = filename;
-        FILE * f = fopen(fname.c_str(), "w");
+        FILE * f = fopen(fname.c_str(), "r");
         
         if (f == NULL) {
             logstream(LOG_ERROR) << "Could not open file " << filename << " error: " << strerror(errno) << std::endl;
             assert(false);
         }
         
-        off_t sz = fseek(f, 0, SEEK_END);
+        fseek(f, 0, SEEK_END);
+        size_t sz = ftell(f);
         fclose(f);
         return sz;
     }

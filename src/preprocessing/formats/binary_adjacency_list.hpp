@@ -107,7 +107,7 @@ namespace graphchi {
             }
             assert(fd >= 0);
 #else
-            fd = fopen(filename.c_str(), "r");
+            fd = fopen(filename.c_str(), "rb");
             assert(fd != NULL);
 #endif
             blocksize = (size_t) get_option_long("preprocessing.bufsize", 64 * 1024 * 1024);
@@ -204,7 +204,7 @@ namespace graphchi {
 
             }
 #else
-            fd = fopen(filename.c_str(), "w");
+            fd = fopen(filename.c_str(), "w+b");
             assert(fd != NULL);
 #endif
             
@@ -249,6 +249,9 @@ namespace graphchi {
                 header.numedges += (uint64_t)counter;
                 counter = 0;
             }
+#ifdef WINDOWS
+            fflush(fd);
+#endif
         }
         
         void _addedge(vid_t from, vid_t to, EdgeDataType val) {

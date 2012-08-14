@@ -240,6 +240,7 @@
 		5FCC23FE15A2395B0003D0E9 /* als_vertices_inmem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = als_vertices_inmem.cpp; sourceTree = "<group>"; };
 		5FCC242B15A378DC0003D0E9 /* streaming_pagerank.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = streaming_pagerank.cpp; sourceTree = "<group>"; };
 		5FCC243415A378E70003D0E9 /* streaming_pagerank */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = streaming_pagerank; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FEC74A215DAD24D0050EC64 /* ioutiltest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ioutiltest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -492,6 +493,7 @@
 				5F10BC8E159FA36F00694F2E /* basic_dynamicengine_smoketest.cpp */,
 				5F10BC8F15A0A99400694F2E /* basic_dynamicengine_smoketest2.cpp */,
 				5F56F703159B771900423ECE /* bulksync_functional_test.cpp */,
+				5FEC74A215DAD24D0050EC64 /* ioutiltest.cpp */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -1010,6 +1012,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = WINDOWS;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = graphchi_xcode;
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -1022,6 +1025,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = WINDOWS;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = graphchi_xcode;
+				SDKROOT = "";
 			};
 			name = Release;
 		};

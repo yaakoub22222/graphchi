@@ -75,7 +75,8 @@ void preada_trunc(FILE * f, T * tbuf, size_t nbytes, size_t off) {
 
 template <typename T>
 size_t readfull(FILE * f, T ** buf) {
-     off_t sz = fseek(f, 0, SEEK_END);
+     fseek(f, 0, SEEK_END);
+     size_t sz = ftell(f);
      fseek(f, 0, SEEK_SET);
      *buf = (char*)malloc(sz);
     preada(f, *buf, sz, 0);
@@ -87,7 +88,8 @@ void pwritea(FILE * f, T * tbuf, size_t nbytes, size_t off) {
     assert(f>0);
     char * buf = (char*)tbuf;
     while(nwritten<nbytes) {
-        fseek(f, off + nwritten, SEEK_SET);
+        int err = fseek(f, off + nwritten, SEEK_SET);
+        assert(err == 0);
         size_t a = fwrite(buf, 1, nbytes-nwritten, f);
         if (a == size_t(-1)) {
             logstream(LOG_ERROR) << "f:" << f << " nbytes: " << nbytes << " written: " << nwritten << " off:" << 
@@ -113,13 +115,14 @@ void writea(FILE * f, T * tbuf, size_t nbytes) {
         buf += a;
         nwritten += a;
     }
+    fflush(f);
 
 } 
 
 template <typename T>
 void checkarray_filesize(std::string fname, size_t nelements) {
     // Check the vertex file is correct size
-    FILE * f = fopen(fname.c_str(),  "w");
+    FILE * f = fopen(fname.c_str(),  "a");
     if (f == NULL) {
         logstream(LOG_ERROR) << "Error initializing the data-file: " << fname << " error:" <<  strerror(errno) << std::endl;    }
     assert(f != NULL);

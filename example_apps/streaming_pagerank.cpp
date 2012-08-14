@@ -236,7 +236,7 @@ void * dynamic_graph_reader(void * info) {
     int edges_per_sec = get_option_int("edges_per_sec", 100000);
     
     logstream(LOG_INFO) << "Going to stream from: " << streaming_graph_file << std::endl;   
-    FILE * f = fopen(streaming_graph_file.c_str(), "r");
+    FILE * f = fopen(streaming_graph_file.c_str(), "rb");
     if (f == NULL) {
         logstream(LOG_ERROR) << "Could not open file for streaming: " << streaming_graph_file << 
         " error: " << strerror(errno) << std::endl;

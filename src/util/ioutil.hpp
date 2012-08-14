@@ -115,7 +115,6 @@ void writea(int f, T * tbuf, size_t nbytes) {
         buf += a;
         nwritten += a;
     }
-
 } 
 
 template <typename T>

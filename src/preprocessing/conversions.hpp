@@ -124,7 +124,7 @@ namespace graphchi {
      */
     template <typename EdgeDataType>
     void convert_edgelist(std::string inputfile, sharder<EdgeDataType> &sharderobj) {
-        FILE * inf = fopen(inputfile.c_str(), "r");
+        FILE * inf = fopen(inputfile.c_str(), "rb");
         size_t bytesread = 0;
         size_t linenum = 0;
         if (inf == NULL) {
@@ -172,7 +172,7 @@ namespace graphchi {
      */
     template <typename EdgeDataType>
     void convert_adjlist(std::string inputfile, sharder<EdgeDataType> &sharderobj) {
-        FILE * inf = fopen(inputfile.c_str(), "r");
+        FILE * inf = fopen(inputfile.c_str(), "rb");
         if (inf == NULL) {
             logstream(LOG_FATAL) << "Could not load :" << inputfile << " error: " << strerror(errno) << std::endl;
         }
@@ -400,7 +400,7 @@ namespace graphchi {
                 " error: " << strerror(errno) << std::endl;
             assert(df >= 0);
 #else
-            filedesc_t df = fopen(translate_table_file.c_str(), "w");
+            filedesc_t df = fopen(translate_table_file.c_str(), "w+b");
             if (df == NULL) logstream(LOG_ERROR) << "Could not write vertex map: " << translate_table_file <<
                 " error: " << strerror(errno) << std::endl;
             assert(df != NULL);
