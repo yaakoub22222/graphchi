@@ -103,7 +103,7 @@ namespace graphchi {
         size_t nedges;
         std::string prefix;
         
-        int * shovelfs;
+        filedesc_t * shovelfs;
         
         edge_t ** bufs;
         int * bufptrs;
@@ -139,9 +139,19 @@ namespace graphchi {
          * so it does not need to be recreated.
          */
         bool preprocessed_file_exists() {
-            int f = open(preprocessed_name().c_str(), O_RDONLY);
+#ifndef WINDOWS
+            filedesc_t f = open(preprocessed_name().c_str(), O_RDONLY);
             if (f >= 0) {
+
+#else
+            filedesc_t f = fopen(preprocessed_name().c_str(), "r");
+            if (f != NULL) {
+#endif
+#ifndef WINDOWS
                 close(f);
+#else
+                fclose(f);
+#endif
                 return true;
             } else {
                 return false;
@@ -204,7 +214,7 @@ namespace graphchi {
         
         /** Buffered write function */
         template <typename T>
-        void bwrite(int f, char * buf, char * &bufptr, T val) {
+        void bwrite(filedesc_t f, char * buf, char * &bufptr, T val) {
             if (bufptr + sizeof(T) - buf >= SHARDER_BUFSIZE) {
                 writea(f, buf, bufptr - buf);
                 bufptr = buf;
@@ -340,7 +350,7 @@ namespace graphchi {
                     break;
                     
                 case SHOVEL:
-                    shovelfs = new int[nshards];
+                    shovelfs = new filedesc_t[nshards];
                     bufs = new edge_t*[nshards];
                     bufptrs =  new int[nshards];
                     bufsize = (1024 * 1024 * get_option_long("membudget_mb", 1024)) / nshards / 4;
@@ -350,12 +360,18 @@ namespace graphchi {
                     
                     for(int i=0; i < nshards; i++) {
                         std::string fname = shovel_filename(i);
+#ifndef WINDOWS
                         shovelfs[i] = open(fname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
+                        assert(shovelfs[i] >= 0);
                         if (shovelfs[i] < 0) {
                             logstream(LOG_ERROR) << "Could not create a temporary file " << fname <<
                             " error: " << strerror(errno) << std::endl;
                         }
-                        assert(shovelfs[i] >= 0);
+#else
+                        shovelfs[i] = fopen(fname.c_str(), "w");
+                        assert(shovelfs[i] != NULL);
+#endif
+                       
                         bufs[i] = (edge_t*) malloc(bufsize);
                         bufptrs[i] = 0;
                     }
@@ -374,7 +390,11 @@ namespace graphchi {
                 case SHOVEL:
                     for(int i=0; i<nshards; i++) {
                         writea(shovelfs[i], bufs[i], sizeof(edge_t) * (bufptrs[i]));
+#ifndef WINDOWS
                         close(shovelfs[i]);
+#else
+                        fclose(shovelfs[i]);
+#endif
                         free(bufs[i]);
                     }
                     free(bufs);
@@ -445,7 +465,11 @@ namespace graphchi {
                 std::string edfname = filename_shard_edata<EdgeDataType>(basefilename, shard, nshards);
                 
                 edge_t * shovelbuf;
-                int shovelf = open(shovelfname.c_str(), O_RDONLY);
+#ifndef WINDOWS
+                filedesc_t shovelf = open(shovelfname.c_str(), O_RDONLY);
+#else
+                filedesc_t shovelf = fopen(shovelfname.c_str(), "r");
+#endif
                 size_t shovelsize = readfull(shovelf, (char**) &shovelbuf);
                 size_t numedges = shovelsize / sizeof(edge_t);
                 
@@ -454,6 +478,8 @@ namespace graphchi {
                 quickSort(shovelbuf, (int)numedges, edge_t_src_less<EdgeDataType>);
                 
                 // Create the final file
+#ifndef WINDOWS
+    
                 int f = open(fname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
                 if (f < 0) {
                     logstream(LOG_ERROR) << "Could not open " << fname << " error: " << strerror(errno) << std::endl;
@@ -462,14 +488,29 @@ namespace graphchi {
                 int trerr = ftruncate(f, 0);
                 assert(trerr == 0);
                 
+#else
+                filedesc_t f = fopen(fname.c_str(), "w");
+                if (f < 0) {
+                    logstream(LOG_ERROR) << "Could not open " << fname << " error: " << strerror(errno) << std::endl;
+                }
+                assert(f != NULL);
+                int trerr = ftruncate(fileno(f), 0);
+                assert(trerr == 0);
+                
+#endif
                 /* Create edge data file */
-                int ef = open(edfname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
+
+#ifndef WINDOWS
+                filedesc_t ef = open(edfname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
                 if (ef < 0) {
                     logstream(LOG_ERROR) << "Could not open " << edfname << " error: " << strerror(errno) << std::endl;
                     
                 }
                 assert(ef >= 0);
-                
+#else
+                filedesc_t ef = fopen(edfname.c_str(), "w");
+                assert(ef != NULL);
+#endif
                 char * buf = (char*) malloc(SHARDER_BUFSIZE); 
                 char * bufptr = buf;
                 char * ebuf = (char*) malloc(SHARDER_BUFSIZE);
@@ -523,12 +564,21 @@ namespace graphchi {
                 writea(f, buf, bufptr - buf);
                 free(buf);
                 free(shovelbuf);
+                
+#ifndef WINDOWS
                 close(f);
                 close(shovelf);
-                
+#else
+                fclose(f);
+                fclose(shovelf);
+#endif
                 writea(ef, ebuf, ebufptr - ebuf);
-                close(ef);
                 
+#ifndef WINDOWS
+                close(ef);
+#else
+                fclose(ef);
+#endif
                 free(ebuf);
                 remove(shovelfname.c_str()); 
                 
@@ -577,12 +627,20 @@ namespace graphchi {
             
             std::string outputfname = filename_degree_data(basefilename);
             
-            int degreeOutF = open(outputfname.c_str(), O_RDWR | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
+#ifndef WINDOWS
+            filedesc_t degreeOutF = open(outputfname.c_str(), O_RDWR | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
             if (degreeOutF < 0) {
                 logstream(LOG_ERROR) << "Could not create: " << degreeOutF << std::endl;
+                assert(false);
             }
-            assert(degreeOutF >= 0);
-            int trerr = ftruncate(degreeOutF, ginfo.nvertices * sizeof(int) * 2);
+#else
+            filedesc_t degreeOutF = fopen(outputfname.c_str(), "w");
+            if (degreeOutF == NULL) {
+                logstream(LOG_ERROR) << "Could not create: " << degreeOutF << std::endl;
+                assert(false);
+            }
+#endif
+            int trerr = ftruncate(fileno(degreeOutF), ginfo.nvertices * sizeof(int) * 2);
             assert(trerr == 0);
             
             for(int window=0; window<nshards; window++) {
@@ -659,7 +717,11 @@ namespace graphchi {
                 sliding_shards[window]->set_offset(memshard.offset_for_stream_cont(), memshard.offset_vid_for_stream_cont(),
                                                    memshard.edata_ptr_for_stream_cont());   
             }
+#ifndef WINDOWS
             close(degreeOutF);
+#else
+            fclose(degreeOutF);
+#endif
             m.stop_time("degrees.runtime");
             delete iomgr;
         }

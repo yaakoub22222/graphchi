@@ -394,13 +394,25 @@ namespace graphchi {
             
             /* Write translate table */
             std::string translate_table_file = baseFilename + ".vertexmap";
-            int df = open(translate_table_file.c_str(), O_RDWR | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
+#ifndef WINDOWS
+            filedesc_t df = open(translate_table_file.c_str(), O_RDWR | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
             if (df < 0) logstream(LOG_ERROR) << "Could not write vertex map: " << translate_table_file <<
                 " error: " << strerror(errno) << std::endl;
             assert(df >= 0);
-            pwritea(df, translate_table, nverts, 0);
-            close(df);
+#else
+            filedesc_t df = fopen(translate_table_file.c_str(), "w");
+            if (df == NULL) logstream(LOG_ERROR) << "Could not write vertex map: " << translate_table_file <<
+                " error: " << strerror(errno) << std::endl;
+            assert(df != NULL);
             
+#endif
+            pwritea(df, translate_table, nverts, 0);
+            
+#ifndef WINDOWS
+            close(df);
+#else
+            fclose(df);
+#endif
             /* Now recreate the processed file */
             std::string tmpfilename = preprocessedFile + ".old";
             rename(preprocessedFile.c_str(), tmpfilename.c_str());

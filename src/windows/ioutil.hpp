@@ -25,11 +25,6 @@
  *
  * I/O Utils.
  */
-
-#ifdef WINDOWS
-#include "windows/ioutil.hpp"
-#else
-
 #ifndef DEF_IOUTIL_HPP
 #define DEF_IOUTIL_HPP
 
@@ -41,11 +36,12 @@
 
 // Reads given number of bytes to a buffer
 template <typename T>
-void preada(int f, T * tbuf, size_t nbytes, size_t off) {
+void preada(FILE * f, T * tbuf, size_t nbytes, size_t off) {
     size_t nread = 0;
     char * buf = (char*)tbuf;
     while(nread<nbytes) {
-        ssize_t a = pread(f, buf, nbytes - nread, off + nread);
+        fseek(f, off + nread, SEEK_SET);
+        size_t a = fread(buf, 1, nbytes - nread, f);
         if (a == (-1)) {
             std::cout << "Error, could not read: " << strerror(errno) << "; file-desc: " << f << std::endl;
             std::cout << "Pread arguments: " << f << " tbuf: " << tbuf << " nbytes: " << nbytes << " off: " << off << std::endl;
@@ -59,11 +55,12 @@ void preada(int f, T * tbuf, size_t nbytes, size_t off) {
 }
 
 template <typename T>
-void preada_trunc(int f, T * tbuf, size_t nbytes, size_t off) {
+void preada_trunc(FILE * f, T * tbuf, size_t nbytes, size_t off) {
     size_t nread = 0;
     char * buf = (char*)tbuf;
     while(nread<nbytes) {
-        size_t a = pread(f, buf, nbytes-nread, off+nread);
+        fseek(f, off + nread, SEEK_SET);
+        size_t a = fread(buf, 1, nbytes - nread, f);
         if (a == 0) {
             // set rest to 0
      //       std::cout << "WARNING: file was not long enough - filled with zeros. " << std::endl;
@@ -77,20 +74,21 @@ void preada_trunc(int f, T * tbuf, size_t nbytes, size_t off) {
 } 
 
 template <typename T>
-size_t readfull(int f, T ** buf) {
-     off_t sz = lseek(f, 0, SEEK_END);
-     lseek(f, 0, SEEK_SET);
+size_t readfull(FILE * f, T ** buf) {
+     off_t sz = fseek(f, 0, SEEK_END);
+     fseek(f, 0, SEEK_SET);
      *buf = (char*)malloc(sz);
     preada(f, *buf, sz, 0);
     return sz;
 }
  template <typename T>
-void pwritea(int f, T * tbuf, size_t nbytes, size_t off) {
+void pwritea(FILE * f, T * tbuf, size_t nbytes, size_t off) {
     size_t nwritten = 0;
     assert(f>0);
     char * buf = (char*)tbuf;
     while(nwritten<nbytes) {
-        size_t a = pwrite(f, buf, nbytes-nwritten, off+nwritten);
+        fseek(f, off + nwritten, SEEK_SET);
+        size_t a = fwrite(buf, 1, nbytes-nwritten, f);
         if (a == size_t(-1)) {
             logstream(LOG_ERROR) << "f:" << f << " nbytes: " << nbytes << " written: " << nwritten << " off:" << 
                 off << " f: " << f << " error:" <<  strerror(errno) << std::endl;
@@ -102,11 +100,11 @@ void pwritea(int f, T * tbuf, size_t nbytes, size_t off) {
     }
 } 
 template <typename T>
-void writea(int f, T * tbuf, size_t nbytes) {
+void writea(FILE * f, T * tbuf, size_t nbytes) {
     size_t nwritten = 0;
     char * buf = (char*)tbuf;
     while(nwritten<nbytes) {
-        size_t a = write(f, buf, nbytes-nwritten);
+        size_t a = fwrite(buf, 1, nbytes-nwritten, f);
         assert(a>0);
         if (a == size_t(-1)) {
             logstream(LOG_ERROR) << "Could not write " << (nbytes-nwritten) << " bytes!" << " error:" <<  strerror(errno) << std::endl; 
@@ -121,19 +119,19 @@ void writea(int f, T * tbuf, size_t nbytes) {
 template <typename T>
 void checkarray_filesize(std::string fname, size_t nelements) {
     // Check the vertex file is correct size
-    int f = open(fname.c_str(),  O_RDWR | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
-    if (f < 1) {
+    FILE * f = fopen(fname.c_str(),  "w");
+    if (f == NULL) {
         logstream(LOG_ERROR) << "Error initializing the data-file: " << fname << " error:" <<  strerror(errno) << std::endl;    }
-    assert(f>0);
-    int err = ftruncate(f, nelements * sizeof(T));
+    assert(f != NULL);
+    int err = ftruncate(fileno(f), nelements * sizeof(T));
     if (err != 0) {
         logstream(LOG_ERROR) << "Error in adjusting file size: " << fname << " to size: " << nelements * sizeof(T)    
                  << " error:" <<  strerror(errno) << std::endl;
     }
     assert(err == 0);
-    close(f);
+    fclose(f);
 }
 
 #endif
 
-#endif // WINDOWS
+
