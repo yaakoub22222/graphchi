@@ -48,6 +48,10 @@
 
 #ifndef GRAPHCHI_LOG_LOG_HPP
 #define GRAPHCHI_LOG_LOG_HPP
+
+#define _CRT_SECURE_NO_DEPRECATE
+
+
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
@@ -56,6 +60,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <pthread.h>
+
 /**
  * \def LOG_FATAL
  *   Used for fatal and probably irrecoverable conditions
@@ -113,9 +118,9 @@
                         __func__ ,__LINE__,buf,len))
 
 #define logstream(lvl)                      \
-    (log_stream_dispatch<(lvl >= OUTPUTLEVEL)>::exec(lvl,__FILE__, __func__ ,__LINE__) )
+	std::cout 
 #endif
-
+ // (log_stream_dispatch<(lvl >= OUTPUTLEVEL)>::exec(lvl,__FILE__, __func__ ,__LINE__) )
 static const char* messages[] = {  "DEBUG:    ",
     "INFO:     ",
     "WARNING:  ",
@@ -323,12 +328,12 @@ class file_logger{
         if (lineloglevel >= 0 && lineloglevel <= 3 && lineloglevel >= log_level){
             // get just the filename. this line found on a forum on line.
             // claims to be from google.
-            file = ((strrchr(file, '/') ? : file- 1) + 1);
+            // file = ((strrchr(file, '/') ? : file- 1) + 1);
             
             char str[1024];
             
             // write the actual header
-            int byteswritten = snprintf(str,1024, "%s%s(%s:%d): ",
+            int byteswritten = _snprintf_s(str,1024, "%s%s(%s:%d): ",
                                         messages[lineloglevel],file,function,line);
             // write the actual logger
             
@@ -370,25 +375,25 @@ class file_logger{
         if (lineloglevel >= 0 && lineloglevel <= 3 && lineloglevel >= log_level){
             // get just the filename. this line found on a forum on line.
             // claims to be from google.
-            file = ((strrchr(file, '/') ? : file- 1) + 1);
+        //    file = ((strrchr(file, '/') ? : file- 1) + 1);
             
             // length of the 'head' of the string
-            size_t headerlen = snprintf(NULL,0,"%s%s(%s:%d): ",
-                                        messages[lineloglevel],file,function,line);
+           // size_t headerlen = _snprintf_s(NULL,0,"%s%s(%s:%d): ",
+            //                            messages[lineloglevel],file,function,line);
             
-            if (headerlen> 2047) {
+          /*  if (headerlen> 2047) {
                 std::cerr << "Header length exceed buffer length!";
             }
-            else {
+            else {*/
                 char str[2048];
                 const char *newline="\n";
                 // write the actual header
-                int byteswritten = snprintf(str,2047,"%s%s(%s:%d): ",
+                int byteswritten = _snprintf_s(str,2047,"%s%s(%s:%d): ",
                                             messages[lineloglevel],file,function,line);
                 _lograw(lineloglevel,str, byteswritten);
                 _lograw(lineloglevel,buf, len);
                 _lograw(lineloglevel,newline, (int)strlen(newline));
-            }
+        //    }
         }
     }
     
@@ -433,7 +438,7 @@ class file_logger{
         std::stringstream& streambuffer = streambufentry->streambuffer;
         bool& streamactive = streambufentry->streamactive;
         
-        file = ((strrchr(file, '/') ? : file- 1) + 1);
+     //   file = ((strrchr(file, '/') ? : file- 1) + 1);
         
         if (lineloglevel >= log_level){
             if (streambuffer.str().length() == 0) {

@@ -201,7 +201,7 @@ namespace graphchi {
          */
         void preprocessing_add_edge(vid_t from, vid_t to, EdgeDataType val) {
             preproc_writer->add_edge(from, to, val);
-            max_vertex_id = std::max(std::max(from, to), max_vertex_id);
+            max_vertex_id = max(max(from, to), max_vertex_id);
         }
         
         /**
@@ -209,7 +209,7 @@ namespace graphchi {
          */
         void preprocessing_add_edge(vid_t from, vid_t to) {
             preproc_writer->add_edge(from, to);
-            max_vertex_id = std::max(std::max(from, to), max_vertex_id);
+            max_vertex_id = max(max(from, to), max_vertex_id);
         }
         
         /** Buffered write function */
@@ -550,7 +550,7 @@ namespace graphchi {
                                 do {
                                     bwrite<uint8_t>(f, buf, bufptr, 0);
                                     nz--;
-                                    int tnz = std::min(254, nz);
+                                    int tnz = min(254, nz);
                                     bwrite<uint8_t>(f, buf, bufptr, (uint8_t) tnz);
                                     nz -= tnz;
                                 } while (nz>0);
@@ -659,7 +659,7 @@ namespace graphchi {
                 logstream(LOG_INFO) << "Interval: " << interval_st << " " << interval_en << std::endl;
                 
                 for(vid_t subinterval_st=interval_st; subinterval_st < interval_en; ) {
-                    vid_t subinterval_en = std::min(interval_en, subinterval_st + subwindow);
+                    vid_t subinterval_en = min(interval_en, subinterval_st + subwindow);
                     logstream(LOG_INFO) << "(Degree proc.) Sub-window: [" << subinterval_st << " - " << subinterval_en << "]" << std::endl;
                     assert(subinterval_en >= subinterval_st && subinterval_en <= interval_en);
                     

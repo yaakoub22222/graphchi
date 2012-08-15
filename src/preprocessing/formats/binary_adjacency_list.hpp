@@ -87,7 +87,7 @@ namespace graphchi {
         inline U read_val() {
             if (blockptr + sizeof(U) > block + blocklen) {
                 // Read
-                blocklen = std::min(blocksize, total_to_process - fpos);
+                blocklen = min(blocksize, total_to_process - fpos);
                 preada(fd, block, blocklen, fpos);
                 blockptr = block;
             }
@@ -270,7 +270,7 @@ namespace graphchi {
                 counter = 0;
             }
             if (from > header.max_vertex_id || to > header.max_vertex_id) {
-                header.max_vertex_id = std::max(from, to);
+                header.max_vertex_id = max(from, to);
             }
         }
         

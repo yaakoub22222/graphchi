@@ -31,6 +31,18 @@
  * current values. Use command line parameter mode with semisync or sync.
  */
 
+#ifdef WIN32
+#define WINDOWS
+#endif
+
+#ifdef WIN64
+#define WINDOWS
+#endif
+
+#ifdef WINDOWS
+#include "stdafx.h"
+#endif
+
 #define RANDOMRESETPROB 0.15
 
 #include <string>

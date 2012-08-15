@@ -38,6 +38,10 @@
 #include "graphchi_types.hpp"
 #include "util/qsort.hpp"
 
+#ifdef WINDOWS
+#include <windows.h>
+#endif
+
 namespace graphchi {
     
 /**
@@ -238,7 +242,11 @@ namespace graphchi {
                 return;
             }
 #endif
+#ifndef WINDOWS
             int i = __sync_add_and_fetch(&outc, 1);
+#else
+			int i = InterlockedIncrement((volatile LONG*) &outc);
+#endif
             if (outedges_ptr != NULL) outedges_ptr[i-1] = graphchi_edge<EdgeDataType>(dst, ptr);
             assert(dst != vertexid);
         }

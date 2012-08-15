@@ -37,13 +37,15 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <errno.h>
+#include <windows.h>
 //#include <omp.h>
 
 #include <vector>
+#include <deque>
+#include <queue>
 
 #include "logger/logger.hpp"
 #include "metrics/metrics.hpp"
-#include "util/synchronized_queue.hpp"
 #include "util/ioutil.hpp"
 #include "util/cmdopts.hpp"
 
@@ -95,11 +97,59 @@ namespace graphchi {
         iotask(stripedio * iomgr, BLOCK_ACTION act, FILE * fd,  refcountptr * ptr, size_t length, size_t offset, size_t ptroffset, bool free_after=false) : 
         action(act), fd(fd), ptr(ptr),length(length), offset(offset), ptroffset(ptroffset), free_after(free_after), iomgr(iomgr) {}
     };
+
+	  
+        //template <class T>
+        class synchronized_queue_iotask {
+            
+        public:
+            synchronized_queue_iotask() { };
+            ~synchronized_queue_iotask() { };
+            
+            void push(const iotask &item) {
+                _queuelock.lock();
+                _queue.push(item);
+                _queuelock.unlock();
+            }
+            
+            bool safepop(iotask * ret) {
+                _queuelock.lock();
+                if (_queue.size() == 0) {
+                    _queuelock.unlock();
+                    
+                    return false;
+                }
+                *ret = _queue.front();
+                _queue.pop();
+                _queuelock.unlock();
+                return true;
+            }
+            
+            iotask pop() {
+                _queuelock.lock();
+                iotask t = _queue.front();
+                _queue.pop();
+                _queuelock.unlock();
+                return t;
+            }
+            
+            size_t size() const{
+                return _queue.size();
+            }
+        private:
+			typedef std::deque<iotask, std::allocator<iotask> > TDEQUE;
+			typedef std::queue<iotask,TDEQUE> TQUEUE;
+
+
+            TQUEUE _queue;
+            spinlock _queuelock;
+        };
+        
     
     struct thrinfo {
-        synchronized_queue<iotask> * readqueue;
-        synchronized_queue<iotask> * commitqueue;
-        synchronized_queue<iotask> * prioqueue;
+        synchronized_queue_iotask * readqueue;
+        synchronized_queue_iotask * commitqueue;
+        synchronized_queue_iotask * prioqueue;
         
         bool running;
         metrics * m;
@@ -150,9 +200,9 @@ namespace graphchi {
         std::string multiplex_root;
         bool disable_preloading;
         
-        std::vector< synchronized_queue<iotask> > mplex_readtasks;
-        std::vector< synchronized_queue<iotask> > mplex_writetasks;
-        std::vector< synchronized_queue<iotask> > mplex_priotasks;
+        std::vector< synchronized_queue_iotask> mplex_readtasks;
+        std::vector< synchronized_queue_iotask> mplex_writetasks;
+        std::vector< synchronized_queue_iotask> mplex_priotasks;
         std::vector< pthread_t > threads;
         std::vector< thrinfo * > thread_infos;
         metrics &m;
@@ -172,10 +222,10 @@ namespace graphchi {
             blocksize = get_option_int("io.blocksize", 1024 * 1024);
             stripesize = get_option_int("io.stripesize", blocksize/2);
             preloaded_bytes = 0;
-            max_preload_bytes = 1024 * 1024 * get_option_long("preload.max_megabytes", 0);
+            max_preload_bytes = 1024 * 1024 * get_option_int("preload.max_megabytes", 0);
             
             if (max_preload_bytes > 0) {
-                logstream(LOG_INFO) << "Preloading maximum " << max_preload_bytes << " bytes." << std::endl;
+            //    logstream(LOG_INFO) << "Preloading maximum " << max_preload_bytes << " bytes." << std::endl;
             }
             
             multiplex = get_option_int("multiplex", 1);
@@ -193,9 +243,9 @@ namespace graphchi {
             
             // Each multiplex partition has its own queues
             for(int i=0; i<multiplex * niothreads; i++) {
-                mplex_readtasks.push_back(synchronized_queue<iotask>());
-                mplex_writetasks.push_back(synchronized_queue<iotask>());
-                mplex_priotasks.push_back(synchronized_queue<iotask>());
+                mplex_readtasks.push_back(synchronized_queue_iotask());
+                mplex_writetasks.push_back(synchronized_queue_iotask());
+                mplex_priotasks.push_back(synchronized_queue_iotask());
             }
             
             int k = 0;
@@ -359,7 +409,7 @@ namespace graphchi {
             std::vector<stripe_chunk> stripelist;
             while(idx<end) {
                 size_t blockoff = idx % stripesize;
-                size_t blocklen = std::min(stripesize-blockoff, end-idx);
+                size_t blocklen = min(stripesize-blockoff, end-idx);
                 
                 int mplex_thread = (int) mplex_for_offset(session, idx) * niothreads + (int) (random() % niothreads);
                 stripelist.push_back(stripe_chunk(mplex_thread, bufoff, blocklen));
@@ -376,7 +426,7 @@ namespace graphchi {
             refcountptr * refptr = new refcountptr((char*)tbuf, (int)stripelist.size());
             for(int i=0; i<(int)stripelist.size(); i++) {
                 stripe_chunk chunk = stripelist[i];
-                __sync_add_and_fetch(&thread_infos[chunk.mplex_thread]->pending_reads, 1);
+                InterlockedIncrement((volatile LONG*) &thread_infos[chunk.mplex_thread]->pending_reads);
                 mplex_readtasks[chunk.mplex_thread].push(iotask(this, READ, sessions[session]->readdescs[chunk.mplex_thread], 
                                                                 refptr, chunk.len, chunk.offset+off, chunk.offset));
             }
@@ -395,7 +445,7 @@ namespace graphchi {
          * pinned to memory.
          */
         bool pinned_session(int session) {
-            return sessions[session]->pinned_to_memory;
+            return sessions[session]->pinned_to_memory != NULL;
         }
         
         /**
@@ -426,7 +476,7 @@ namespace graphchi {
             refcountptr * refptr = new refcountptr((char*)tbuf, (int) stripelist.size());
             for(int i=0; i<(int)stripelist.size(); i++) {
                 stripe_chunk chunk = stripelist[i];
-                __sync_add_and_fetch(&thread_infos[chunk.mplex_thread]->pending_writes, 1);
+                InterlockedIncrement((volatile LONG*) &thread_infos[chunk.mplex_thread]->pending_writes);
                 mplex_writetasks[chunk.mplex_thread].push(iotask(this, WRITE, sessions[session]->writedescs[chunk.mplex_thread], 
                                                                  refptr, chunk.len, chunk.offset+off, chunk.offset, free_after));
             }
@@ -443,7 +493,7 @@ namespace graphchi {
                 refptr->count++; // Take a reference so we can spin on it
                 for(int i=0; i < (int)stripelist.size(); i++) {
                     stripe_chunk chunk = stripelist[i];
-                    __sync_add_and_fetch(&thread_infos[chunk.mplex_thread]->pending_reads, 1);
+                    InterlockedIncrement((volatile LONG*) &thread_infos[chunk.mplex_thread]->pending_reads);
                     
                     // Use prioritized task queue
                     mplex_priotasks[chunk.mplex_thread].push(iotask(this, READ, sessions[session]->readdescs[chunk.mplex_thread], 
@@ -454,7 +504,7 @@ namespace graphchi {
                 
                 // Spin
                 while(refptr->count>1) {
-                    usleep(5000);
+                    Sleep(5);
                 }
                 delete refptr;
             } else {
@@ -562,7 +612,7 @@ namespace graphchi {
             int mplex = (int) thread_infos.size();
             for(int i=0; i<mplex; i++) {
                 while(thread_infos[i]->pending_reads > 0) {
-                    usleep(10000);
+                    Sleep(10);
                     loops++;
                 }
             }
@@ -574,7 +624,7 @@ namespace graphchi {
             int mplex = (int) thread_infos.size();
             for(int i=0; i<mplex; i++) {
                 while(thread_infos[i]->pending_writes>0) {
-                    usleep(10000);
+                    Sleep(10);
                 }
             }
             m.stop_time(me, "stripedio_wait_for_writes", false);
@@ -616,22 +666,22 @@ namespace graphchi {
                     pwritea(task.fd, task.ptr->ptr + task.ptroffset, task.length, task.offset);  
                     if (task.free_after) {
                         // Threead-safe method of memory managment - ugly!
-                        if (__sync_sub_and_fetch(&task.ptr->count, 1) == 0) {
+                        if (InterlockedDecrement((volatile LONG*)  &task.ptr->count) == 0) {
                             free(task.ptr->ptr);
                             free(task.ptr);
                         }
                     }
-                    __sync_sub_and_fetch(&info->pending_writes, 1);
+                    InterlockedDecrement((volatile LONG*) &info->pending_writes);
                     info->m->stop_time(me, "commit_thr");
                 } else {
                     preada(task.fd, task.ptr->ptr+task.ptroffset, task.length, task.offset); 
-                    __sync_sub_and_fetch(&info->pending_reads, 1);
-                    if (__sync_sub_and_fetch(&task.ptr->count, 1) == 0) {
+                    InterlockedIncrement((volatile LONG*) &info->pending_reads);
+                    if (InterlockedDecrement((volatile LONG*) &task.ptr->count) == 0) {
                         free(task.ptr);
                     }
                 }
             } else {
-                usleep(50000); // 50 ms
+                Sleep(50); // 50 ms
             }
         }
         return NULL;
@@ -649,14 +699,14 @@ namespace graphchi {
          * to the in-memory file buffer.
          */
         if (task->iomgr->pinned_session(task->session)) {
-            __sync_add_and_fetch(&task->curpos, task->len);
+			InterlockedExchange((volatile LONG*)&task->curpos, task->curpos + task->len);
             return NULL;
         }
         tbuf = *task->buf;
         while(task->curpos < task->len) {
-            size_t toread = std::min((size_t)task->len - (size_t)task->curpos, (size_t)bufsize);
+            size_t toread = min((size_t)task->len - (size_t)task->curpos, (size_t)bufsize);
             task->iomgr->preada_now(task->session, tbuf + task->curpos, toread, task->curpos);
-            __sync_add_and_fetch(&task->curpos, toread);
+            InterlockedIncrement((volatile LONG*) &task->curpos);
         }
             
         return NULL;

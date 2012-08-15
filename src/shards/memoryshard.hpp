@@ -180,7 +180,11 @@ namespace graphchi {
             if (adj_stream_session.curpos == adjfilesize) return;
             
             while(adj_stream_session.curpos < toread+pos) {
-                usleep(20000);
+#ifdef WINDOWS
+                Sleep(10);
+#else
+				usleep(10000);
+#endif
                 if (adj_stream_session.curpos == adjfilesize) return;
             }
         }

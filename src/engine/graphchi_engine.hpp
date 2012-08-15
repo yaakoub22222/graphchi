@@ -39,7 +39,13 @@
 #include <assert.h>
 #include <omp.h>
 #include <vector>
+
+#ifndef WINDOWS
 #include <sys/time.h>
+#define min(x,y) std::min(x,y)
+#endif
+
+
 
 #include "api/chifilenames.hpp"
 #include "api/graph_objects.hpp"
@@ -628,7 +634,7 @@ namespace graphchi {
                         /* Determine the sub interval */
                         sub_interval_en = determine_next_window(exec_interval,
                                                                 sub_interval_st, 
-                                                                std::min(interval_en, sub_interval_st + maxwindow), 
+                                                                min(interval_en, sub_interval_st + maxwindow), 
                                                                 size_t(membudget_mb) * 1024 * 1024);
                         assert(sub_interval_en > sub_interval_st);
                         
