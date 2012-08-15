@@ -6,7 +6,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdint.h>
-
+#ifdef WINDOWS
+#include <windows.h>
+#endif
 namespace graphchi {
     class dense_bitset {
     public:
@@ -50,7 +52,12 @@ namespace graphchi {
             uint32_t arrpos, bitpos;
             bit_to_pos(b, arrpos, bitpos);
             const size_t mask(size_t(1) << size_t(bitpos)); 
-            return __sync_fetch_and_or(array + arrpos, mask) & mask;
+#ifdef WINDOWS
+			// Note: this might not be safe? InterlockedOr was not found on XP
+			return InterlockedExchange((volatile LONG*) (array + arrpos), array[arrpos] | mask) & mask;
+#else
+			return __synch_fetch_and_or(array + arrpos, mask) & mask;
+#endif
         }
         
         //! Set the state of the bit returning the old value
@@ -66,7 +73,13 @@ namespace graphchi {
             bit_to_pos(b, arrpos, bitpos);
             const size_t test_mask(size_t(1) << size_t(bitpos)); 
             const size_t clear_mask(~test_mask); 
-            return __sync_fetch_and_and(array + arrpos, clear_mask) & test_mask;
+#ifdef WINDOWS
+            return InterlockedExchange((volatile LONG*) (array + arrpos), array[arrpos] & clear_mask) & test_mask;
+#endif
+
+#ifndef WINDOWS
+			return __sync_fetch_and_and(array + arrpos, clear_mask) & test_mask;
+#endif
         }
         
         inline void clear_bits(uint32_t fromb, uint32_t tob) { // tob is inclusive
@@ -112,21 +125,7 @@ namespace graphchi {
                 if (i > 0)  below_selectedbit[i] = below_selectedbit[i-1] - selectbit[i];
             }
         }
-        
-        // returns 0 on failure
-        inline size_t next_bit_in_block(const uint32_t &b, const size_t &block) {
-            // use CAS to set the bit
-            size_t x = block & below_selectedbit[b] ;
-            if (x == 0) return 0;
-            else return __builtin_ctzl(x);
-        }
-        
-        // returns 0 on failure
-        inline size_t first_bit_in_block(const size_t &block) {
-            // use CAS to set the bit
-            if (block == 0) return 0;
-            else return __builtin_ctzl(block);
-        }
+       
         
         size_t* array;
         size_t len;

@@ -9,7 +9,10 @@
 #include <semaphore.h>
 #include <sched.h>
 #include <signal.h>
+#ifndef WINDOWS
 #include <sys/time.h>
+#endif
+
 #include <vector>
 #include <cassert>
 #include <list>
@@ -117,6 +120,9 @@ namespace graphchi {
         mutable pthread_cond_t  m_cond;
     public:
         conditional() {
+#ifdef WINDOWS
+			assert(false); 
+#endif
             int error = pthread_cond_init(&m_cond, NULL);
             assert(!error);
         }
@@ -125,13 +131,18 @@ namespace graphchi {
             assert(!error);
         }
         inline int timedwait(const mutex& mut, int sec) const {
-            struct timespec timeout;
+			
+#ifndef WINDOWS          
+			struct timespec timeout;
             struct timeval tv;
             struct timezone tz;
             gettimeofday(&tv, &tz);
             timeout.tv_nsec = 0;
             timeout.tv_sec = tv.tv_sec + sec;
-            return pthread_cond_timedwait(&m_cond, &mut.m_mut, &timeout);
+            return pthread_cond_timedwait(&m_cond, &mut.m_mut, &timeout); 
+#else
+            assert(false);
+#endif
         }
         inline void signal() const {
             int error = pthread_cond_signal(&m_cond);
@@ -147,32 +158,7 @@ namespace graphchi {
         }
     }; // End conditional
     
-    /**
-     * \class semaphore
-     * Wrapper around pthread's semaphore
-     */
-    class semaphore {
-    private:
-        mutable sem_t  m_sem;
-    public:
-        semaphore() {
-            int error = sem_init(&m_sem, 0,0);
-            assert(!error);
-        }
-        inline void post() const {
-            int error = sem_post(&m_sem);
-            assert(!error);
-        }
-        inline void wait() const {
-            int error = sem_wait(&m_sem);
-            assert(!error);
-        }
-        ~semaphore() {
-            int error = sem_destroy(&m_sem);
-            assert(!error);
-        }
-    }; // End semaphore
-    
+  
          
     
     
@@ -180,193 +166,6 @@ namespace graphchi {
 #define cmpxchg(P, O, N) __sync_val_compare_and_swap((P), (O), (N))
 #define atomic_inc(P) __sync_add_and_fetch((P), 1)
     
-    /**
-     * \class spinrwlock
-     * rwlock built around "spinning"
-     * source adapted from http://locklessinc.com/articles/locks/
-     * "Scalable Reader-Writer Synchronization for Shared-Memory Multiprocessors"
-     * John Mellor-Crummey and Michael Scott
-     */
-    class spinrwlock {
-        
-        union rwticket {
-            unsigned u;
-            unsigned short us;
-            __extension__ struct {
-                unsigned char write;
-                unsigned char read;
-                unsigned char users;
-            } s;
-        };
-        mutable bool writing;
-        mutable volatile rwticket l;
-    public:
-        spinrwlock() {
-            memset(const_cast<rwticket*>(&l), 0, sizeof(rwticket));
-        }
-        inline void writelock() const {
-            unsigned me = atomic_xadd(&l.u, (1<<16));
-            unsigned char val = me >> 16;
-            
-            while (val != l.s.write) sched_yield();
-            writing = true;
-        }
-        
-        inline void wrunlock() const{
-            rwticket t = *const_cast<rwticket*>(&l);
-            
-            t.s.write++;
-            t.s.read++;
-            
-            *(volatile unsigned short *) (&l) = t.us;
-            writing = false;
-            __asm("mfence");
-        }
-        
-        inline void readlock() const {
-            unsigned me = atomic_xadd(&l.u, (1<<16));
-            unsigned char val = me >> 16;
-            
-            while (val != l.s.read) sched_yield();
-            l.s.read++;
-        }
-        
-        inline void rdunlock() const {
-            atomic_inc(&l.s.write);
-        }
-        
-        inline void unlock() const {
-            if (!writing) rdunlock();
-            else wrunlock();
-        }
-    };
-    
-#undef atomic_xadd
-#undef cmpxchg
-#undef atomic_inc
-    
-    
-    /**
-     * \class rwlock
-     * Wrapper around pthread's rwlock
-     */
-    class rwlock {
-    private:
-        mutable pthread_rwlock_t m_rwlock;
-    public:
-        rwlock() {
-            int error = pthread_rwlock_init(&m_rwlock, NULL);
-            assert(!error);
-        }
-        ~rwlock() {
-            int error = pthread_rwlock_destroy(&m_rwlock);
-            assert(!error);
-        }
-        inline void readlock() const {
-            pthread_rwlock_rdlock(&m_rwlock);
-            //assert(!error);
-        }
-        inline void writelock() const {
-            pthread_rwlock_wrlock(&m_rwlock);
-            //assert(!error);
-        }
-        inline void unlock() const {
-            pthread_rwlock_unlock(&m_rwlock);
-            //assert(!error);
-        }
-        inline void rdunlock() const {
-            unlock();
-        }
-        inline void wrunlock() const {
-            unlock();
-        }
-    }; // End rwlock
-    
-    /**
-     * \class barrier
-     * Wrapper around pthread's barrier
-     */
-#ifdef __linux__
-    /**
-     * \class barrier
-     * Wrapper around pthread's barrier
-     */
-    class barrier {
-    private:
-        mutable pthread_barrier_t m_barrier;
-    public:
-        barrier(size_t numthreads) { pthread_barrier_init(&m_barrier, NULL, numthreads); }
-        ~barrier() { pthread_barrier_destroy(&m_barrier); }
-        inline void wait() const { pthread_barrier_wait(&m_barrier); }
-    };
-    
-#else
-    /**
-     * \class barrier
-     * Wrapper around pthread's barrier
-     */
-    class barrier {
-    private:
-        mutex m;
-        int needed;
-        int called;
-        conditional c;
-        
-        // we need the following to protect against spurious wakeups
-        std::vector<unsigned char> waiting;
-    public:
-        
-        barrier(size_t numthreads) {
-            needed = (int)numthreads;
-            called = 0;
-            waiting.resize(numthreads);
-            std::fill(waiting.begin(), waiting.end(), 0);
-        }
-        
-        ~barrier() {}
-        
-        
-        inline void wait() {
-            m.lock();
-            // set waiting;
-            size_t myid = called;
-            waiting[myid] = 1;
-            called++;
-            
-            if (called == needed) {
-                // if I have reached the required limit, wait up. Set waiting
-                // to 0 to make sure everyone wakes up
-                
-                called = 0;
-                // clear all waiting
-                std::fill(waiting.begin(), waiting.end(), 0);
-                c.broadcast();
-            }
-            else {
-                // while no one has broadcasted, sleep
-                while(waiting[myid]) c.wait(m);
-            }
-            m.unlock();
-        }
-    };
+  
+} // end namespace
 #endif
-    
-    
-    
-    inline void prefetch_range(void *addr, size_t len) {
-        char *cp;
-        char *end = (char*)(addr) + len;
-        
-        for (cp = (char*)(addr); cp < end; cp += 64) __builtin_prefetch(cp, 0); 
-    }
-    inline void prefetch_range_write(void *addr, size_t len) {
-        char *cp;
-        char *end = (char*)(addr) + len;
-        
-        for (cp = (char*)(addr); cp < end; cp += 64) __builtin_prefetch(cp, 1);
-    }
-    
-    
-}; 
-#endif
-

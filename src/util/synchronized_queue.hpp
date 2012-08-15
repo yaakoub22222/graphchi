@@ -1,15 +1,18 @@
 #ifndef SYNCHRONIZED_QUEUE_HPP
 #define SYNCHRONIZED_QUEUE_HPP
 
+
 #include <queue>
+#include <deque>
 #include "pthread_tools.hpp"
 
+using namespace std;
 // From graphlab
 
 namespace graphchi {
     
         
-        template <typename T>
+        template <class T>
         class synchronized_queue {
             
         public:
@@ -47,7 +50,11 @@ namespace graphchi {
                 return _queue.size();
             }
         private:
-            std::queue<T> _queue;
+			typedef std::deque<T, std::allocator<T> > TDEQUE;
+			typedef std::queue<T,TDEQUE> TQUEUE;
+
+
+            TQUEUE _queue;
             spinlock _queuelock;
         };
         

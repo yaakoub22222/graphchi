@@ -35,7 +35,12 @@
 #include <vector>
 #include <limits>
 #include <assert.h>
+
+#ifndef WINDOWS
 #include <sys/time.h>
+#else
+typedef double timeval;
+#endif
 
 #include "util/pthread_tools.hpp"
 #include "util/cmdopts.hpp"
@@ -81,16 +86,16 @@ namespace graphchi {
       count = 0;
       cumvalue = 0;
       value = 0;
-      minvalue = std::numeric_limits<double>::max();
-      maxvalue = std::numeric_limits<double>::min();
+      minvalue = 1e30;
+      maxvalue = -1e30;
     }
     inline void adj(double v) {
       if (count == 0) {
         minvalue = v;
         maxvalue = v;
       } else {
-        minvalue = std::min(v,minvalue);
-        maxvalue = std::max(v,maxvalue);
+        minvalue = min(v,minvalue);
+        maxvalue = max(v,maxvalue);
       }
     }
     
@@ -140,14 +145,15 @@ namespace graphchi {
     }
     
     inline void timer_start() {
-        gettimeofday(&start_time, NULL);
+//        gettimeofday(&start_time, NULL);
 
     }
     inline void timer_stop() {
         timeval end;
-        gettimeofday(&end, NULL);
-        lasttime = end.tv_sec - start_time.tv_sec + ((double)(end.tv_usec - start_time.tv_usec)) / 1.0E6;      
-        add(lasttime);
+       // gettimeofday(&end, NULL);
+        //lasttime = end.tv_sec - start_time.tv_sec + ((double)(end.tv_usec - start_time.tv_usec)) / 1.0E6;      
+        lasttime = 0.0; // TODO
+		add(lasttime);
     }
   };
  

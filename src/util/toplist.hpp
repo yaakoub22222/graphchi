@@ -41,6 +41,8 @@
 #include "util/qsort.hpp"
 #include "api/chifilenames.hpp"
 
+using namespace std;
+
 namespace graphchi {
   
     template <typename VertexDataType>
@@ -81,7 +83,7 @@ namespace graphchi {
         
         /* Setup buffer sizes */
         int nverts = (int) (sz / sizeof(VertexDataType));
-        ntop = std::min(ntop, nverts);
+		ntop = min(ntop, nverts);
         
         size_t bufsize = 1024 * 1024; // Read one megabyte a time
         int nbuf = (int) (bufsize / sizeof(VertexDataType));
@@ -101,7 +103,7 @@ namespace graphchi {
         size_t idx = 0;
         int count = 0;
         while (offset + nread < endoff) {
-            size_t len = std::min(endoff - (offset + nread), bufsize);
+            size_t len = min(endoff - (offset + nread), bufsize);
             iomgr->preada_now(f, buffer, len, offset + nread); 
             nread += len;
             
@@ -129,7 +131,7 @@ namespace graphchi {
                 memcpy(topbuf, buffer_idxs, ntop * sizeof(vv_t));
             } else {
                 // void merge(ET* S1, int l1, ET* S2, int l2, ET* R, F f) {
-                merge<vv_t>(topbuf, ntop, buffer_idxs, std::min(ntop, nt), mergearr,  vertex_value_greater<VertexDataType>);
+                merge<vv_t>(topbuf, ntop, buffer_idxs, min(ntop, nt), mergearr,  vertex_value_greater<VertexDataType>);
                 memcpy(topbuf, mergearr, ntop * sizeof(vv_t));
             }
             

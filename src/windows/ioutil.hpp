@@ -32,6 +32,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <string>
  
 
 // Reads given number of bytes to a buffer

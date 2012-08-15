@@ -55,7 +55,7 @@ namespace graphchi {
         virtual ~non_scheduler() {} 
         virtual void add_task(vid_t vid) {
             if (nwarnings++ % 10000 == 0) {
-                logstream(LOG_WARNING) << "Tried to add task to scheduler, but scheduling was not enabled!" << std::endl;
+//                logstream(LOG_WARNING) << "Tried to add task to scheduler, but scheduling was not enabled!" << std::endl;
             } 
         }
         virtual void remove_tasks(vid_t fromvertex, vid_t tovertex) { }

@@ -240,7 +240,7 @@ namespace graphchi {
                 // Load next
                 sblock newblock(edata_session, edata_session);
                 newblock.offset = edataoffset;
-                newblock.end = std::min(edatafilesize, edataoffset+blocksize);
+                newblock.end = min(edatafilesize, edataoffset+blocksize);
                 assert(newblock.end >= newblock.offset );
                 
                 iomgr->managed_malloc(edata_session, &newblock.data, newblock.end - newblock.offset, newblock.offset);
@@ -259,7 +259,7 @@ namespace graphchi {
                 }
                 sblock * newblock = new sblock(0, adjfile_session);
                 newblock->offset = adjoffset;
-                newblock->end = std::min(adjfilesize, adjoffset+blocksize);
+                newblock->end = min(adjfilesize, adjoffset+blocksize);
                 assert(newblock->end > 0);
                 assert(newblock->end >= newblock->offset);
                 iomgr->managed_malloc(adjfile_session, &newblock->data, newblock->end - newblock->offset, adjoffset);
@@ -327,7 +327,7 @@ namespace graphchi {
                 // TODO: skip unscheduled vertices.
                 
                 int n;
-                if (record_index && (size_t)(curvid - lastrec) >= (size_t) std::max((int)100000, nvecs/16)) {
+                if (record_index && (size_t)(curvid - lastrec) >= (size_t) max((int)100000, nvecs/16)) {
                     save_offset();
                     lastrec = curvid;
                 }
