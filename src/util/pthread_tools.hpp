@@ -48,6 +48,7 @@ namespace graphchi {
             assert(!error);
         }
         inline void lock() const {
+			std::cout << "pthread mutexlock" << std::endl;
             int error = pthread_mutex_lock( &m_mut  );
             assert(!error);
         }
@@ -69,6 +70,8 @@ namespace graphchi {
     
 #else
 
+
+	// Note: cannot be stack allocated!
     class mutex { // WINDOWS VERSION
     private:
         // mutable not actually needed
@@ -81,17 +84,16 @@ namespace graphchi {
 				NULL,              // default security attributes
 				FALSE,             // initially not owned
 				NULL);             // unnamed mutex
-
+           assert(ghMutex != NULL);
         }
-        inline void lock() const {
-           WaitForSingleObject( 
+        void lock() const {
+		    DWORD dwWaitResult = WaitForSingleObject( 
             ghMutex,    // handle to mutex
             INFINITE);  // no time-out interval
-
+		   assert(dwWaitResult == WAIT_OBJECT_0);
         }
-        inline void unlock() const {
-            ReleaseMutex(ghMutex);
-
+        void unlock() const {
+            if (!ReleaseMutex(ghMutex)) assert(false);
         }
         inline bool try_lock() const {
            assert(false); // not implemented

@@ -67,7 +67,9 @@ namespace graphchi {
         
         void commit_async(stripedio * iomgr) {
             if (active && data != NULL && writedesc >= 0) {
+				std::cout << "Commit async." << std::endl;
                 iomgr->managed_pwritea_async(writedesc, &data, end-offset, offset, true);
+				std::cout << "Done async commit " << std::endl;
             }
         }
         
@@ -306,14 +308,14 @@ namespace graphchi {
           */
         void read_next_vertices(int nvecs, vid_t start,  std::vector<svertex_t> & prealloc, bool record_index=false, bool disable_writes=false)  {
             metrics_entry me = m.start_time();
+
             if (!record_index)
                 move_close_to(start);
-            
             /* Release the blocks we do not need anymore */
             curblock = NULL;
             release_prior_to_offset(false, disable_writes);
             assert(activeblocks.size() <= 1);
-            
+            std::cout << "released prior" << std::endl;
             /* Read next */
             if (!activeblocks.empty() && !only_adjacency) {
                 curblock = &activeblocks[0];
@@ -323,7 +325,6 @@ namespace graphchi {
             
             for(int i=((int)curvid) - ((int)start); i<nvecs; i++) {               
                 if (adjoffset >= adjfilesize) break;
-                
                 // TODO: skip unscheduled vertices.
                 
                 int n;

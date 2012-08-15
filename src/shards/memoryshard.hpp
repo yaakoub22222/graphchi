@@ -182,6 +182,7 @@ namespace graphchi {
             while(adj_stream_session.curpos < toread+pos) {
 #ifdef WINDOWS
                 Sleep(10);
+				std::cout << ".";
 #else
 				usleep(10000);
 #endif
