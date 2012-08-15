@@ -97,10 +97,9 @@ namespace graphchi {
         virtual void load_after_updates(std::vector<fvertex_t> &vertices) {
             logstream(LOG_DEBUG) << "Processing out-edges (broadcast)." << std::endl;
             omp_set_num_threads(this->load_threads);
-//#pragma omp parallel for schedule(dynamic, 1)
+    #pragma omp parallel for schedule(dynamic, 1)
             for(int p=0; p < this->nshards; p++)  {
-				std::cout << p << std::endl;
-                /* Stream forward other than the window partition */
+			  /* Stream forward other than the window partition */
                 if (p != this->exec_interval) {
                     this->sliding_shards[p]->read_next_vertices(vertices.size(), this->sub_interval_st, vertices,
                                                          this->scheduler != NULL && this->iter == 0);
@@ -108,7 +107,6 @@ namespace graphchi {
                 } else {
                     this->memoryshard->load_vertices(this->sub_interval_st, this->sub_interval_en, vertices, false, true); // Inedges=false, outedges=true
                 }
-				std::cout << p << " done." << std::endl;
             }
         }   
         
