@@ -42,6 +42,7 @@
 
 #include "graphchi_types.hpp"
 #include "api/ischeduler.hpp"
+#include "metrics/metrics.hpp"
 
 namespace graphchi {
     
@@ -54,20 +55,20 @@ namespace graphchi {
         int last_iteration;
         int execthreads;
         std::vector<double> deltas;
-//        timeval start;
+        timeval start;
         std::string filename;
         double last_deltasum;
         
         graphchi_context() : scheduler(NULL), iteration(0), last_iteration(-1) {
-        //    gettimeofday(&start, NULL);
+            gettimeofday(&start, NULL);
             last_deltasum = 0.0;
         }
         
         double runtime() {
-            //timeval end;
-            //gettimeofday(&end, NULL);
-            //return end.tv_sec-start.tv_sec+ ((double)(end.tv_usec-start.tv_usec))/1.0E6;
-			return 0.0; // TODO
+            timeval end;
+            gettimeofday(&end, NULL);
+            return end.tv_sec-start.tv_sec+ ((double)(end.tv_usec-start.tv_usec))/1.0E6;
+			
 		}
         
         /** 

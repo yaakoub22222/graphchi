@@ -67,9 +67,7 @@ namespace graphchi {
         
         void commit_async(stripedio * iomgr) {
             if (active && data != NULL && writedesc >= 0) {
-				std::cout << "Commit async." << std::endl;
                 iomgr->managed_pwritea_async(writedesc, &data, end-offset, offset, true);
-				std::cout << "Done async commit " << std::endl;
             }
         }
         
@@ -315,7 +313,6 @@ namespace graphchi {
             curblock = NULL;
             release_prior_to_offset(false, disable_writes);
             assert(activeblocks.size() <= 1);
-            std::cout << "released prior" << std::endl;
             /* Read next */
             if (!activeblocks.empty() && !only_adjacency) {
                 curblock = &activeblocks[0];
