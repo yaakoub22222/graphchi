@@ -723,6 +723,7 @@ namespace graphchi {
             fclose(degreeOutF);
 #endif
             m.stop_time("degrees.runtime");
+			logstream(LOG_INFO) << "Finished degree computation." << std::endl;
             delete iomgr;
         }
         

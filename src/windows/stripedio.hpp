@@ -103,33 +103,35 @@ namespace graphchi {
         class synchronized_queue_iotask {
             
         public:
-            synchronized_queue_iotask() { };
-            ~synchronized_queue_iotask() { };
+            synchronized_queue_iotask() { _queuelock = new mutex(); };
+            ~synchronized_queue_iotask() { 
+				//delete _queuelock; // HACK!
+			};
             
             void push(const iotask &item) {
-                _queuelock.lock();
+                _queuelock->lock();
                 _queue.push(item);
-                _queuelock.unlock();
+                _queuelock->unlock();
             }
             
             bool safepop(iotask * ret) {
-                _queuelock.lock();
+                _queuelock->lock();
                 if (_queue.size() == 0) {
-                    _queuelock.unlock();
+                    _queuelock->unlock();
                     
                     return false;
                 }
                 *ret = _queue.front();
                 _queue.pop();
-                _queuelock.unlock();
+                _queuelock->unlock();
                 return true;
             }
             
             iotask pop() {
-                _queuelock.lock();
+                _queuelock->lock();
                 iotask t = _queue.front();
                 _queue.pop();
-                _queuelock.unlock();
+                _queuelock->unlock();
                 return t;
             }
             
@@ -142,7 +144,7 @@ namespace graphchi {
 
 
             TQUEUE _queue;
-            mutex _queuelock;
+            mutex * _queuelock;
         };
         
     
@@ -477,8 +479,9 @@ namespace graphchi {
             for(int i=0; i<(int)stripelist.size(); i++) {
                 stripe_chunk chunk = stripelist[i];
                 InterlockedIncrement((volatile LONG*) &thread_infos[chunk.mplex_thread]->pending_writes);
-                mplex_writetasks[chunk.mplex_thread].push(iotask(this, WRITE, sessions[session]->writedescs[chunk.mplex_thread], 
+				mplex_writetasks[chunk.mplex_thread].push(iotask(this, WRITE, sessions[session]->writedescs[chunk.mplex_thread], 
                                                                  refptr, chunk.len, chunk.offset+off, chunk.offset, free_after));
+				
             }
         }
         
@@ -613,6 +616,8 @@ namespace graphchi {
             for(int i=0; i<mplex; i++) {
                 while(thread_infos[i]->pending_reads > 0) {
                     Sleep(10);
+					if (loops % 200 == 0) std::cout << "Wait for reads..." << std::endl;
+					
                     loops++;
                 }
             }
@@ -620,11 +625,13 @@ namespace graphchi {
         }
         
         void wait_for_writes() {
+			
             metrics_entry me = m.start_time();
             int mplex = (int) thread_infos.size();
             for(int i=0; i<mplex; i++) {
                 while(thread_infos[i]->pending_writes>0) {
-                    Sleep(10);
+                    Sleep(100);
+					std::cout << "Wait for writes..." << std::endl;
                 }
             }
             m.stop_time(me, "stripedio_wait_for_writes", false);
@@ -675,7 +682,7 @@ namespace graphchi {
                     info->m->stop_time(me, "commit_thr");
                 } else {
                     preada(task.fd, task.ptr->ptr+task.ptroffset, task.length, task.offset); 
-                    InterlockedIncrement((volatile LONG*) &info->pending_reads);
+                    InterlockedDecrement((volatile LONG*) &info->pending_reads);
                     if (InterlockedDecrement((volatile LONG*) &task.ptr->count) == 0) {
                         free(task.ptr);
                     }
