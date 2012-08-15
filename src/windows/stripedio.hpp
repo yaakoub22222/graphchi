@@ -142,7 +142,7 @@ namespace graphchi {
 
 
             TQUEUE _queue;
-            spinlock _queuelock;
+            mutex _queuelock;
         };
         
     
@@ -706,7 +706,7 @@ namespace graphchi {
         while(task->curpos < task->len) {
             size_t toread = min((size_t)task->len - (size_t)task->curpos, (size_t)bufsize);
             task->iomgr->preada_now(task->session, tbuf + task->curpos, toread, task->curpos);
-            InterlockedIncrement((volatile LONG*) &task->curpos);
+            InterlockedExchange((volatile LONG*) &task->curpos, task->curpos + toread);
         }
             
         return NULL;
