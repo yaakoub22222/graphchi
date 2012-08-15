@@ -37,6 +37,7 @@ namespace graphchi {
      * Wrapper around pthread's mutex On single core systems mutex
      * should be used.  On multicore systems, spinlock should be used.
      */
+#ifndef WINDOWS
     class mutex {
     private:
         // mutable not actually needed
@@ -58,12 +59,54 @@ namespace graphchi {
             return pthread_mutex_trylock( &m_mut ) == 0;
         }
         ~mutex(){
-            int error = pthread_mutex_destroy( &m_mut );
-            assert(!error);
-        }
+ 
+		   int error = pthread_mutex_destroy( &m_mut );
+           assert(!error);
+ 
+		}
         friend class conditional;
     }; // End of Mutex
     
+#else
+
+    class mutex { // WINDOWS VERSION
+    private:
+        // mutable not actually needed
+        HANDLE ghMutex; 
+
+
+    public:
+        mutex() {
+           ghMutex = CreateMutex( 
+				NULL,              // default security attributes
+				FALSE,             // initially not owned
+				NULL);             // unnamed mutex
+
+        }
+        inline void lock() const {
+           WaitForSingleObject( 
+            ghMutex,    // handle to mutex
+            INFINITE);  // no time-out interval
+
+        }
+        inline void unlock() const {
+            ReleaseMutex(ghMutex);
+
+        }
+        inline bool try_lock() const {
+           assert(false); // not implemented
+        }
+        ~mutex(){
+ 
+		      CloseHandle(ghMutex);
+		}
+        friend class conditional;
+    }; // End of Mutex
+    
+
+#endif
+
+ 
 #if _POSIX_SPIN_LOCKS >= 0
     // We should change this to use a test for posix_spin_locks eventually
     
@@ -111,52 +154,6 @@ namespace graphchi {
 #endif
     
     
-    /**
-     * \class conditional
-     * Wrapper around pthread's condition variable
-     */
-    class conditional {
-    private:
-        mutable pthread_cond_t  m_cond;
-    public:
-        conditional() {
-#ifdef WINDOWS
-			assert(false); 
-#endif
-            int error = pthread_cond_init(&m_cond, NULL);
-            assert(!error);
-        }
-        inline void wait(const mutex& mut) const {
-            int error = pthread_cond_wait(&m_cond, &mut.m_mut);
-            assert(!error);
-        }
-        inline int timedwait(const mutex& mut, int sec) const {
-			
-#ifndef WINDOWS          
-			struct timespec timeout;
-            struct timeval tv;
-            struct timezone tz;
-            gettimeofday(&tv, &tz);
-            timeout.tv_nsec = 0;
-            timeout.tv_sec = tv.tv_sec + sec;
-            return pthread_cond_timedwait(&m_cond, &mut.m_mut, &timeout); 
-#else
-            assert(false);
-#endif
-        }
-        inline void signal() const {
-            int error = pthread_cond_signal(&m_cond);
-            assert(!error);
-        }
-        inline void broadcast() const {
-            int error = pthread_cond_broadcast(&m_cond);
-            assert(!error);
-        }
-        ~conditional() {
-            int error = pthread_cond_destroy(&m_cond);
-            assert(!error);
-        }
-    }; // End conditional
     
   
          
