@@ -113,7 +113,7 @@ namespace graphchi {
         size_t work; // work is the number of edges processed
         
         mutex modification_lock;
-
+        
         
         /* Metrics */
         metrics &m;
@@ -144,7 +144,7 @@ namespace graphchi {
             }
             m.stop_time("iomgr_init");
             logstream(LOG_INFO) << "Initializing graphchi_engine. This engine expects " << sizeof(EdgeDataType)
-                        << "-byte edge data. " << std::endl;
+            << "-byte edge data. " << std::endl;
             
             /* If number of shards is unspecified - discover */
             if (nshards < 1) {
@@ -160,8 +160,11 @@ namespace graphchi {
             modifies_outedges = true;
             modifies_inedges = true;
             only_adjacency = false;
+            blocksize = get_option_long("blocksize", 4096 * 1024);
+            while (blocksize % sizeof(EdgeDataType) != 0) blocksize++;
+            
             disable_vertexdata_storage = false;
-            blocksize = get_option_long("blocksize", 1024 * 1024);
+
             membudget_mb = get_option_int("membudget_mb", 1024);
             nupdates = 0;
             iter = 0;
@@ -211,9 +214,9 @@ namespace graphchi {
         }
         
         /**
-          * Try to find suitable shards by trying with different
-          * shard numbers. Looks up to shard number 2000.
-          */
+         * Try to find suitable shards by trying with different
+         * shard numbers. Looks up to shard number 2000.
+         */
         int discover_shard_num() {
             int _nshards = find_shards<EdgeDataType>(base_filename);
             if (_nshards == 0) {
@@ -224,7 +227,7 @@ namespace graphchi {
             }
             return _nshards;
         }
-       
+        
         
         virtual void initialize_sliding_shards() {
             assert(sliding_shards.size() == 0);
@@ -233,20 +236,20 @@ namespace graphchi {
                 std::string adj_filename = filename_shard_adj(base_filename, p, nshards);
                 
                 /* Let the IO manager know that we will be reading these files, and 
-                   it should decide whether to preload them or not.
-                  */
+                 it should decide whether to preload them or not.
+                 */
                 iomgr->allow_preloading(edata_filename);
                 iomgr->allow_preloading(adj_filename);
                 
                 sliding_shards.push_back(
-                   new slidingshard_t(iomgr, edata_filename, 
-                                      adj_filename,
-                                      intervals[p].first, 
-                                      intervals[p].second, 
-                                      blocksize, 
-                                      m, 
-                                      !modifies_outedges, 
-                                      only_adjacency));
+                                         new slidingshard_t(iomgr, edata_filename, 
+                                                            adj_filename,
+                                                            intervals[p].first, 
+                                                            intervals[p].second, 
+                                                            blocksize, 
+                                                            m, 
+                                                            !modifies_outedges, 
+                                                            only_adjacency));
                 if (!only_adjacency) 
                     nedges += sliding_shards[sliding_shards.size() - 1]->num_edges();
             }
@@ -262,7 +265,15 @@ namespace graphchi {
             }
         }
         
-  
+        /**
+         * If the data is only in one shard, we can just
+         * keep running from memory.
+         */
+        bool is_inmemory_mode() {
+            return nshards == 1;
+        }
+        
+        
         
         /**
          * Extends the window to fill the memory budget, but not over maxvid
@@ -271,45 +282,52 @@ namespace graphchi {
             /* Load degrees */
             degree_handler->load(fromvid, maxvid);
             
-            size_t memreq = 0;
-            int max_interval = maxvid - fromvid;
-            for(int i=0; i < max_interval; i++) {
-                degree deg = degree_handler->get_degree(fromvid + i);
-                int inc = deg.indegree;
-                int outc = deg.outdegree;
-                
-                // Raw data and object cost included
-                memreq += sizeof(svertex_t) + (sizeof(EdgeDataType) + sizeof(vid_t) + sizeof(graphchi_edge<EdgeDataType>))*(outc + inc);
-                if (memreq > membudget) {
-                    logstream(LOG_DEBUG) << "Memory budget exceeded with " << memreq << " bytes." << std::endl;
-                    return fromvid + i - 1;  // Previous was enough
+            /* If is in-memory-mode, memory budget is not considered. */
+            if (is_inmemory_mode()) {
+                return maxvid;
+            } else {
+                size_t memreq = 0;
+                int max_interval = maxvid - fromvid;
+                for(int i=0; i < max_interval; i++) {
+                    degree deg = degree_handler->get_degree(fromvid + i);
+                    int inc = deg.indegree;
+                    int outc = deg.outdegree;
+                    
+                    // Raw data and object cost included
+                    memreq += sizeof(svertex_t) + (sizeof(EdgeDataType) + sizeof(vid_t) + sizeof(graphchi_edge<EdgeDataType>))*(outc + inc);
+                    if (memreq > membudget) {
+                        logstream(LOG_DEBUG) << "Memory budget exceeded with " << memreq << " bytes." << std::endl;
+                        return fromvid + i - 1;  // Previous was enough
+                    }
                 }
+                return maxvid;
             }
-            return maxvid;
         }
         
         /** 
          * Calculates the exact number of edges
          * required to load in the subinterval.
          */
-        size_t num_edges_subinterval(vid_t st, vid_t en) {
-            size_t num_edges = 0;
+        size_t num_edges_subinterval(vid_t st, vid_t en, size_t & num_inedges, size_t & num_outedges) {
+            num_inedges = num_outedges = 0;
             int nvertices = en - st + 1;
             if (scheduler != NULL) {
                 for(int i=0; i < nvertices; i++) {
                     bool is_sched = scheduler->is_scheduled(st + i);
                     if (is_sched) {
                         degree d = degree_handler->get_degree(st + i);
-                        num_edges += d.indegree * store_inedges + d.outdegree;
+                        num_inedges += d.indegree * store_inedges;
+                        num_outedges += d.outdegree;
                     }
                 }
             } else {
                 for(int i=0; i < nvertices; i++) {
                     degree d = degree_handler->get_degree(st + i);
-                    num_edges += d.indegree * store_inedges + d.outdegree;
+                    num_inedges += d.indegree * store_inedges;
+                    num_outedges += d.outdegree;
                 }
             }
-            return num_edges;
+            return num_inedges + num_outedges;
         }
         
         virtual void load_before_updates(std::vector<svertex_t> &vertices) {
@@ -324,6 +342,9 @@ namespace graphchi {
                     
                     /* Load vertex edges from memory shard */
                     memoryshard->load_vertices(sub_interval_st, sub_interval_en, vertices);
+                    
+                    /* Load vertices */ 
+                    vertex_data_handler->load(sub_interval_st, sub_interval_en);
 
                     /* Load vertices */
                     if (!disable_vertexdata_storage) {
@@ -344,7 +365,7 @@ namespace graphchi {
         }
         
         void exec_updates(GraphChiProgram<VertexDataType, EdgeDataType, svertex_t> &userprogram,
-                            std::vector<svertex_t> &vertices) {
+                          std::vector<svertex_t> &vertices) {
             metrics_entry me = m.start_time();
             size_t nvertices = vertices.size();
             if (!enable_deterministic_parallelism) {
@@ -390,38 +411,86 @@ namespace graphchi {
             m.stop_time(me, "execute-updates");
         }
         
-        virtual void init_vertices(std::vector<svertex_t> &vertices, graphchi_edge<EdgeDataType> * &edata) {
+        /** Special method for running all iteration with the same vertex-vector. 
+         This is a hacky solution. **/
+        void exec_updates_inmemory_mode(GraphChiProgram<VertexDataType, EdgeDataType, svertex_t> &userprogram,
+                                        std::vector<svertex_t> &vertices) {
+            for(iter=0; iter<niters; iter++) {
+                logstream(LOG_INFO) << "In-memory mode: Iteration " << iter << " starts." << std::endl;
+                chicontext.iteration = iter;
+                userprogram.before_iteration(iter, chicontext);
+                userprogram.before_exec_interval(0, (int)num_vertices(), chicontext);
+                
+                if (iter > 0) { // Hack
+                    if (use_selective_scheduling) {
+                        if (!scheduler->has_new_tasks) {
+                            logstream(LOG_INFO) << "No new tasks to run!" << std::endl;
+                            break;
+                        }
+                        for(int i=0; i < (int)vertices.size(); i++) {
+                            if (scheduler->is_scheduled(i)) {
+                                vertices[i].scheduled =  true;
+                                nupdates++;
+                                work += vertices[i].inc + vertices[i].outc;
+                            } else {
+                                vertices[i].scheduled = false;
+                            }
+                        }
+                        
+                        scheduler->has_new_tasks = false; // Kind of misleading since scheduler may still have tasks - but no new tasks.
+                        scheduler->remove_tasks(0, (int)num_vertices());
+                    } else {
+                        nupdates += num_vertices();
+                        work += num_edges();
+                    }
+                }
+                exec_updates(userprogram, vertices);
+                load_after_updates(vertices);
+                
+                userprogram.after_exec_interval(0, (int)num_vertices(), chicontext);
+                userprogram.after_iteration(iter, chicontext);
+            }
+        }
+        
+        virtual void init_vertices(std::vector<svertex_t> &vertices, graphchi_edge<EdgeDataType> * &in_edata
+                                   , graphchi_edge<EdgeDataType> * &out_edata) {
             size_t nvertices = vertices.size();
             
             /* Compute number of edges */
-            size_t num_edges = num_edges_subinterval(sub_interval_st, sub_interval_en);
+            size_t num_inedges, num_outedges;
+            size_t num_edges = num_edges_subinterval(sub_interval_st, sub_interval_en, num_inedges, num_outedges);
             
             /* Allocate edge buffer */
-            edata = (graphchi_edge<EdgeDataType>*) malloc(num_edges * sizeof(graphchi_edge<EdgeDataType>));
+            in_edata = (graphchi_edge<EdgeDataType>*) malloc(num_inedges * sizeof(graphchi_edge<EdgeDataType>));
+            out_edata = (graphchi_edge<EdgeDataType>*) malloc(num_outedges * sizeof(graphchi_edge<EdgeDataType>));
             
             /* Assign vertex edge array pointers */
-            size_t ecounter = 0;
+            size_t inecounter = 0, outecounter = 0;
             for(int i=0; i < (int)nvertices; i++) {
                 degree d = degree_handler->get_degree(sub_interval_st + i);
                 int inc = d.indegree;
                 int outc = d.outdegree;
-                vertices[i] = svertex_t(sub_interval_st + i, &edata[ecounter], 
-                                        &edata[ecounter + inc * store_inedges], inc, outc);
+                vertices[i] = svertex_t(sub_interval_st + i, &in_edata[inecounter], 
+                                        &out_edata[outecounter], inc, outc);
                 if (scheduler != NULL) {
                     bool is_sched = scheduler->is_scheduled(sub_interval_st + i);
                     if (is_sched) {
                         vertices[i].scheduled =  true;
                         nupdates++;
-                        ecounter += inc * store_inedges + outc;
+                        inecounter += inc * store_inedges;
+                        outecounter += outc;
                     }
                 } else {
                     nupdates++; 
                     vertices[i].scheduled =  true;
-                    ecounter += inc * store_inedges + outc;
+                    inecounter += inc * store_inedges;
+                    outecounter += outc;                
                 }
             }                   
-            work += ecounter;
-            assert(ecounter <= num_edges);
+            work += num_inedges + num_outedges;
+            assert(inecounter <= num_inedges);
+            assert(outecounter <=  num_outedges);
+            assert(num_edges == num_inedges + num_outedges);
         }
         
         
@@ -459,15 +528,15 @@ namespace graphchi {
         }
         
         /**
-          * Returns first vertex of i'th interval.
-          */
+         * Returns first vertex of i'th interval.
+         */
         vid_t get_interval_start(int i) {
             return get_interval(i).first;
         }
         
         /** 
-          * Returns last vertex (inclusive) of i'th interval.
-          */
+         * Returns last vertex (inclusive) of i'th interval.
+         */
         vid_t get_interval_end(int i) {
             return get_interval(i).second;
         }
@@ -489,8 +558,8 @@ namespace graphchi {
         }
         
         /**
-          * Thread-safe version of num_edges
-          */
+         * Thread-safe version of num_edges
+         */
         virtual size_t num_edges_safe() {
             return num_edges();
         }
@@ -500,8 +569,8 @@ namespace graphchi {
         }
         
         /** 
-          * Counts the number of edges from shard sizes.
-          */
+         * Counts the number of edges from shard sizes.
+         */
         virtual size_t num_edges() {
             if (sliding_shards.size() == 0) {
                 logstream(LOG_ERROR) << "engine.num_edges() can be called only after engine has been started. To be fixed later. As a workaround, put the engine into a global variable, and query the number afterwards in begin_iteration(), for example." << std::endl;
@@ -540,11 +609,12 @@ namespace graphchi {
         
         virtual memshard_t * create_memshard(vid_t interval_st, vid_t interval_en) {
             return new memshard_t(this->iomgr,
-                           filename_shard_edata<EdgeDataType>(base_filename, exec_interval, nshards),  
-                           filename_shard_adj(base_filename, exec_interval, nshards),  
-                           interval_st, 
-                           interval_en,
-                           m);
+                                  filename_shard_edata<EdgeDataType>(base_filename, exec_interval, nshards),  
+                                  filename_shard_adj(base_filename, exec_interval, nshards),  
+                                  interval_st, 
+                                  interval_en,
+                                  blocksize,
+                                  m);
         }
         
         /**
@@ -555,7 +625,7 @@ namespace graphchi {
         void run(GraphChiProgram<VertexDataType, EdgeDataType, svertex_t> &userprogram, int _niters) {
             m.start_time("runtime");
             degree_handler = create_degree_handler();
-
+            
             niters = _niters;
             logstream(LOG_INFO) << "GraphChi starting" << std::endl;
             logstream(LOG_INFO) << "Licensed under the Apache License 2.0" << std::endl;
@@ -564,7 +634,7 @@ namespace graphchi {
             
             vertex_data_handler = new vertex_data_store<VertexDataType>(base_filename, num_vertices(), iomgr);
             initialize_before_run();
-
+            
             
             /* Setup */
             initialize_sliding_shards();
@@ -572,7 +642,7 @@ namespace graphchi {
             omp_set_nested(1);
             
             /* Install a 'mock'-scheduler to chicontext if scheduler
-               is not used. */
+             is not used. */
             chicontext.scheduler = scheduler;
             if (scheduler == NULL) {
                 chicontext.scheduler = new non_scheduler();
@@ -604,7 +674,8 @@ namespace graphchi {
                 chicontext.reset_deltas(exec_threads);
                 
                 /* Call iteration-begin event handler */
-                userprogram.before_iteration(iter, chicontext);
+                if (!is_inmemory_mode())  // Run sepately
+                    userprogram.before_iteration(iter, chicontext);
                 
                 /* Check scheduler. If no scheduled tasks, terminate. */
                 if (use_selective_scheduling) {
@@ -624,7 +695,7 @@ namespace graphchi {
                     vid_t interval_en = get_interval_end(exec_interval);
                     
                     userprogram.before_exec_interval(interval_st, interval_en, chicontext);
-
+                    
                     /* Flush stream shard for the exec interval */
                     sliding_shards[exec_interval]->flush();
                     iomgr->wait_for_writes(); // Actually we would need to only wait for         writes of given shard. TODO.
@@ -634,10 +705,9 @@ namespace graphchi {
                     memoryshard = create_memshard(interval_st, interval_en);
                     memoryshard->only_adjacency = only_adjacency;
                     
-                    
                     sub_interval_st = interval_st;
                     logstream(LOG_INFO) << chicontext.runtime() << "s: Starting: " 
-                        << sub_interval_st << " -- " << interval_en << std::endl;
+                    << sub_interval_st << " -- " << interval_en << std::endl;
                     
                     while (sub_interval_st <= interval_en) {
                         
@@ -661,10 +731,12 @@ namespace graphchi {
                         
                         /* Initialize vertices */
                         int nvertices = sub_interval_en - sub_interval_st + 1;
-                        graphchi_edge<EdgeDataType> * edata = NULL;
+                        graphchi_edge<EdgeDataType> * inedge_data = NULL;
+                        graphchi_edge<EdgeDataType> * outedge_data = NULL;
+                        
                         std::vector<svertex_t> vertices(nvertices, svertex_t());
-                        init_vertices(vertices, edata);                        
-                    
+                        init_vertices(vertices, inedge_data, outedge_data);                        
+                        
                         /* Now clear scheduler bits for the interval */
                         if (scheduler != NULL)
                             scheduler->remove_tasks(sub_interval_st, sub_interval_en);
@@ -676,42 +748,51 @@ namespace graphchi {
                         
                         logstream(LOG_INFO) << "Start updates" << std::endl;
                         /* Execute updates */
-                        exec_updates(userprogram, vertices);
+                        if (!is_inmemory_mode()) {
+                            exec_updates(userprogram, vertices);
+                            /* Load phase after updates (used by the functional engine) */
+                            load_after_updates(vertices);
+                        } else {
+                            exec_updates_inmemory_mode(userprogram, vertices); 
+                        }
                         logstream(LOG_INFO) << "Finished updates" << std::endl;
                         
-                        /* Load phase after updates (used by the functional engine) */
-                        load_after_updates(vertices);
+                        
                         
                         /* Save vertices */
                         if (!disable_vertexdata_storage) {
                             save_vertices(vertices);
                         }
-                        
                         sub_interval_st = sub_interval_en + 1;
                         
                         /* Delete edge buffer. TODO: reuse. */
-                        if (edata != NULL) {
-                            delete edata;
-                            edata = NULL;
+                        if (inedge_data != NULL) {
+                            delete inedge_data;
+                            inedge_data = NULL;
+                        }
+                        if (outedge_data != NULL) {
+                            delete outedge_data;
+                            outedge_data = NULL;
                         }
                     } // while subintervals
-                 
-                    if (memoryshard->loaded()) {
+                    
+                    if (memoryshard->loaded() && !is_inmemory_mode()) {
                         logstream(LOG_INFO) << "Commit memshard" << std::endl;
-
+                        
                         memoryshard->commit(modifies_inedges);
                         sliding_shards[exec_interval]->set_offset(memoryshard->offset_for_stream_cont(), memoryshard->offset_vid_for_stream_cont(),
-                                                          memoryshard->edata_ptr_for_stream_cont());
+                                                                  memoryshard->edata_ptr_for_stream_cont());
                         
                         delete memoryshard;
                         memoryshard = NULL;
                     }     
-                   
+                    
                     userprogram.after_exec_interval(interval_st, interval_en, chicontext);
                 } // For exec_interval
                 
-                userprogram.after_iteration(iter, chicontext);
-
+                if (!is_inmemory_mode())  // Run sepately
+                    userprogram.after_iteration(iter, chicontext);
+                
                 
                 /* Move the sliding shard of the current interval to correct position and flush
                  writes of all shards for next iteration. */
@@ -736,7 +817,7 @@ namespace graphchi {
             iomgr->commit_preloaded();
             
             m.stop_time("runtime");
-
+            
             m.set("updates", nupdates);
             m.set("work", work);
             m.set("nvertices", num_vertices());
@@ -750,7 +831,7 @@ namespace graphchi {
         virtual void iteration_finished() {
             // Do nothing
         }
-       
+        
         stripedio * get_iomanager() {
             return iomgr;
         }
@@ -851,8 +932,8 @@ namespace graphchi {
     public:
         
         /**
-          * HTTP admin management
-          */
+         * HTTP admin management
+         */
         
         void set_json(std::string key, std::string value) {
             httplock.lock();
@@ -896,7 +977,7 @@ namespace graphchi {
             json << "}";
             return json.str();
         }
-
+        
     };
     
     

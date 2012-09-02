@@ -33,6 +33,7 @@
 #ifndef GRAPHCHI_FILENAMES_DEF
 #define GRAPHCHI_FILENAMES_DEF
 
+#include <fstream>
 #include <fcntl.h>
 #include <string>
 #include <sstream>
@@ -88,6 +89,40 @@ namespace graphchi {
         return ss.str();
     }
     
+    
+    
+    
+    static std::string dirname_shard_edata_block(std::string edata_shardname, size_t blocksize) {
+        std::stringstream ss;
+        ss << edata_shardname;
+        ss << "_blockdir_" << blocksize;
+        return ss.str();
+    }
+    
+    template <typename EdgeDataType>
+    static size_t get_shard_edata_filesize(std::string edata_shardname) {
+        size_t fsize;
+        std::string fname = edata_shardname + ".size";
+        std::ifstream ifs(fname.c_str());
+        if (!ifs.good()) {
+            logstream(LOG_FATAL) << "Could not load " << fname << ". Preprocessing forgotten?" << std::endl;
+            assert(ifs.good());
+        }
+        ifs >> fsize;
+        ifs.close();
+        return fsize;
+    }
+
+    
+    static std::string filename_shard_edata_block(std::string edata_shardname, int blockid, size_t blocksize) {
+        std::stringstream ss;
+        ss << dirname_shard_edata_block(edata_shardname, blocksize);
+        ss << "/";
+        ss << blockid;
+        return ss.str();
+    }
+
+    
     static std::string filename_shard_adj(std::string basefilename, int p, int nshards) {
         std::stringstream ss;
         ss << basefilename;
@@ -124,8 +159,8 @@ namespace graphchi {
     }
     
     
-    bool shard_file_exists(std::string sname);
-    bool shard_file_exists(std::string sname) {
+    static bool shard_file_exists(std::string sname);
+    static bool shard_file_exists(std::string sname) {
         int tryf = open(sname.c_str(), O_RDONLY);
         if (tryf < 0) {
             return false;
@@ -153,11 +188,13 @@ namespace graphchi {
         if (start_num > 0) {
             last_shard_num = start_num;
         }
+        size_t blocksize = 4096 * 1024;
+        while (blocksize % sizeof(EdgeDataType) != 0) blocksize++;
         
         for(try_shard_num=start_num; try_shard_num <= last_shard_num; try_shard_num++) {
             std::string last_shard_name = filename_shard_edata<EdgeDataType>(base_filename, try_shard_num - 1, try_shard_num);
-            
-            int tryf = open(last_shard_name.c_str(), O_RDONLY);
+            std::string last_block_name = filename_shard_edata_block(last_shard_name, 0, blocksize);
+            int tryf = open(last_block_name.c_str(), O_RDONLY);
             if (tryf >= 0) {
                 // Found!
                 close(tryf);
@@ -167,9 +204,10 @@ namespace graphchi {
                 
                 // Validate all relevant files exists
                 for(int p=0; p < nshards_candidate; p++) {
-                    std::string sname = filename_shard_edata<EdgeDataType>(base_filename, p, nshards_candidate);
+                    std::string sname = filename_shard_edata_block(
+                            filename_shard_edata<EdgeDataType>(base_filename, p, nshards_candidate), 0, blocksize);
                     if (!shard_file_exists(sname)) {
-                        logstream(LOG_DEBUG) << "Missing shard file: " << sname << std::endl;
+                        logstream(LOG_DEBUG) << "Missing directory file: " << sname << std::endl;
                         success = false;
                         break;
                     }

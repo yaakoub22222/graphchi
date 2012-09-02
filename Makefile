@@ -16,6 +16,9 @@ clean:
 	@rm -rf bin/*
 	cd toolkits/collaborative_filtering/; make clean; cd ../../
 
+blocksplitter: src/preprocessing/blocksplitter.cpp $(HEADERS)
+	$(CPP) $(CPPFLAGS) src/preprocessing/blocksplitter.cpp -o bin/blocksplitter
+
 sharder_basic: src/preprocessing/sharder_basic.cpp $(HEADERS)
 	$(CPP) $(CPPFLAGS) src/preprocessing/sharder_basic.cpp -o bin/sharder_basic
 

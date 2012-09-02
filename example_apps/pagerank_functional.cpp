@@ -37,13 +37,13 @@
 #include <fstream>
 #include <cmath>
 
-#include "util/cmdopts.hpp"
-#include "api/graphchi_context.hpp"
-#include "api/graph_objects.hpp"
-#include "api/ischeduler.hpp"
+#include "graphchi_basic_includes.hpp"
 #include "api/functional/functional_api.hpp"
+<<<<<<< local
+=======
 #include "graphchi_basic_includes.hpp"
 
+>>>>>>> other
 #include "util/toplist.hpp"
 
 using namespace graphchi;

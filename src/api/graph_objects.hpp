@@ -80,7 +80,7 @@ namespace graphchi {
         }
         
  
-    };
+    }  __attribute__((packed));
     
     template <typename ET>
     bool eptr_less(const graphchi_edge<ET> &a, const graphchi_edge<ET> &b) {
@@ -221,14 +221,14 @@ namespace graphchi {
                 return;
             }
 #endif
-            if (inedges_ptr != NULL) inedges_ptr[inc] = graphchi_edge<EdgeDataType>(src, ptr);
-            inc++;
-
+            if (inedges_ptr != NULL) 
+                inedges_ptr[inc] = graphchi_edge<EdgeDataType>(src, ptr);
+            inc++;  // Note: do not move inside the brackets, since we need to still keep track of inc even if inedgeptr is null!
             assert(src != vertexid);
-            if(inedges_ptr != NULL && inc > outedges_ptr - inedges_ptr) {
+          /*  if(inedges_ptr != NULL && inc > outedges_ptr - inedges_ptr) {
                 logstream(LOG_FATAL) << "Tried to add more in-edges as the stored in-degree of this vertex (" << src << "). Perhaps a preprocessing step had failed?" << std::endl;
                 assert(inc <= outedges_ptr - inedges_ptr);
-            }
+            } */  // Deleted, since does not work when we have separate in-edge and out-edge arrays
         }
         
         inline void add_outedge(vid_t dst, EdgeDataType * ptr, bool special_edge) {
