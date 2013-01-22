@@ -192,7 +192,7 @@ namespace graphchi {
             std::string dirname = dirname_shard_edata_block(dstfile, base_engine::blocksize);
             mkdir(dirname.c_str(), 0777);
             size_t edatasize = get_shard_edata_filesize<EdgeDataType>(origfile);
-            int nblocks = (edatasize / base_engine::blocksize) + (edatasize % base_engine::blocksize == 0 ? 0 : 1);
+            int nblocks = (int) ((edatasize / base_engine::blocksize) + (edatasize % base_engine::blocksize == 0 ? 0 : 1));
             for(int i=0; i < nblocks; i++) {
                 std::string origblockname = filename_shard_edata_block(origfile, i, base_engine::blocksize);
                 std::string dstblockname = filename_shard_edata_block(dstfile, i, base_engine::blocksize);
@@ -894,6 +894,12 @@ namespace graphchi {
                 this->sliding_shards.clear();
                 shardlock.unlock();
             }
+            /* Write meta-file with the number of vertices */
+            std::string numv_filename = base_engine::base_filename + ".numvertices";
+            FILE * f = fopen(numv_filename.c_str(), "w");
+            fprintf(f, "%lu\n", base_engine::num_vertices());
+            fclose(f);
+            
             init_buffers();
             this->modification_lock.unlock();
         }
@@ -912,7 +918,7 @@ namespace graphchi {
         
         template <typename T>
         void edata_flush(char * buf, char * bufptr, std::string & shard_filename, size_t totbytes) {
-            int blockid = (int) (totbytes - sizeof(T)) / base_engine::blocksize;
+            int blockid = (int) ((totbytes - sizeof(T)) / base_engine::blocksize);
             int len = (int) (bufptr - buf);
             assert(len <= (int)base_engine::blocksize);
             
