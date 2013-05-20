@@ -68,13 +68,12 @@ struct bidirectional_component_weight {
     
 };
 
-namespace graphchi {
 static void parse(bidirectional_component_weight &x, const char * s) {
     x.smaller_component = MAX_VIDT;
     x.larger_component = MAX_VIDT;
     x.in_mst = false;
     x.weight = (float) atof(s);
-}
+    std::cout << x.weight << std::endl;
 }
 
 
@@ -140,7 +139,7 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         }
         
         /* Set component ids and schedule neighbors */
-        if (min_component_id != vertex.id()) {
+        if (min_component_id != vertex.get_data()) {
             vertex.set_data(min_component_id);    
             for(int i=0; i < vertex.num_edges(); i++) {
                 graphchi_edge<EdgeDataType> * e = vertex.edge(i);
@@ -185,7 +184,7 @@ int main(int argc, const char ** argv) {
     
     /* Metrics object for keeping track of performance counters
      and other information. Currently required. */
-    metrics m("minimum-spnaning-forest");
+    metrics m("minimum-spanning-forest");
     
     /* Basic arguments for application */
     std::string filename = get_option_string("file");  // Base filename
@@ -193,8 +192,10 @@ int main(int argc, const char ** argv) {
     bool scheduler       = true; // Whether to use selective scheduling
     
     /* Detect the number of shards or preprocess an input to create them */
-    bool preexisting_shards;
-    int nshards          = convert_if_notexists<vid_t>(filename, get_option_string("nshards", "auto"), preexisting_shards);
+    int nshards          = get_option_int("nshards", 10);
+    delete_shards<EdgeDataType>(filename, nshards);
+
+    convert_if_notexists<EdgeDataType>(filename, get_option_string("nshards", "10"));
     
     /* Initialize output */
     basic_text_output<VertexDataType, EdgeDataType> mstout(filename + ".mst", "\t");
@@ -206,10 +207,7 @@ int main(int argc, const char ** argv) {
     gengine = &engine;
     
     MST_OUTPUT = engine.add_output(&mstout);
-    
-    if (preexisting_shards) {
-        engine.reinitialize_edge_data(bidirectional_component_weight());
-    }
+ 
     engine.run(boruvska, niters);
     
     /* Report execution metrics */
