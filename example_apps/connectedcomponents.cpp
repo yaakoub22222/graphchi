@@ -164,14 +164,7 @@ int main(int argc, const char ** argv) {
         graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m); 
         engine.run(program, niters);
     }
-    
-    /* Run analysis of the connected components  (output is written to a file) */
-    m.start_time("label-analysis");
-    
-    analyze_labels<vid_t>(filename);
-    
-    m.stop_time("label-analysis");
-    
+     
     /* Report execution metrics */
     metrics_report(m);
     return 0;

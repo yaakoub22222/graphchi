@@ -39,6 +39,7 @@
 
 #include "graphchi_types.hpp"
 #include "api/ischeduler.hpp"
+#include "output/output.hpp"
 
 namespace graphchi {
     
@@ -57,6 +58,7 @@ namespace graphchi {
         std::string filename;
         double last_deltasum;
         
+         
         graphchi_context() : scheduler(NULL), iteration(0), last_iteration(-1) {
             gettimeofday(&start, NULL);
             last_deltasum = 0.0;
@@ -67,6 +69,7 @@ namespace graphchi {
             gettimeofday(&end, NULL);
             return end.tv_sec-start.tv_sec+ ((double)(end.tv_usec-start.tv_usec))/1.0E6;
         }
+      
         
         /** 
           * Set a termination iteration.
@@ -103,6 +106,9 @@ namespace graphchi {
             assert(delta >= 0);
             assert(!isnan(delta)); /* Sanity check */
         }
+        
+        
+      
     };
     
 }

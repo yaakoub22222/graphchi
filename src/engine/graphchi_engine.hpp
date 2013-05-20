@@ -54,7 +54,7 @@
 #include "shards/memoryshard.hpp"
 #include "shards/slidingshard.hpp"
 #include "util/pthread_tools.hpp"
-
+#include "output/output.hpp"
 
 namespace graphchi {
     
@@ -117,6 +117,8 @@ namespace graphchi {
         
         bool reset_vertexdata;
         
+        /* Outputs */
+        std::vector<ioutput<VertexDataType, EdgeDataType> *> outputs;
         
         /* Metrics */
         metrics &m;
@@ -874,11 +876,18 @@ namespace graphchi {
             m.set("loadthreads", (size_t)load_threads);
 #ifndef GRAPHCHI_DISABLE_COMPRESSION
             m.set("compression", 1);
+#else
+            m.set("compression", 0);
 #endif
             
             m.set("scheduler", (size_t)use_selective_scheduling);
             m.set("niters", niters);
-            // Stop HTTP admin
+            
+            // Close outputs
+            for(int i=0; i<outputs.size(); i++) {
+                outputs[i]->close();
+            }   
+            outputs.clear();
         }
         
         virtual void iteration_finished() {
@@ -961,6 +970,21 @@ namespace graphchi {
             maxwindow = _maxwindow;
         }; 
         
+        
+        /* Outputs */
+        size_t add_output(ioutput<VertexDataType, EdgeDataType> * output) {
+            outputs.push_back(output);
+            return (outputs.size() - 1);
+        }
+         
+        ioutput<VertexDataType, EdgeDataType> * output(size_t idx) {
+            if (idx >= outputs.size()) {
+                logstream(LOG_FATAL) << "Tried to get output with index " << idx << ", but only " << outputs.size() << " outputs were initialized!" << std::endl;
+            }
+            assert(idx < outputs.size());
+            return outputs[idx];
+        }
+        
     protected:
               
         virtual void _load_vertex_intervals() {
@@ -984,7 +1008,7 @@ namespace graphchi {
                 std::string dirname = dirname_shard_edata_block(edatashardname, blocksize);
                 size_t edatasize = get_shard_edata_filesize<ET>(edatashardname);
                 logstream(LOG_INFO) << "Clearing data: " << edatashardname << " bytes: " << edatasize << std::endl;
-                int nblocks = (edatasize / blocksize) + (edatasize % blocksize == 0 ? 0 : 1);
+                int nblocks = (int) ((edatasize / blocksize) + (edatasize % blocksize == 0 ? 0 : 1));
                 for(int i=0; i < nblocks; i++) {
                     std::string block_filename = filename_shard_edata_block(edatashardname, i, blocksize);
                     int len = (int) std::min(edatasize - i * blocksize, blocksize);
