@@ -125,7 +125,9 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         if (gcontext.iteration == 0) {
             if (!vertex.edge(min_edge_idx)->get_data().in_mst) {
                 gengine->output(MST_OUTPUT)->output_edge(vertex.id(), vertex.edge(min_edge_idx)->vertex_id(), min_edge_weight);
-                vertex.edge(min_edge_idx)->get_data().in_mst = true;
+                bidirectional_component_weight edata = vertex.edge(min_edge_idx)->get_data();
+                edata.in_mst = true;
+                vertex.edge(min_edge_idx)->set_data(edata);
             }
         }
         
@@ -143,7 +145,9 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
             vertex.set_data(min_component_id);    
             for(int i=0; i < vertex.num_edges(); i++) {
                 graphchi_edge<EdgeDataType> * e = vertex.edge(i);
-                e->get_data().my_label(vertex.id(), e->vertex_id()) = min_component_id;
+                bidirectional_component_weight edata = e->get_data();
+                edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
+                e->set_data(edata);
                 if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
                     gcontext.scheduler->add_task(e->vertex_id());
                 }
