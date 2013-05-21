@@ -9,7 +9,7 @@
 		);
 		breakpoints = (
 			5FCC250915A392C70003D0E9 /* streaming_pagerank.cpp:267 */,
-			5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:207 */,
+			5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:241 */,
 			5FCB47A8174ACEFC0023D9D7 /* basic_dynamicengine_smoketest2.cpp:165 */,
 		);
 		codeSenseManager = 5F7A0FE21589160900748D0D /* Code sense */;
@@ -262,7 +262,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 890";
 		rLen = 0;
-		rLoc = 36659;
+		rLoc = 36781;
 		rType = 0;
 		vrLen = 1733;
 		vrLoc = 0;
@@ -272,7 +272,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 130";
 		rLen = 0;
-		rLoc = 3546;
+		rLoc = 3537;
 		rType = 0;
 		vrLen = 2440;
 		vrLoc = 2591;
@@ -282,7 +282,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 154";
 		rLen = 0;
-		rLoc = 4533;
+		rLoc = 4524;
 		rType = 0;
 		vrLen = 2595;
 		vrLoc = 2600;
@@ -302,7 +302,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 980";
 		rLen = 0;
-		rLoc = 39239;
+		rLoc = 39361;
 		rType = 0;
 		vrLen = 2964;
 		vrLoc = 38020;
@@ -312,7 +312,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 623";
 		rLen = 43;
-		rLoc = 24367;
+		rLoc = 24489;
 		rType = 0;
 		vrLen = 3965;
 		vrLoc = 30818;
@@ -392,7 +392,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 216";
 		rLen = 0;
-		rLoc = 6640;
+		rLoc = 7883;
 		rType = 0;
 		vrLen = 1951;
 		vrLoc = 5145;
@@ -402,7 +402,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 623";
 		rLen = 43;
-		rLoc = 24367;
+		rLoc = 24489;
 		rType = 0;
 		vrLen = 3966;
 		vrLoc = 30818;
@@ -412,7 +412,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2709;
 		vrLoc = 39133;
@@ -506,7 +506,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 151";
 		rLen = 0;
-		rLoc = 4668;
+		rLoc = 4659;
 		rType = 0;
 		vrLen = 1972;
 		vrLoc = 4896;
@@ -526,7 +526,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2750;
 		vrLoc = 39133;
@@ -626,7 +626,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2709;
 		vrLoc = 39133;
@@ -716,7 +716,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 153";
 		rLen = 0;
-		rLoc = 4632;
+		rLoc = 4623;
 		rType = 0;
 		vrLen = 2501;
 		vrLoc = 2893;
@@ -736,7 +736,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2750;
 		vrLoc = 39133;
@@ -857,7 +857,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 167";
 		rLen = 0;
-		rLoc = 5183;
+		rLoc = 5174;
 		rType = 0;
 		vrLen = 2475;
 		vrLoc = 3184;
@@ -938,7 +938,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2750;
 		vrLoc = 39133;
@@ -1038,7 +1038,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2709;
 		vrLoc = 39133;
@@ -1128,7 +1128,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 167";
 		rLen = 0;
-		rLoc = 5183;
+		rLoc = 5174;
 		rType = 0;
 		vrLen = 2461;
 		vrLoc = 3198;
@@ -1138,7 +1138,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 128";
 		rLen = 0;
-		rLoc = 3368;
+		rLoc = 3359;
 		rType = 0;
 		vrLen = 2498;
 		vrLoc = 3198;
@@ -1158,7 +1158,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2750;
 		vrLoc = 39133;
@@ -1242,7 +1242,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 180";
 		rLen = 0;
-		rLoc = 5659;
+		rLoc = 7071;
 		rType = 0;
 		vrLen = 2627;
 		vrLoc = 3855;
@@ -1302,7 +1302,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2750;
 		vrLoc = 39133;
@@ -1412,7 +1412,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 1036";
 		rLen = 20;
-		rLoc = 41548;
+		rLoc = 41670;
 		rType = 0;
 		vrLen = 2750;
 		vrLoc = 39133;
@@ -1674,9 +1674,9 @@
 		path = ../src/preprocessing/sharder.hpp;
 		sourceTree = "<group>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {938, 14560}}";
-			sepNavSelRange = "{42142, 0}";
-			sepNavVisRange = "{10053, 2499}";
+			sepNavIntBoundsRect = "{{0, 0}, {1132, 14365}}";
+			sepNavSelRange = "{44037, 0}";
+			sepNavVisRange = "{42433, 1654}";
 			sepNavWindowFrame = "{{750, 89}, {999, 976}}";
 		};
 	};
@@ -2024,9 +2024,9 @@
 	};
 	5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1094, 2665}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1094, 2821}}";
 			sepNavSelRange = "{5659, 0}";
-			sepNavVisRange = "{3855, 2627}";
+			sepNavVisRange = "{3855, 2694}";
 		};
 	};
 	5FCB46BB174AABEE0023D9D7 /* PBXBookmark */ = {
@@ -2111,7 +2111,7 @@
 		isa = PBXBookmark;
 		fRef = 5FCC1EBD1599F59A0003D0E9 /* application_template.cpp */;
 	};
-	5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:207 */ = {
+	5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:241 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -2123,7 +2123,7 @@
 		functionName = "main(int argc, const char ** argv)";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 207;
+		lineNumber = 241;
 		modificationTime = 390843780.997451;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
@@ -2169,7 +2169,7 @@
 		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 890";
 		rLen = 0;
-		rLoc = 36659;
+		rLoc = 36781;
 		rType = 0;
 		vrLen = 1595;
 		vrLoc = 0;
@@ -2355,7 +2355,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 199";
 		rLen = 0;
-		rLoc = 6322;
+		rLoc = 7680;
 		rType = 0;
 		vrLen = 1937;
 		vrLoc = 4643;
@@ -2379,7 +2379,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 130";
 		rLen = 0;
-		rLoc = 3546;
+		rLoc = 3537;
 		rType = 0;
 		vrLen = 2423;
 		vrLoc = 2600;
@@ -2439,7 +2439,7 @@
 		fRef = 5F3B0889158AC5520058A8B1 /* graphchi_engine.hpp */;
 		name = "graphchi_engine.hpp: 980";
 		rLen = 0;
-		rLoc = 39239;
+		rLoc = 39361;
 		rType = 0;
 		vrLen = 3078;
 		vrLoc = 38020;
