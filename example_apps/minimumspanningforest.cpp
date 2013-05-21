@@ -125,7 +125,6 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         // On first iteration output MST edges
         if (gcontext.iteration == 0) {
             if (!vertex.edge(min_edge_idx)->get_data().in_mst) {
-                gengine->output(MST_OUTPUT)->output_edge(vertex.id(), vertex.edge(min_edge_idx)->vertex_id(), min_edge_weight);
                 bidirectional_component_weight edata = vertex.edge(min_edge_idx)->get_data();
                 edata.in_mst = true;
                 vertex.edge(min_edge_idx)->set_data(edata);
@@ -167,23 +166,9 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         logstream(LOG_INFO) << "Start iteration " << iteration << ", scheduled tasks=" << gcontext.scheduler->num_tasks() << std::endl;
     }
     
-    /**
-     * Called after an iteration has finished.
-     */
-    void after_iteration(int iteration, graphchi_context &gcontext) {
-    }
-    
-    /**
-     * Called before an execution interval is started.
-     */
-    void before_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &gcontext) {        
-    }
-    
-    /**
-     * Called after an execution interval has finished.
-     */
-    void after_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &gcontext) {        
-    }
+    void after_iteration(int iteration, graphchi_context &gcontext) {}
+    void before_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &gcontext) {}
+    void after_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &gcontext) {}
     
 };
 
@@ -198,7 +183,7 @@ int main(int argc, const char ** argv) {
     
     /* Basic arguments for application */
     std::string filename = get_option_string("file");  // Base filename
-    int niters           = 100; // Number of iterations
+    int niters           = 3; // Number of iterations
     bool scheduler       = true; // Whether to use selective scheduling
     
     /* Detect the number of shards or preprocess an input to create them */

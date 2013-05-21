@@ -59,10 +59,14 @@
 #include "preprocessing/formats/binary_adjacency_list.hpp"
 #include "shards/memoryshard.hpp"
 #include "shards/slidingshard.hpp"
+#include "output/output.hpp"
 #include "util/ioutil.hpp"
 #include "util/qsort.hpp"
 
+
 namespace graphchi {
+    template <typename VT, typename ET> class sharded_graph_output;
+    
     
 #define SHARDER_BUFSIZE (64 * 1024 * 1024)
     
@@ -458,6 +462,29 @@ namespace graphchi {
             logstream(LOG_INFO) << "Computed intervals." << std::endl;
         }
         
+    public:
+        void set_intervals(std::vector< std::pair<vid_t, vid_t> > intv) {
+            intervals = intv;
+            nshards = intervals.size();
+            max_vertex_id = intervals[intervals.size() - 1].second;
+            
+            
+            std::string fname = filename_intervals(basefilename, nshards);
+            FILE * f = fopen(fname.c_str(), "w");
+            for(int i=0; i<intervals.size(); i++) {
+                fprintf(f, "%u\n", intervals[i].second);
+            }
+            fclose(f);
+            
+            /* Write meta-file with the number of vertices */
+            std::string numv_filename = basefilename + ".numvertices";
+            f = fopen(numv_filename.c_str(), "w");
+            fprintf(f, "%u\n", 1 + max_vertex_id);
+            fclose(f);
+        }
+        
+    protected:
+        
         void one_shard_intervals() {
             assert(nshards == 1);
             std::string fname = filename_intervals(basefilename, nshards);
@@ -481,6 +508,8 @@ namespace graphchi {
             ss << basefilename << shard << "." << nshards << ".shovel";
             return ss.str();
         }
+        
+    
         
         void start_phase(int p) {
             phase = p;
@@ -1005,8 +1034,76 @@ namespace graphchi {
 #endif
         
         friend class binary_adjacency_list_reader<EdgeDataType>;
+        template <typename A, typename B> friend class sharded_graph_output;
     }; // End class sharder
     
+    
+    /**
+     * Outputs new edges into a shard - can be used from an update function
+     */
+    template <typename VT, typename ET>
+    class sharded_graph_output : public ioutput<VT, ET> {
+        
+        sharder<ET> * sharderobj;
+        mutex lock;
+        
+    public:
+        sharded_graph_output(std::string filename, std::vector< std::pair<vid_t, vid_t> > intervals) {
+            sharderobj = new sharder<ET>(filename);
+            sharderobj->set_intervals(intervals);
+            sharderobj->start_phase(SHOVEL);
+        }
+        
+        ~sharded_graph_output() {
+            delete sharderobj;
+            sharderobj = NULL;
+        }
+        
+ 
+        
+    public:
+        void output_edge(vid_t from, vid_t to) {
+            assert(false); // Need to use the custom method
+        }
+        
+        
+        
+        
+        virtual void output_edge(vid_t from, vid_t to, float value) {
+            assert(false); // Need to use the custom method
+        }
+        
+        virtual void output_edge(vid_t from, vid_t to, double value) {
+            assert(false); // Need to use the custom method
+        }
+        
+        
+        virtual void output_edge(vid_t from, vid_t to, int value)  {
+            assert(false); // Need to use the custom method
+        }
+        
+        virtual void output_edge(vid_t from, vid_t to, size_t value)  {
+            assert(false); // Need to use the custom method
+        }
+        
+        void output_edge(vid_t from, vid_t to, ET value) {
+            sharderobj->receive_edge(from, to, value, true);
+        }
+        
+        void output_value(vid_t vid, VT value) {
+            assert(false);  // Not used here
+        }
+        
+    
+        void close() {
+            sharderobj->end_phase(SHOVEL);
+        }
+        
+        void finish_sharding() {
+            sharderobj->write_shards();
+        }
+        
+    };
     
 }; // namespace
 
