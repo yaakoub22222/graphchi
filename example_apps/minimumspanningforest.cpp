@@ -25,6 +25,7 @@
  * Minimum spanning forest based on Boruvska steps.
  */
 
+#define GRAPHCHI_DISABLE_COMPRESSION
 
 #include <string>
 
@@ -148,8 +149,12 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 bidirectional_component_weight edata = e->get_data();
                 edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
                 e->set_data(edata);
-                if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
-                    gcontext.scheduler->add_task(e->vertex_id());
+                 
+                /* Schedule neighbor is connected by MST edge and neighbor has not updated yet */
+                if (edata.in_mst) {
+                    if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
+                        gcontext.scheduler->add_task(e->vertex_id());
+                    }
                 }
             }
         }
@@ -159,6 +164,7 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
      * Called before an iteration starts.
      */
     void before_iteration(int iteration, graphchi_context &gcontext) {
+        logstream(LOG_INFO) << "Start iteration " << iteration << ", scheduled tasks=" << gcontext.scheduler->num_tasks() << std::endl;
     }
     
     /**
@@ -208,6 +214,7 @@ int main(int argc, const char ** argv) {
     /* Run boruvska step */
     BoruvskaStep boruvska ;
     graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m); 
+    engine.set_reset_vertexdata(true);
     gengine = &engine;
     
     MST_OUTPUT = engine.add_output(&mstout);
