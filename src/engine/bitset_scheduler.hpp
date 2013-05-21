@@ -71,6 +71,15 @@ namespace graphchi {
             has_new_tasks = true;
             bitset.setall();
         }
+        
+        size_t num_tasks() { 
+            size_t n = 0;
+            for(vid_t i=0; i < bitset.size(); i++) {
+                n += bitset.get(i);
+            }
+            return n;
+        }
+
     };
     
 }
