@@ -554,6 +554,10 @@ namespace graphchi {
         
     public:
         
+        virtual std::vector< std::pair<vid_t, vid_t> > get_intervals() {
+            return intervals;
+        }
+        
         virtual std::pair<vid_t, vid_t> get_interval(int i) {
             return intervals[i];
         }
