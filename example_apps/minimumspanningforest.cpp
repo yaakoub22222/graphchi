@@ -310,8 +310,9 @@ int main(int argc, const char ** argv) {
         engine.set_disable_vertexdata_storage();
         engine.run(contraction, 1);
         
-        shardedout.finish_sharding();
+        nshards = shardedout.finish_sharding();
         filename = contractedname;
+       
     }
     /* Report execution metrics */
     metrics_report(m);
