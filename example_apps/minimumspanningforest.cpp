@@ -86,6 +86,7 @@ static void parse(bidirectional_component_weight &x, const char * s) {
     x.larger_component = MAX_VIDT;
     x.in_mst = false;
     x.weight = (float) atof(s);
+    x.orig_dst = x.orig_src = 0;
 }
 
 
@@ -121,24 +122,33 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         double min_edge_weight = 1e30f;
         int min_edge_idx = 0;
         
-        // TODO: replace with reductions
-        /* Get minimum edge */
-        for(int i=0; i < vertex.num_edges(); i++) {
-            bidirectional_component_weight edata = vertex.edge(i)->get_data();
-
-            double w = edata.weight;
-            if (w < min_edge_weight) {
-                min_edge_idx = i;
-                min_edge_weight = w;
-            }
-            if (edata.orig_src == edata.orig_dst) {
-                edata.orig_src = vertex.id();
-                edata.orig_dst = vertex.edge(i)->vertex_id(); // Note: forgets direction
-            }
-        }
         
-        // On first iteration output MST edges
         if (gcontext.iteration == 0) {
+            // TODO: replace with reductions
+            /* Get minimum edge */
+            for(int i=0; i < vertex.num_edges(); i++) {
+                bidirectional_component_weight edata = vertex.edge(i)->get_data();
+
+                // Remember the original edge identity
+                if (edata.orig_src == edata.orig_dst) {
+                    edata.orig_src = vertex.id();
+                    edata.orig_dst = vertex.edge(i)->vertex_id(); // Note: forgets direction
+                    vertex.edge(i)->set_data(edata);
+                }
+                
+                
+                double w = edata.weight;
+                if (w < min_edge_weight || (w == min_edge_weight && edata.in_mst)) {  // Tie-breaking
+                    if (w == min_edge_weight) {
+                        std::cout << "EQUALS: " << w << std::endl;
+                    }
+                    min_edge_idx = i;
+                    min_edge_weight = w;
+                   
+                }
+          
+            }
+            
             if (!vertex.edge(min_edge_idx)->get_data().in_mst) {
                 bidirectional_component_weight edata = vertex.edge(min_edge_idx)->get_data();
                 edata.in_mst = true;
@@ -156,22 +166,22 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         }
         
         /* Set component ids and schedule neighbors */
-            for(int i=0; i < vertex.num_edges(); i++) {
-                graphchi_edge<EdgeDataType> * e = vertex.edge(i);
-                bidirectional_component_weight edata = e->get_data();
+        for(int i=0; i < vertex.num_edges(); i++) {
+            graphchi_edge<EdgeDataType> * e = vertex.edge(i);
+            bidirectional_component_weight edata = e->get_data();
+            
+            if (edata.my_label(vertex.id(), e->vertex_id()) != min_component_id) {
+                edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
+                e->set_data(edata);
                 
-                if (edata.my_label(vertex.id(), e->vertex_id()) != min_component_id) {
-                    edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
-                    e->set_data(edata);
-                    
-                    /* Schedule neighbor is connected by MST edge and neighbor has not updated yet */
-                    if (edata.in_mst) {
-                        if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
-                            gcontext.scheduler->add_task(e->vertex_id());
-                        }
+                /* Schedule neighbor is connected by MST edge and neighbor has not updated yet */
+                if (edata.in_mst) {
+                    if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
+                        gcontext.scheduler->add_task(e->vertex_id());
                     }
                 }
             }
+        }
     }
     
     /**
@@ -209,33 +219,47 @@ struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         }
         for(int i=0; i < vertex.num_edges(); i++) {
             graphchi_edge<EdgeDataType> * e = vertex.edge(i);
-
+            
             if (vertex.id() < e->vertex_id()) {
                 // Vertex with smaller id has responsibility of outputing the MST edge
                 // TODO: output original edge id
                 
                 bidirectional_component_weight edata = e->get_data();
                 
-                if (e->get_data().in_mst && edata.labels_agree()) {
+                if (e->get_data().in_mst) {
                     lock.lock();
                     totalMST += edata.weight;
                     lock.unlock();
-                    gengine->output(MST_OUTPUT)->output_edge(edata.orig_src, edata.orig_dst, edata.weight);
-                    
+                }
+                
+                if (e->get_data().in_mst && edata.labels_agree()) {
+                    if (edata.weight >= 0.0) {
+                   
+                        gengine->output(MST_OUTPUT)->output_edge(edata.orig_src, edata.orig_dst, edata.weight);
+                    }
                 } else if (!edata.labels_agree()) {
                     // Output the contracted edge
                     
                     vid_t a = edata.my_label(vertex.id(), e->vertex_id());
                     vid_t b = edata.neighbor_label(vertex.id(), e->vertex_id());
                     
-                    edata.in_mst = false;
-                    edata.smaller_component = edata.larger_component = MAX_VIDT;
+
+                    // NOTE: If in MST, we need to emit it but will set it to zero so it will be
+                    // picked up on next round for sure and the component is kept in-tact, but will
+                    // not affect the MST as it is zero weight.
+                    if (edata.in_mst) {
+                        if (edata.weight >= 0.0)
+                            gengine->output(MST_OUTPUT)->output_edge(edata.orig_src, edata.orig_dst, edata.weight);
+                        edata.weight = -1.0;
+                    }
                     
-                    // Vary in/out edge for balance (not sure if required)
+                    edata.smaller_component = MAX_VIDT;
+                    edata.larger_component = MAX_VIDT;
+                    
                     new_edges = true;
-                    gengine->output(CONTRACTED_GRAPH_OUTPUT)->output_edgeval(a % 2 == 0 ? a : b,
-                                                                          a % 2 == 0 ? b : a,
-                                                                          edata);
+                    gengine->output(CONTRACTED_GRAPH_OUTPUT)->output_edgeval(std::min(a, b),
+                                                                             std::max(a, b),
+                                                                             edata);
                 } else {
                     // Otherwise: discard the edge
                 }
@@ -270,7 +294,7 @@ std::vector< std::pair<vid_t, vid_t> > halve_intervals(std::vector< std::pair<vi
             newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j + 1].second));
         } else {
             newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j].second));
-
+            
         }
     }
     return newints;
@@ -305,6 +329,8 @@ int main(int argc, const char ** argv) {
         engine.set_disable_vertexdata_storage();
         gengine = &engine;
         engine.set_save_edgesfiles_after_inmemmode(true);
+        engine.set_modifies_inedges(true);
+        engine.set_modifies_outedges(true);
         engine.run(boruvska, nshards > 1 ? 3 : 1000); // Only 3 iterations when not in-memory (one shard), otherwise run only 3 iters
         
         
@@ -323,6 +349,8 @@ int main(int argc, const char ** argv) {
         ContractionStep contraction;
         engine.set_disable_vertexdata_storage();
         engine.run(contraction, 1);
+        engine.set_modifies_inedges(false);
+        engine.set_modifies_outedges(false);
         
         std::cout << "Total MST now: " << totalMST << std::endl;
         
@@ -333,7 +361,7 @@ int main(int argc, const char ** argv) {
         
         nshards = (int)shardedout.finish_sharding();
         filename = contractedname;
-       
+        
     }
     /* Report execution metrics */
     metrics_report(m);
