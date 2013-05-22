@@ -190,6 +190,11 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
 
 struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
     
+    bool new_edges;
+    
+    ContractionStep() {
+        new_edges = false;
+    }
     
     /**
      *  Vertex update function. Note: we assume fresh edge values.
@@ -213,13 +218,15 @@ struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
                     
                 } else if (!edata.labels_agree()) {
                     // Output the contracted edge
-                    edata.in_mst = false;
-                    edata.smaller_component = edata.larger_component = MAX_VIDT;
                     
                     vid_t a = edata.my_label(vertex.id(), e->vertex_id());
                     vid_t b = edata.neighbor_label(vertex.id(), e->vertex_id());
                     
+                    edata.in_mst = false;
+                    edata.smaller_component = edata.larger_component = MAX_VIDT;
+                    
                     // Vary in/out edge for balance (not sure if required)
+                    new_edges = true;
                     gengine->output(CONTRACTED_GRAPH_OUTPUT)->output_edge(a % 2 == 0 ? a : b,
                                                                           a % 2 == 0 ? b : a,
                                                                           edata);
@@ -292,7 +299,7 @@ int main(int argc, const char ** argv) {
         engine.set_disable_vertexdata_storage();
         gengine = &engine;
         
-        engine.run(boruvska, 3);
+        engine.run(boruvska, nshards > 1 ? 3 : 1000); // Only 3 iterations when not in-memory (one shard), otherwise run only 3 iters
         
         
         /* Step 2: Run contraction */
@@ -310,6 +317,11 @@ int main(int argc, const char ** argv) {
         ContractionStep contraction;
         engine.set_disable_vertexdata_storage();
         engine.run(contraction, 1);
+        
+        if (contraction.new_edges == false) {
+            logstream(LOG_INFO) << "MSF ready!" << std::endl;
+            break;
+        }
         
         nshards = shardedout.finish_sharding();
         filename = contractedname;
