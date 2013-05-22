@@ -228,7 +228,7 @@ struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 
                 if (e->get_data().in_mst) {
                     lock.lock();
-                    totalMST += edata.weight;
+                    if (edata.weight >= 0.0) totalMST += edata.weight;
                     lock.unlock();
                 }
                 
