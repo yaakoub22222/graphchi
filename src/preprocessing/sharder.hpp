@@ -72,6 +72,12 @@ namespace graphchi {
     
     enum ProcPhase  { COMPUTE_INTERVALS=1, SHOVEL=2 };
     
+    template <typename EdgeDataType>
+    class DuplicateEdgeFilter {
+    public:
+        virtual bool acceptFirst(EdgeDataType& first, EdgeDataType& second) = 0;
+    };
+    
     
     template <typename EdgeDataType>
     struct edge_with_value {
@@ -143,6 +149,8 @@ namespace graphchi {
         
         vid_t filter_max_vertex;
         
+        DuplicateEdgeFilter<EdgeDataType> * duplicate_edge_filter;
+        
         bool no_edgevalues;
 #ifdef DYNAMICEDATA
         edge_t last_added_edge;
@@ -161,7 +169,7 @@ namespace graphchi {
             filter_max_vertex = 0;
             while (compressed_block_size % sizeof(EdgeDataType) != 0) compressed_block_size++;
             edges_per_block = compressed_block_size / sizeof(EdgeDataType);
-
+            duplicate_edge_filter = NULL;
         }
         
         
@@ -169,6 +177,10 @@ namespace graphchi {
             if (preproc_writer != NULL) {
                 delete preproc_writer;
             }
+        }
+        
+        void set_duplicate_filter(DuplicateEdgeFilter<EdgeDataType> * filter) {
+            this->duplicate_edge_filter = filter;
         }
         
         void set_max_vertex_id(vid_t maxid) {
@@ -730,6 +742,30 @@ namespace graphchi {
                 
                 quickSort(shovelbuf, (int)numedges, edge_t_src_less<EdgeDataType>);
                 
+                // Remove duplicates
+                if (duplicate_edge_filter != NULL && numedges > 0) {
+                    edge_t * tmpbuf = (edge_t*) calloc(numedges, sizeof(edge_t));
+                    size_t i = 1;
+                    tmpbuf[0] = shovelbuf[0];
+                    for(size_t j=1; j<numedges; j++) {
+                        edge_t prev = tmpbuf[i - 1];
+                        edge_t cur = shovelbuf[j];
+                                                
+                        if (prev.src == cur.src && prev.dst == cur.dst) {
+                            if (duplicate_edge_filter->acceptFirst(cur.value, prev.value)) {
+                                // Replace the edge with the newer one
+                                tmpbuf[i - 1] = cur;
+                            }
+                        } else {
+                            tmpbuf[i++] = cur;
+                        }
+                    }
+                    numedges = i;
+                    logstream(LOG_DEBUG) << "After duplicate elimination: " << numedges << " edges" << std::endl;
+                    free(shovelbuf);
+                    shovelbuf = tmpbuf; tmpbuf = NULL;
+                }
+                
                 // Create the final file
                 int f = open(fname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
                 if (f < 0) {
@@ -1048,9 +1084,10 @@ namespace graphchi {
         mutex lock;
         
     public:
-        sharded_graph_output(std::string filename, std::vector< std::pair<vid_t, vid_t> > intervals) {
+        sharded_graph_output(std::string filename, std::vector< std::pair<vid_t, vid_t> > intervals, DuplicateEdgeFilter<ET> * filter = NULL) {
             sharderobj = new sharder<ET>(filename);
             sharderobj->set_intervals(intervals);
+            sharderobj->set_duplicate_filter(filter);
             sharderobj->start_phase(SHOVEL);
         }
         
@@ -1087,7 +1124,9 @@ namespace graphchi {
         }
         
         void output_edge(vid_t from, vid_t to, ET value) {
+            lock.lock();
             sharderobj->receive_edge(from, to, value, true);
+            lock.unlock();
         }
         
         void output_value(vid_t vid, VT value) {
@@ -1096,7 +1135,7 @@ namespace graphchi {
         
     
         void close() {
-            sharderobj->end_phase(SHOVEL);
+            sharderobj->end_phase();
         }
         
         void finish_sharding() {

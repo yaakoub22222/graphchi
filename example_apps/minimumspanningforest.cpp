@@ -7,13 +7,13 @@
  * @section LICENSE
  *
  * Copyright [2012] [Aapo Kyrola, Guy Blelloch, Carlos Guestrin / Carnegie Mellon University]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,6 +41,7 @@ using namespace graphchi;
 struct bidirectional_component_weight {
     vid_t smaller_component;
     vid_t larger_component;
+    vid_t orig_src, orig_dst;
     bool in_mst;
     float weight;
     
@@ -48,6 +49,7 @@ struct bidirectional_component_weight {
         smaller_component = larger_component = MAX_VIDT;
         in_mst = false;
         weight = 0.0f;
+        orig_src = orig_dst = 0;
     }
     
     
@@ -73,18 +75,23 @@ struct bidirectional_component_weight {
     
 };
 
+class AcceptMinimum : public DuplicateEdgeFilter<bidirectional_component_weight> {
+    bool acceptFirst(bidirectional_component_weight &first, bidirectional_component_weight &second) {
+        return (first.weight < second.weight);
+    }
+};
+
 static void parse(bidirectional_component_weight &x, const char * s) {
     x.smaller_component = MAX_VIDT;
     x.larger_component = MAX_VIDT;
     x.in_mst = false;
     x.weight = (float) atof(s);
-    std::cout << x.weight << std::endl;
 }
 
 
 /**
  * Type definitions. Remember to create suitable graph shards using the
- * Sharder-program. 
+ * Sharder-program.
  */
 typedef vid_t VertexDataType;
 typedef bidirectional_component_weight EdgeDataType;
@@ -96,7 +103,7 @@ size_t MST_OUTPUT;
 size_t CONTRACTED_GRAPH_OUTPUT;
 
 /**
- * GraphChi programs need to subclass GraphChiProgram<vertex-type, edge-type> 
+ * GraphChi programs need to subclass GraphChiProgram<vertex-type, edge-type>
  * class. The main logic is usually in the update function.
  */
 struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
@@ -117,10 +124,16 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         // TODO: replace with reductions
         /* Get minimum edge */
         for(int i=0; i < vertex.num_edges(); i++) {
-            float w = vertex.edge(i)->get_data().weight;
+            bidirectional_component_weight edata = vertex.edge(i)->get_data();
+
+            float w = edata.weight;
             if (w < min_edge_weight) {
                 min_edge_idx = i;
                 min_edge_weight = w;
+            }
+            if (edata.orig_src == edata.orig_dst) {
+                edata.orig_src = vertex.id();
+                edata.orig_dst = vertex.edge(i)->vertex_id(); // Note: forgets direction
             }
         }
         
@@ -143,22 +156,22 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         }
         
         /* Set component ids and schedule neighbors */
-        if (min_component_id != vertex.get_data()) {
-            vertex.set_data(min_component_id);    
             for(int i=0; i < vertex.num_edges(); i++) {
                 graphchi_edge<EdgeDataType> * e = vertex.edge(i);
                 bidirectional_component_weight edata = e->get_data();
-                edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
-                e->set_data(edata);
-                 
-                /* Schedule neighbor is connected by MST edge and neighbor has not updated yet */
-                if (edata.in_mst) {
-                    if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
-                        gcontext.scheduler->add_task(e->vertex_id());
+                
+                if (edata.my_label(vertex.id(), e->vertex_id()) != min_component_id) {
+                    edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
+                    e->set_data(edata);
+                    
+                    /* Schedule neighbor is connected by MST edge and neighbor has not updated yet */
+                    if (edata.in_mst) {
+                        if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
+                            gcontext.scheduler->add_task(e->vertex_id());
+                        }
                     }
                 }
             }
-        }
     }
     
     /**
@@ -175,7 +188,7 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
 };
 
 
-struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
+struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
     
     
     /**
@@ -184,17 +197,35 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
     void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
         
         if (vertex.num_edges() == 0) {
-            // Ugly
-            gengine->output(MST_OUTPUT)->output_edge(vertex.id(), vertex.id());
             return;
-        } 
-        
+        }
         for(int i=0; i < vertex.num_edges(); i++) {
             graphchi_edge<EdgeDataType> * e = vertex.edge(i);
-            bidirectional_component_weight edata = e->get_data();
 
-            if (e->get_data().in_mst && edata.labels_agree()) {
-                min_component_id = std::min(e->get_data().neighbor_label(vertex.id(), e->vertex_id()), min_component_id);
+            if (vertex.id() < e->vertex_id()) {
+                // Vertex with smaller id has responsibility of outputing the MST edge
+                // TODO: output original edge id
+                
+                bidirectional_component_weight edata = e->get_data();
+                
+                if (e->get_data().in_mst && edata.labels_agree()) {
+                    gengine->output(MST_OUTPUT)->output_edge(edata.orig_src, edata.orig_dst, edata.weight);
+                    
+                } else if (!edata.labels_agree()) {
+                    // Output the contracted edge
+                    edata.in_mst = false;
+                    edata.smaller_component = edata.larger_component = MAX_VIDT;
+                    
+                    vid_t a = edata.my_label(vertex.id(), e->vertex_id());
+                    vid_t b = edata.neighbor_label(vertex.id(), e->vertex_id());
+                    
+                    // Vary in/out edge for balance (not sure if required)
+                    gengine->output(CONTRACTED_GRAPH_OUTPUT)->output_edge(a % 2 == 0 ? a : b,
+                                                                          a % 2 == 0 ? b : a,
+                                                                          edata);
+                } else {
+                    // Otherwise: discard the edge
+                }
             }
         }
     }
@@ -212,9 +243,29 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
     
 };
 
+// As the number of edges is reduced every iteration by at least half, we can reduce the number
+// of shards by two as well.
+std::vector< std::pair<vid_t, vid_t> > halve_intervals(std::vector< std::pair<vid_t, vid_t> >  ints);
+std::vector< std::pair<vid_t, vid_t> > halve_intervals(std::vector< std::pair<vid_t, vid_t> >  ints) {
+    // Halve the intervals
+    if (ints.size() == 1) {
+        return ints;
+    }
+    std::vector< std::pair<vid_t, vid_t> > newints;
+    for(int j=0; j += 2; j < ints.size()) {
+        if (j < ints.size()) {
+            newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j + 1].second));
+        } else {
+            newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j].second));
+
+        }
+    }
+    return newints;
+}
+
 
 int main(int argc, const char ** argv) {
-    /* GraphChi initialization will read the command line 
+    /* GraphChi initialization will read the command line
      arguments and the configuration file. */
     graphchi_init(argc, argv);
     
@@ -229,30 +280,39 @@ int main(int argc, const char ** argv) {
     /* Detect the number of shards or preprocess an input to create them */
     int nshards          = get_option_int("nshards", 10);
     delete_shards<EdgeDataType>(filename, nshards);
-
+    
     convert_if_notexists<EdgeDataType>(filename, get_option_string("nshards", "10"));
     
-    /* Step 1: Run boruvska step */
-    BoruvskaStep boruvska ;
-    graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m); 
-    engine.set_reset_vertexdata(true);
-    gengine = &engine;
     
-    engine.run(boruvska, 3);
-    
-    
-    /* Step 2: Run contraction */
-    
-    /* Initialize output */
-    basic_text_output<VertexDataType, EdgeDataType> mstout(filename + ".mst", "\t");
-    sharded_graph_output<VertexDataType, EdgeDataType> shardedout(filename + "i0", engine.get_intervals());
-    MST_OUTPUT = engine.add_output(&mstout);
-    CONTRACTED_GRAPH_OUTPUT = engine.add_output(&shardedout);
-    
-    ContractionStep contraction;
-    engine.set_reset_vertexdata(false);
-    engine.run(contraction, 1);
-    
+    for(int MSF_iteration=0; MSF_iteration < 100; MSF_iteration++) {
+        logstream(LOG_INFO) << "MSF ITERATION " << MSF_iteration << std::endl;
+        /* Step 1: Run boruvska step */
+        BoruvskaStep boruvska ;
+        graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m);
+        engine.set_disable_vertexdata_storage();
+        gengine = &engine;
+        
+        engine.run(boruvska, 3);
+        
+        
+        /* Step 2: Run contraction */
+        /* Initialize output */
+        basic_text_output<VertexDataType, EdgeDataType> mstout(filename + ".mst", "\t");
+        
+        
+        std::string contractedname = filename + "C";
+        delete_shards<EdgeDataType>(contractedname, nshards);
+        sharded_graph_output<VertexDataType, EdgeDataType> shardedout(contractedname, halve_intervals(engine.get_intervals()), new AcceptMinimum());
+        MST_OUTPUT = engine.add_output(&mstout);
+        CONTRACTED_GRAPH_OUTPUT = engine.add_output(&shardedout);
+        
+        ContractionStep contraction;
+        engine.set_disable_vertexdata_storage();
+        engine.run(contraction, 1);
+        
+        shardedout.finish_sharding();
+        filename = contractedname;
+    }
     /* Report execution metrics */
     metrics_report(m);
     return 0;
