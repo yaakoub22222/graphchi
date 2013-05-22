@@ -1138,8 +1138,9 @@ namespace graphchi {
             sharderobj->end_phase();
         }
         
-        void finish_sharding() {
+        size_t finish_sharding() {
             sharderobj->write_shards();
+            return sharderobj->nshards;
         }
         
     };
