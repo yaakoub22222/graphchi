@@ -43,7 +43,7 @@ struct bidirectional_component_weight {
     vid_t larger_component;
     vid_t orig_src, orig_dst;
     bool in_mst;
-    float weight;
+    double weight;
     
     bidirectional_component_weight() {
         smaller_component = larger_component = MAX_VIDT;
@@ -118,7 +118,7 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
             return;
         }
         
-        float min_edge_weight = 1e30f;
+        double min_edge_weight = 1e30f;
         int min_edge_idx = 0;
         
         // TODO: replace with reductions
@@ -126,7 +126,7 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
         for(int i=0; i < vertex.num_edges(); i++) {
             bidirectional_component_weight edata = vertex.edge(i)->get_data();
 
-            float w = edata.weight;
+            double w = edata.weight;
             if (w < min_edge_weight) {
                 min_edge_idx = i;
                 min_edge_weight = w;
@@ -188,6 +188,9 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
 };
 
 
+double totalMST = 0.0;
+mutex lock;
+
 struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
     
     bool new_edges;
@@ -214,6 +217,9 @@ struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 bidirectional_component_weight edata = e->get_data();
                 
                 if (e->get_data().in_mst && edata.labels_agree()) {
+                    lock.lock();
+                    totalMST += edata.weight;
+                    lock.unlock();
                     gengine->output(MST_OUTPUT)->output_edge(edata.orig_src, edata.orig_dst, edata.weight);
                     
                 } else if (!edata.labels_agree()) {
@@ -298,7 +304,7 @@ int main(int argc, const char ** argv) {
         graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m);
         engine.set_disable_vertexdata_storage();
         gengine = &engine;
-        
+        engine.set_save_edgesfiles_after_inmemmode(true);
         engine.run(boruvska, nshards > 1 ? 3 : 1000); // Only 3 iterations when not in-memory (one shard), otherwise run only 3 iters
         
         
@@ -317,6 +323,8 @@ int main(int argc, const char ** argv) {
         ContractionStep contraction;
         engine.set_disable_vertexdata_storage();
         engine.run(contraction, 1);
+        
+        std::cout << "Total MST now: " << totalMST << std::endl;
         
         if (contraction.new_edges == false) {
             logstream(LOG_INFO) << "MSF ready!" << std::endl;
