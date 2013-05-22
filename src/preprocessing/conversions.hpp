@@ -145,7 +145,7 @@ namespace graphchi {
     
     
     // Removes \n from the end of line
-    void FIXLINE(char * s) {
+    inline void FIXLINE(char * s) {
         int len = (int) strlen(s)-1;
         if(s[len] == '\n') s[len] = 0;
     }

@@ -116,6 +116,7 @@ namespace graphchi {
         mutex modification_lock;
         
         bool reset_vertexdata;
+        bool save_edgesfiles_after_inmemmode;
         
         /* Outputs */
         std::vector<ioutput<VertexDataType, EdgeDataType> *> outputs;
@@ -169,6 +170,7 @@ namespace graphchi {
             memoryshard = NULL;
             modifies_outedges = true;
             modifies_inedges = true;
+            save_edgesfiles_after_inmemmode = false;
             preload_commit = true;
             only_adjacency = false;
             reset_vertexdata = false;
@@ -220,6 +222,7 @@ namespace graphchi {
         }
         
         
+        
     protected:
         
         virtual degree_data * create_degree_handler() {
@@ -230,6 +233,8 @@ namespace graphchi {
             return false;
         }
         
+        
+            
         /**
          * Try to find suitable shards by trying with different
          * shard numbers. Looks up to shard number 2000.
@@ -486,6 +491,11 @@ namespace graphchi {
                    break;
                 }
 
+            }
+            
+            if (save_edgesfiles_after_inmemmode) {
+                logstream(LOG_INFO) << "Saving memory shard..." << std::endl;
+                
             }
         }
         
@@ -829,7 +839,7 @@ namespace graphchi {
                        
                     } // while subintervals
 
-                    if (memoryshard->loaded() && !is_inmemory_mode()) {
+                    if (memoryshard->loaded() && (save_edgesfiles_after_inmemmode || !is_inmemory_mode())) {
                         logstream(LOG_INFO) << "Commit memshard" << std::endl;
 
                         memoryshard->commit(modifies_inedges, modifies_outedges);
@@ -1040,6 +1050,15 @@ namespace graphchi {
         void set_reset_vertexdata(bool reset) {
             reset_vertexdata = reset;
         }
+        
+        
+        /**
+         * Whether edges should be saved after in-memory mode
+         */
+        virtual void set_save_edgesfiles_after_inmemmode(bool b) {
+            this->save_edgesfiles_after_inmemmode = b;
+        }
+
         
         
         /**
