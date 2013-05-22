@@ -52,7 +52,7 @@ namespace graphchi {
 
         virtual void output_edge(vid_t from, vid_t to, size_t value) = 0;
 
-        virtual void output_edge(vid_t from, vid_t to, ET value) = 0;
+        virtual void output_edgeval(vid_t from, vid_t to, ET value) = 0;
 
         virtual void output_value(vid_t vid, VT value) = 0;
         
@@ -116,7 +116,7 @@ namespace graphchi {
             _output_edge(from, to, value);
         }
         
-        void output_edge(vid_t from, vid_t to, ET value) {
+        void output_edgeval(vid_t from, vid_t to, ET value) {
             assert(false);
         }
         

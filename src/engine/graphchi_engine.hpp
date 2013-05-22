@@ -888,7 +888,7 @@ namespace graphchi {
             m.set("niters", niters);
             
             // Close outputs
-            for(int i=0; i<outputs.size(); i++) {
+            for(int i=0; i< (int)outputs.size(); i++) {
                 outputs[i]->close();
             }   
             outputs.clear();

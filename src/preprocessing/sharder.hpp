@@ -483,7 +483,7 @@ namespace graphchi {
             
             std::string fname = filename_intervals(basefilename, nshards);
             FILE * f = fopen(fname.c_str(), "w");
-            for(int i=0; i<intervals.size(); i++) {
+            for(int i=0; i<(int)intervals.size(); i++) {
                 fprintf(f, "%u\n", intervals[i].second);
             }
             fclose(f);
@@ -1123,7 +1123,7 @@ namespace graphchi {
             assert(false); // Need to use the custom method
         }
         
-        void output_edge(vid_t from, vid_t to, ET value) {
+        void output_edgeval(vid_t from, vid_t to, ET value) {
             lock.lock();
             sharderobj->receive_edge(from, to, value, true);
             lock.unlock();

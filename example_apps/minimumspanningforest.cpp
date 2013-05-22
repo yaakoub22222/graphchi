@@ -227,7 +227,7 @@ struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
                     
                     // Vary in/out edge for balance (not sure if required)
                     new_edges = true;
-                    gengine->output(CONTRACTED_GRAPH_OUTPUT)->output_edge(a % 2 == 0 ? a : b,
+                    gengine->output(CONTRACTED_GRAPH_OUTPUT)->output_edgeval(a % 2 == 0 ? a : b,
                                                                           a % 2 == 0 ? b : a,
                                                                           edata);
                 } else {
@@ -259,8 +259,8 @@ std::vector< std::pair<vid_t, vid_t> > halve_intervals(std::vector< std::pair<vi
         return ints;
     }
     std::vector< std::pair<vid_t, vid_t> > newints;
-    for(int j=0; j < ints.size(); j += 2) {
-        if (j + 1 < ints.size()) {
+    for(int j=0; j < (int)ints.size(); j += 2) {
+        if (j + 1 < (int)ints.size()) {
             newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j + 1].second));
         } else {
             newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j].second));
@@ -309,7 +309,7 @@ int main(int argc, const char ** argv) {
         
         std::string contractedname = filename + "C";
         std::vector< std::pair<vid_t, vid_t> > new_intervals = halve_intervals(engine.get_intervals());
-        delete_shards<EdgeDataType>(contractedname, new_intervals.size());
+        delete_shards<EdgeDataType>(contractedname, (int)new_intervals.size());
         sharded_graph_output<VertexDataType, EdgeDataType> shardedout(contractedname, new_intervals, new AcceptMinimum());
         MST_OUTPUT = engine.add_output(&mstout);
         CONTRACTED_GRAPH_OUTPUT = engine.add_output(&shardedout);
@@ -323,7 +323,7 @@ int main(int argc, const char ** argv) {
             break;
         }
         
-        nshards = shardedout.finish_sharding();
+        nshards = (int)shardedout.finish_sharding();
         filename = contractedname;
        
     }
