@@ -56,22 +56,29 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
   void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
 
     if (gcontext.iteration == 0) {
-      if(vertex.id() != root) { vertex.set_data(-1);
-	for(int i=0; i < vertex.num_outedges(); i++) {
-	  vertex.outedge(i)->set_data(INT_MAX); 
-	}
+      vertex.set_data(-1);
+      for(int i=0; i < vertex.num_outedges(); i++) {
+	vertex.outedge(i)->set_data(INT_MAX); 
       }
-      else {
-	vertex.set_data(0); //source vertex 
-	for(int i=0; i < vertex.num_outedges(); i++) {
-	  vertex.outedge(i)->set_data(0);
-	  gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id()); //add neighbors
-	}
-      }
+      
+      // else {
+      // 	vertex.set_data(0); //source vertex 
+      // 	for(int i=0; i < vertex.num_outedges(); i++) {
+      // 	  vertex.outedge(i)->set_data(0);
+      // 	  gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id()); //add neighbors
+      // 	}
+      // }
         
-    } else {
-      //std::cout << "vertex " << vertex.id() << std::endl;
-	
+    } 
+    else if (gcontext.iteration == 1 && vertex.id() == root) {
+ 	vertex.set_data(0); //source vertex 
+      	for(int i=0; i < vertex.num_outedges(); i++) {
+      	  vertex.outedge(i)->set_data(0);
+      	  gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id()); //add neighbors
+      	}
+    }
+    else {
+      //std::cout << "vertex " << vertex.id() << std::endl;	
       /* Do computation */ 
       if(vertex.get_data() == -1) {
 	int minLevel = INT_MAX;
@@ -107,6 +114,7 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
    * Called after an iteration has finished.
    */
   void after_iteration(int iteration, graphchi_context &gcontext) {
+    if(iteration == 0) gcontext.scheduler->add_task(root);
   }
     
   /**
@@ -135,8 +143,9 @@ int main(int argc, const char ** argv) {
   int niters           = get_option_int("niters", 100); // Number of iterations
   bool scheduler       = true;
   int root = get_option_int("root",0);
-  //doesnt work if nshards > 1
-  int nshards = get_option_int("nshards", 1);
+
+  int nshards = atoi(get_option_string("nshards", "auto").c_str());
+
   delete_shards<EdgeDataType>(filename, nshards); 
   /* Detect the number of shards or preprocess an input to create them */
   char nshards_string[10];
