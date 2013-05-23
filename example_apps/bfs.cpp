@@ -52,7 +52,7 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
      */
     void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
       
-      std::cout << "vertex " << vertex.id() << std::endl;
+      //std::cout << "vertex " << vertex.id() << std::endl;
         if (gcontext.iteration == 0) {
 	  if(vertex.id() > 0) { vertex.set_data(-1);
 	    for(int i=0; i < vertex.num_edges(); i++) {
@@ -90,10 +90,10 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
      * Called before an iteration starts.
      */
     void before_iteration(int iteration, graphchi_context &gcontext) {
-      if(iteration == 0) {
-	//remove all tasks except task 0
-	gcontext.scheduler->remove_tasks(1, gcontext.nvertices-1);
-      }
+      // if(iteration == 0) {
+      // 	//remove all tasks except task 0
+      // 	gcontext.scheduler->remove_tasks(1, gcontext.nvertices-1);
+      // }
     }
     
     /**
@@ -125,8 +125,8 @@ int main(int argc, const char ** argv) {
     
     /* Basic arguments for application */
     std::string filename = get_option_string("file");  // Base filename
-    int niters           = get_option_int("niters", 4); // Number of iterations
-    bool scheduler       = get_option_int("scheduler", 1); // Whether to use selective scheduling
+    int niters           = get_option_int("niters", 100); // Number of iterations
+    bool scheduler       = true;
 
     int nshards = get_option_int("nshards", 2);
     delete_shards<EdgeDataType>(filename, nshards); 
