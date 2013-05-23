@@ -51,35 +51,38 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
      *  Vertex update function.
      */
     void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
-      
-      //std::cout << "vertex " << vertex.id() << std::endl;
+
         if (gcontext.iteration == 0) {
 	  if(vertex.id() > 0) { vertex.set_data(-1);
-	    for(int i=0; i < vertex.num_edges(); i++) {
-	      vertex.edge(i)->set_data(INT_MAX); 
+	    for(int i=0; i < vertex.num_outedges(); i++) {
+	      vertex.outedge(i)->set_data(INT_MAX); 
 	    }
 	  }
 	  else {
 	    vertex.set_data(0); //source vertex 
-	    for(int i=0; i < vertex.num_edges(); i++) {
-	      vertex.edge(i)->set_data(0);
-	      gcontext.scheduler->add_task(vertex.edge(i)->vertex_id()); //add neighbors
-	    }	    
+	    for(int i=0; i < vertex.num_outedges(); i++) {
+	      vertex.outedge(i)->set_data(0);
+	      gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id()); //add neighbors
+	    }
 	  }
         
         } else {
+	  //std::cout << "vertex " << vertex.id() << std::endl;
+	
 	  /* Do computation */ 
 	  if(vertex.get_data() == -1) {
 	    int minLevel = INT_MAX;
-	    for(int i=0;i<vertex.num_edges();i++)
-	      minLevel = min(minLevel,vertex.edge(i)->get_data());
+	    for(int i=0;i<vertex.num_inedges();i++) {	      
+	      minLevel = min(minLevel,vertex.inedge(i)->get_data());
+	    }
+
 	    if(minLevel < INT_MAX) {
 	      vertex.set_data(minLevel+1);
-	      for(int i=0;i<vertex.num_edges();i++)
-		if(vertex.edge(i)->get_data() == INT_MAX){
-		  vertex.edge(i)->set_data(vertex.get_data());
+	      for(int i=0;i<vertex.num_outedges();i++)
+		if(vertex.outedge(i)->get_data() == INT_MAX){
+		  vertex.outedge(i)->set_data(vertex.get_data());
 		  /* Schedule neighbor for update */
-		  gcontext.scheduler->add_task(vertex.edge(i)->vertex_id()); 
+		  gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id()); //How do I not schedule neighbors who have already been visited, but their incoming edge has not been marked yet??????? 
 		}
 	    }
 	  }
@@ -90,6 +93,7 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
      * Called before an iteration starts.
      */
     void before_iteration(int iteration, graphchi_context &gcontext) {
+      cout<<gcontext.scheduler->num_tasks()<<endl;
       // if(iteration == 0) {
       // 	//remove all tasks except task 0
       // 	gcontext.scheduler->remove_tasks(1, gcontext.nvertices-1);
@@ -128,10 +132,13 @@ int main(int argc, const char ** argv) {
     int niters           = get_option_int("niters", 100); // Number of iterations
     bool scheduler       = true;
 
-    int nshards = get_option_int("nshards", 2);
+    //doesnt work if nshards > 1
+    int nshards = get_option_int("nshards", 1);
     delete_shards<EdgeDataType>(filename, nshards); 
     /* Detect the number of shards or preprocess an input to create them */
-    nshards = convert_if_notexists<EdgeDataType>(filename,get_option_string("nshards", "2"));
+    char nshards_string[10];
+    sprintf(nshards_string,"%d",nshards);
+    nshards = convert_if_notexists<EdgeDataType>(filename,get_option_string("nshards",nshards_string));
    
     /* Run */
     BFSProgram program;
