@@ -72,9 +72,9 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
     } 
     else if (gcontext.iteration == 1 && vertex.id() == root) {
  	vertex.set_data(0); //source vertex 
-      	for(int i=0; i < vertex.num_outedges(); i++) {
-      	  vertex.outedge(i)->set_data(0);
-      	  gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id()); //add neighbors
+      	for(int i=0; i < vertex.num_edges(); i++) {
+      	  vertex.edge(i)->set_data(0);
+      	  gcontext.scheduler->add_task(vertex.edge(i)->vertex_id()); //add neighbors
       	}
     }
     else {
@@ -82,17 +82,17 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
       /* Do computation */ 
       if(vertex.get_data() == -1) {
 	int minLevel = INT_MAX;
-	for(int i=0;i<vertex.num_inedges();i++) {	      
-	  minLevel = min(minLevel,vertex.inedge(i)->get_data());
+	for(int i=0;i<vertex.num_edges();i++) {	      
+	  minLevel = min(minLevel,vertex.edge(i)->get_data());
 	}
 
 	if(minLevel < INT_MAX) {
 	  vertex.set_data(minLevel+1);
-	  for(int i=0;i<vertex.num_outedges();i++)
-	    if(vertex.outedge(i)->get_data() == INT_MAX){
-	      vertex.outedge(i)->set_data(vertex.get_data());
+	  for(int i=0;i<vertex.num_edges();i++)
+	    if(vertex.edge(i)->get_data() == INT_MAX){
+	      vertex.edge(i)->set_data(vertex.get_data());
 	      /* Schedule neighbor for update */
-	      gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id()); //How do I not schedule neighbors who have already been visited, but their incoming edge has not been marked yet??????? 
+	      gcontext.scheduler->add_task(vertex.edge(i)->vertex_id());
 	    }
 	}
       }
@@ -103,7 +103,7 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
    * Called before an iteration starts.
    */
   void before_iteration(int iteration, graphchi_context &gcontext) {
-    cout<<gcontext.scheduler->num_tasks()<<endl;
+    cout<<"iteration = "<<iteration<<", numtasks = "<<gcontext.scheduler->num_tasks()<<endl;
     // if(iteration == 0) {
     // 	//remove all tasks except task 0
     // 	gcontext.scheduler->remove_tasks(1, gcontext.nvertices-1);
