@@ -139,12 +139,8 @@ struct BoruvskaStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 
                 double w = edata.weight;
                 if (w < min_edge_weight || (w == min_edge_weight && edata.in_mst)) {  // Tie-breaking
-                    if (w == min_edge_weight) {
-                        std::cout << "EQUALS: " << w << std::endl;
-                    }
                     min_edge_idx = i;
                     min_edge_weight = w;
-                   
                 }
           
             }
