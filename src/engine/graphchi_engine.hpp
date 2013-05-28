@@ -933,7 +933,7 @@ namespace graphchi {
         }
         
         virtual void set_disable_outedges(bool b) {
-            disable_outedges = true;
+            disable_outedges = b;
         }
         
         /**
