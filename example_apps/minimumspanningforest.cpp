@@ -328,8 +328,7 @@ int main(int argc, const char ** argv) {
         engine.set_save_edgesfiles_after_inmemmode(true);
         engine.set_modifies_inedges(true);
         engine.set_modifies_outedges(true);
-        engine.run(boruvska, nshards > 1 ? 3 : 1000); // Only 3 iterations when not in-memory (one shard), otherwise run only 3 iters
-        
+        engine.run(boruvska, nshards > 1 ? get_option_int("contraction_iterations", 3) : 1000);          
         
         /* Step 2: Run contraction */
         /* Initialize output */
