@@ -305,6 +305,7 @@ int main(int argc, const char ** argv) {
     /* Metrics object for keeping track of performance counters
      and other information. Currently required. */
     metrics m("minimum-spanning-forest");
+    m.start_time("msf-total-runtime");
     
     /* Basic arguments for application */
     std::string filename = get_option_string("file");  // Base filename
@@ -359,6 +360,7 @@ int main(int argc, const char ** argv) {
         filename = contractedname;
         
     }
+    m.stop_time("msf-total-runtime");
     /* Report execution metrics */
     metrics_report(m);
     return 0;
