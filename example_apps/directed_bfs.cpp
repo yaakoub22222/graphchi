@@ -60,7 +60,7 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
       for(int i=0; i < vertex.num_outedges(); i++) {
 	vertex.outedge(i)->set_data(INT_MAX); 
       }
-      
+              
     } 
     else if (gcontext.iteration == 1 && vertex.id() == root) {
  	vertex.set_data(0); //source vertex 
@@ -74,17 +74,17 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
       /* Do computation */ 
       if(vertex.get_data() == -1) {
 	int minLevel = INT_MAX;
-	for(int i=0;i<vertex.num_edges();i++) {	      
-	  minLevel = min(minLevel,vertex.edge(i)->get_data());
+	for(int i=0;i<vertex.num_inedges();i++) {	      
+	  minLevel = min(minLevel,vertex.inedge(i)->get_data());
 	}
 
 	if(minLevel < INT_MAX) {
 	  vertex.set_data(minLevel+1);
-	  for(int i=0;i<vertex.num_edges();i++)
-	    if(vertex.edge(i)->get_data() == INT_MAX){
-	      vertex.edge(i)->set_data(vertex.get_data());
+	  for(int i=0;i<vertex.num_outedges();i++)
+	    if(vertex.outedge(i)->get_data() == INT_MAX){
+	      vertex.outedge(i)->set_data(vertex.get_data());
 	      /* Schedule neighbor for update */
-	      gcontext.scheduler->add_task(vertex.edge(i)->vertex_id());
+	      gcontext.scheduler->add_task(vertex.outedge(i)->vertex_id());
 	    }
 	}
       }
