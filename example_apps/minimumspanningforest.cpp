@@ -324,6 +324,8 @@ int main(int argc, const char ** argv) {
         engine.set_save_edgesfiles_after_inmemmode(true);
         engine.set_modifies_inedges(true);
         engine.set_modifies_outedges(true);
+        engine.set_disable_outedges(false);
+
         engine.run(boruvska, nshards > 1 ? get_option_int("contraction_iterations", 3) : 1000);          
         
         /* Step 2: Run contraction */
@@ -342,6 +344,7 @@ int main(int argc, const char ** argv) {
         engine.set_disable_vertexdata_storage();
         engine.set_modifies_inedges(true);
         engine.set_modifies_outedges(false);
+        engine.set_disable_outedges(true);
         engine.set_save_edgesfiles_after_inmemmode(true);
         engine.run(contraction, 1);
         
