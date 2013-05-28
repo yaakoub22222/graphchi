@@ -347,7 +347,7 @@ int main(int argc, const char ** argv) {
         engine.set_disable_outedges(true);
         engine.set_save_edgesfiles_after_inmemmode(true);
         engine.run(contraction, 1);
-        
+
         
         std::cout << "Total MST now: " << totalMST << std::endl;
         

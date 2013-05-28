@@ -458,7 +458,7 @@ namespace graphchi {
                                         std::vector<svertex_t> &vertices) {
             work = nupdates = 0;
             for(iter=0; iter<niters; iter++) {
-                logstream(LOG_INFO) << "In-memory mode: Iteration " << iter << " starts." << std::endl;
+                logstream(LOG_INFO) << "In-memory mode: Iteration " << iter << " starts. (" << chicontext.runtime() << " secs)" << std::endl;
                 chicontext.iteration = iter;
                 userprogram.before_iteration(iter, chicontext);
                 userprogram.before_exec_interval(0, (int)num_vertices(), chicontext);
