@@ -91,6 +91,7 @@ namespace graphchi {
         /* Configuration */
         bool modifies_outedges;
         bool modifies_inedges;
+        bool disable_outedges;
         bool only_adjacency;
         bool use_selective_scheduling;
         bool enable_deterministic_parallelism;
@@ -173,6 +174,7 @@ namespace graphchi {
             save_edgesfiles_after_inmemmode = false;
             preload_commit = true;
             only_adjacency = false;
+            disable_outedges = false;
             reset_vertexdata = false;
             blocksize = get_option_long("blocksize", 4096 * 1024);
 #ifndef DYNAMICEDATA
@@ -323,7 +325,7 @@ namespace graphchi {
                 for(int i=0; i < max_interval; i++) {
                     degree deg = degree_handler->get_degree(fromvid + i);
                     int inc = deg.indegree;
-                    int outc = deg.outdegree;
+                    int outc = deg.outdegree * (!disable_outedges);
                     
                     // Raw data and object cost included
                     memreq += sizeof(svertex_t) + (sizeof(EdgeDataType) + sizeof(vid_t) + sizeof(graphchi_edge<EdgeDataType>))*(outc + inc);
@@ -371,7 +373,7 @@ namespace graphchi {
                     }
                     
                     /* Load vertex edges from memory shard */
-                    memoryshard->load_vertices(sub_interval_st, sub_interval_en, vertices);
+                    memoryshard->load_vertices(sub_interval_st, sub_interval_en, vertices, true, !disable_outedges);
                     
                     /* Load vertices */ 
                     vertex_data_handler->load(sub_interval_st, sub_interval_en);
@@ -382,10 +384,12 @@ namespace graphchi {
                     }
                 } else {
                     /* Load edges from a sliding shard */
-                    if (p != exec_interval) {
-                        sliding_shards[p]->read_next_vertices((int) vertices.size(), sub_interval_st, vertices,
-                                                              scheduler != NULL && chicontext.iteration == 0);
-                        
+                    if (!disable_outedges) {
+                        if (p != exec_interval) {
+                            sliding_shards[p]->read_next_vertices((int) vertices.size(), sub_interval_st, vertices,
+                                                                  scheduler != NULL && chicontext.iteration == 0);
+                            
+                        }
                     }
                 }
             }
@@ -514,7 +518,7 @@ namespace graphchi {
             for(int i=0; i < (int)nvertices; i++) {
                 degree d = degree_handler->get_degree(sub_interval_st + i);
                 int inc = d.indegree;
-                int outc = d.outdegree;
+                int outc = d.outdegree * (!disable_outedges);
                 vertices[i] = svertex_t(sub_interval_st + i, &edata[ecounter], 
                                         &edata[ecounter + inc * store_inedges], inc, outc);
                 if (scheduler != NULL) {
@@ -842,7 +846,7 @@ namespace graphchi {
                     if (memoryshard->loaded() && (save_edgesfiles_after_inmemmode || !is_inmemory_mode())) {
                         logstream(LOG_INFO) << "Commit memshard" << std::endl;
 
-                        memoryshard->commit(modifies_inedges, modifies_outedges);
+                        memoryshard->commit(modifies_inedges, modifies_outedges & !disable_outedges);
 
                         sliding_shards[exec_interval]->set_offset(memoryshard->offset_for_stream_cont(), memoryshard->offset_vid_for_stream_cont(),
                                                                   memoryshard->edata_ptr_for_stream_cont());
@@ -926,6 +930,10 @@ namespace graphchi {
 
         virtual void set_preload_commit(bool b){
             preload_commit = b;
+        }
+        
+        virtual void set_disable_outedges(bool b) {
+            disable_outedges = true;
         }
         
         /**
