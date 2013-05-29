@@ -30,4 +30,73 @@
 #include <assert.h>
 #include <stdlib>
 
+#include <vector>
 #include "binary_minheap.hpp"
+
+
+template <typename T>
+class merge_source {
+    virtual bool has_more() = 0;
+    virtual T next() = 0;
+}
+template <typename T>
+class merge_sink {
+    virtual void add(T val) = 0;
+    virtual void done() = 0;
+}
+
+template <typename T>
+struct value_source {
+    int sourceidx;
+    T value;
+    value_source(int sourceidx, T value) : sourceidx(sourceidx), value(value) {}
+};
+
+
+template <typename T>
+class kway_merge {
+    std::vector<merge_source<T> *> sources
+    merge_sink<T> * sink;
+    int K;
+    binary_minheap<value_source<T> > tip;
+
+public:
+    kway_merge(std::vector<merge_source<T> *> sources, merge_sink * sink): sources(sources), sink(sink) tip(sources.size()) {
+        K = sources.size();
+    }
+    
+    ~kway_merge() {
+        delete sources;
+        sink = NULL;
+    }
+    
+    void merge() {
+        int active_sources =(int)sources.size();
+        
+        for(int i=0; i<active_sources; i++) {
+            tip.insert(value_source(i, sources[i]->next()));
+        }
+        
+        while(active_sources > 0 || !tip.empty) {
+            value_source vv = tip.min();
+            tip.extractMin();
+            if (sources[vv.sourceidx].has_more()) {
+                tip.insert(value_source(vv.sourceidx, sources[vv.sourceidx]->next()));
+            } else {
+                active_sources--;
+            }
+            sink->add(vv.value);
+        }
+        sink->done();
+    }
+    
+}
+
+
+
+
+
+
+
+
+
