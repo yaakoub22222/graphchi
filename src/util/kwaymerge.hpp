@@ -27,8 +27,11 @@
  * right to do my own implementations for the sake of it :).
  */
 
+#ifndef DEF_KWAYMERGE_GRAPHCHI
+#define DEF_KWAYMERGE_GRAPHCHI
+
 #include <assert.h>
-#include <stdlib>
+#include <stdlib.h>
 
 #include <vector>
 #include "binary_minheap.hpp"
@@ -36,37 +39,43 @@
 
 template <typename T>
 class merge_source {
+public:
     virtual bool has_more() = 0;
     virtual T next() = 0;
-}
+};
 template <typename T>
 class merge_sink {
+public:
     virtual void add(T val) = 0;
     virtual void done() = 0;
-}
+};
 
 template <typename T>
 struct value_source {
     int sourceidx;
     T value;
     value_source(int sourceidx, T value) : sourceidx(sourceidx), value(value) {}
+    
+    bool operator< (value_source &x2)
+    {
+        return value < x2.value;
+    }
 };
 
 
 template <typename T>
 class kway_merge {
-    std::vector<merge_source<T> *> sources
+    std::vector<merge_source<T> *> sources;
     merge_sink<T> * sink;
     int K;
     binary_minheap<value_source<T> > tip;
 
 public:
-    kway_merge(std::vector<merge_source<T> *> sources, merge_sink * sink): sources(sources), sink(sink) tip(sources.size()) {
+    kway_merge(std::vector<merge_source<T> *> sources, merge_sink<T> * sink): sources(sources), sink(sink), tip(sources.size()) {
         K = sources.size();
     }
     
     ~kway_merge() {
-        delete sources;
         sink = NULL;
     }
     
@@ -74,14 +83,14 @@ public:
         int active_sources =(int)sources.size();
         
         for(int i=0; i<active_sources; i++) {
-            tip.insert(value_source(i, sources[i]->next()));
+            tip.insert(value_source<T>(i, sources[i]->next()));
         }
         
-        while(active_sources > 0 || !tip.empty) {
-            value_source vv = tip.min();
+        while(active_sources > 0 || !tip.empty()) {
+            value_source<T> vv = tip.min();
             tip.extractMin();
-            if (sources[vv.sourceidx].has_more()) {
-                tip.insert(value_source(vv.sourceidx, sources[vv.sourceidx]->next()));
+            if (sources[vv.sourceidx]->has_more()) {
+                tip.insert(value_source<T>(vv.sourceidx, sources[vv.sourceidx]->next()));
             } else {
                 active_sources--;
             }
@@ -90,7 +99,12 @@ public:
         sink->done();
     }
     
-}
+};
+
+
+#endif
+
+
 
 
 
