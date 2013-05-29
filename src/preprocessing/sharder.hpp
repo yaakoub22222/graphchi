@@ -100,6 +100,12 @@ namespace graphchi {
 #endif
         }
         
+        // Order primarily by source, then by destination
+        bool operator< (edge_with_value<EdgeDataType> &x2) {
+            return (src < x2.src || (src == x2.src && dst < x2.dst));
+        }
+        
+        
         bool stopper() { return src == 0 && dst == 0; }
     };
     
@@ -137,13 +143,13 @@ namespace graphchi {
         size_t bufsize_edges;
         std::string shovelfile;
         int idx;
-        int bufoff;
+        int bufidx;
         edge_with_value<EdgeDataType> * buffer;
         int f;
         size_t numedges;
         
         shovel_merge_source(size_t bufsize_bytes, std::string shovelfile) : bufsize_bytes(bufsize_bytes), 
-        shovelfile(shovelfile), idx(0), bufoff(0) {
+        shovelfile(shovelfile), idx(0), bufidx(0) {
             f = open(shovelfile.c_str(), O_RDONLY);
             
             buffer = (edge_with_value<EdgeDataType> *) malloc(bufsize_bytes);
@@ -158,7 +164,7 @@ namespace graphchi {
         }
         
         void load_next() {
-            size_t len = std::max(bufsize, (numedges - idx) * edge_with_value<EdgeDataType>);
+            size_t len = std::max(bufsize_bytes, (numedges - idx) * sizeof(edge_with_value<EdgeDataType>));
             preada(f, buffer, len, idx * sizeof(edge_with_value<EdgeDataType>));
         }
         
@@ -324,8 +330,7 @@ namespace graphchi {
          * Add edge without value to be preprocessed
          */
         void preprocessing_add_edge(vid_t from, vid_t to) {
-            preproc_writer->add_edge(from, to);
-            max_vertex_id = std::max(std::max(from, to), max_vertex_id);
+            preprocessing_add_edge(from, to, EdgeDataType());
         }
         
         /** Buffered write function */
@@ -397,7 +402,7 @@ namespace graphchi {
         int execute_sharding(std::string nshards_string) {
             m.start_time("execute_sharding");
             
-            nshards = determine_number_of_shards();
+            determine_number_of_shards(nshards_string);
             write_shards();
             
             m.stop_time("execute_sharding");
@@ -415,7 +420,6 @@ namespace graphchi {
     protected:
         
         virtual void determine_number_of_shards(std::string nshards_string) {
-            assert(preprocessed_file_exists());
             if (nshards_string.find("auto") != std::string::npos || nshards_string == "0") {
                 logstream(LOG_INFO) << "Determining number of shards automatically." << std::endl;
                 
@@ -697,7 +701,7 @@ namespace graphchi {
                 /* Really should have a way to limit shard sizes, but probably not needed in practice */
                 logstream(LOG_WARNING) << "Shard " << shardnum << " overflowing! " << cur_shard_counter << " / " << shard_capacity << std::endl;
                 shard_capacity = (size_t) 1.2 * shard_capacity;
-                sinkbuffer = realloc(sinkbuffer, shard_capacity * sizeof(edge_with_value<EdgeDataType>));
+                sinkbuffer = (edge_with_value<EdgeDataType>*) realloc(sinkbuffer, shard_capacity * sizeof(edge_with_value<EdgeDataType>));
             }
             
             sinkbuffer[cur_shard_counter++] = val;
@@ -781,13 +785,14 @@ namespace graphchi {
             
             /* Initialize kway merge sources */
             size_t B = membudget_mb / 2 / numshovels;
+            logstream(LOG_DEBUG) << "Buffer size in merge phase: " << B << std::endl;
             prevvid = (-1);
             std::vector< merge_source<edge_with_value<EdgeDataType> > *> sources;
             for(int i=0; i < numshovels; i++) {
-                sources.push_back(new shovel_merge_source(B, shovel_filename(i)));
+                sources.push_back(new shovel_merge_source<EdgeDataType>(B, shovel_filename(i)));
             }
             
-            kway_merge merger(sources, this);
+            kway_merge<edge_with_value<EdgeDataType> > merger(sources, this);
             merger.merge();
             
             // Delete sources
