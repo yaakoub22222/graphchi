@@ -224,14 +224,12 @@ namespace graphchi {
         
         int phase;
         
-        int * edgecounts;
         int vertexchunk;
         size_t nedges;
         std::string prefix;
         
         int compressed_block_size;
         
-        edge_t ** bufs;
         int * bufptrs;
         size_t bufsize;
         size_t edgedatasize;
@@ -258,7 +256,8 @@ namespace graphchi {
         
     public:
         
-        sharder(std::string basefilename) : basefilename(basefilename), m("sharder") {            bufs = NULL;
+        sharder(std::string basefilename) : basefilename(basefilename), m("sharder") {          
+            
             edgedatasize = sizeof(EdgeDataType);
             no_edgevalues = false;
             compressed_block_size = 4096 * 1024;
