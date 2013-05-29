@@ -242,7 +242,7 @@ struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
      */
     void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
         
-        if (vertex.num_edges() == 0) {
+        if (vertex.num_inedges() == 0) {
             return;
         }
         // Loop over only in-edges
