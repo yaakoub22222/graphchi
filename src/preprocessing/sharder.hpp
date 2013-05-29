@@ -131,9 +131,10 @@ namespace graphchi {
         std::string shovelname;
         int numedges;
         edge_with_value<EdgeDataType> * buffer;
+
         
         shard_flushinfo(std::string shovelname, int numedges, edge_with_value<EdgeDataType> * buffer) :
-        shovelname(shovelname), numedges(numedges), buffer(buffer) {}
+        shovelname(shovelname), numedges(numedges), buffer(buffer){}
         
         void flush() {
             /* Sort */
@@ -141,7 +142,6 @@ namespace graphchi {
             logstream(LOG_INFO) << "Sorting shovel: " << shovelname << std::endl;
             quickSort(buffer, numedges, edge_t_dst_less<EdgeDataType>);
             logstream(LOG_INFO) << "Sort done." << shovelname << std::endl;
-            
             int f = open(shovelname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
             writea(f, buffer, numedges * sizeof(edge_with_value<EdgeDataType>));
             close(f);
@@ -208,7 +208,7 @@ namespace graphchi {
         }
     };
     
-    template <typename EdgeDataType>
+    template <typename EdgeDataType, typename FinalEdgeDataType=EdgeDataType>
     class sharder : public merge_sink<edge_with_value<EdgeDataType> > {
         
         typedef edge_with_value<EdgeDataType> edge_t;
@@ -252,6 +252,7 @@ namespace graphchi {
         size_t shovelsize;
         int numshovels;
         size_t shoveled_edges;
+        bool shovel_sorted;
         edge_with_value<EdgeDataType> * curshovel_buffer;
         
     public:
@@ -332,9 +333,8 @@ namespace graphchi {
             if (from == to) {
                 // Do not allow self-edges
                 return;
-            }
+            }  
             curshovel_buffer[curshovel_idx++] = edge_with_value<EdgeDataType>(from, to, val);
-            
             if (curshovel_idx == shovelsize) {
                 flush_shovel();
             }
@@ -599,7 +599,7 @@ namespace graphchi {
                 
                 if (!edge.stopper()) {
 #ifndef DYNAMICEDATA
-                    bwrite_edata<EdgeDataType>(ebuf, ebufptr, EdgeDataType(edge.value), tot_edatabytes, edfname, edgecounter);
+                    bwrite_edata<FinalEdgeDataType>(ebuf, ebufptr, FinalEdgeDataType(edge.value), tot_edatabytes, edfname, edgecounter);
 #else
                     /* If we have dynamic edge data, we need to write the header of chivector - if there are edge values */
                     if (edge.is_chivec_value) {
