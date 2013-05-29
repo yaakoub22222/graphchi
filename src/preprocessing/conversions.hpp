@@ -37,7 +37,6 @@
 #include "graphchi_types.hpp"
 #include "logger/logger.hpp"
 #include "preprocessing/sharder.hpp"
-#include "preprocessing/formats/binary_adjacency_list.hpp"
 
 /**
  * GNU COMPILER HACK TO PREVENT WARNINGS "Unused variable", if
@@ -522,41 +521,38 @@ namespace graphchi {
             suffix = preprocessor->getSuffix();
         }
         sharder<EdgeDataType> sharderobj(basefilename + suffix);
-        
-        if (!sharderobj.preprocessed_file_exists()) {
-            std::string file_type_str = get_option_string_interactive("filetype", "edgelist, adjlist");
-            if (file_type_str != "adjlist" && file_type_str != "edgelist"  && file_type_str != "binedgelist" &&
-                file_type_str != "multivalueedgelist") {
-                logstream(LOG_ERROR) << "You need to specify filetype: 'edgelist' or 'adjlist'." << std::endl;
-                assert(false);
-            }
-            
-            /* Start preprocessing */
-            sharderobj.start_preprocessing();
-            
-            if (file_type_str == "adjlist") {
-                convert_adjlist<EdgeDataType>(basefilename, sharderobj);
-            } else if (file_type_str == "edgelist") {
-                convert_edgelist<EdgeDataType>(basefilename, sharderobj);
-#ifdef DYNAMICEDATA
-            } else if (file_type_str == "multivalueedgelist" ) {
-                convert_edgelist<EdgeDataType>(basefilename, sharderobj, true);
-#endif
-            } else if (file_type_str == "binedgelist") {
-                convert_binedgelistval<EdgeDataType>(basefilename, sharderobj);
-            } else {
-                assert(false);
-            }
-            
-            /* Finish preprocessing */
-            sharderobj.end_preprocessing();
-            
-            if (preprocessor != NULL) {
-                preprocessor->reprocess(sharderobj.preprocessed_name(), basefilename);
-            }
-            
+    
+        std::string file_type_str = get_option_string_interactive("filetype", "edgelist, adjlist");
+        if (file_type_str != "adjlist" && file_type_str != "edgelist"  && file_type_str != "binedgelist" &&
+            file_type_str != "multivalueedgelist") {
+            logstream(LOG_ERROR) << "You need to specify filetype: 'edgelist' or 'adjlist'." << std::endl;
+            assert(false);
         }
         
+        /* Start preprocessing */
+        sharderobj.start_preprocessing();
+        
+        if (file_type_str == "adjlist") {
+            convert_adjlist<EdgeDataType>(basefilename, sharderobj);
+        } else if (file_type_str == "edgelist") {
+            convert_edgelist<EdgeDataType>(basefilename, sharderobj);
+#ifdef DYNAMICEDATA
+        } else if (file_type_str == "multivalueedgelist" ) {
+            convert_edgelist<EdgeDataType>(basefilename, sharderobj, true);
+#endif
+        } else if (file_type_str == "binedgelist") {
+            convert_binedgelistval<EdgeDataType>(basefilename, sharderobj);
+        } else {
+            assert(false);
+        }
+        
+        /* Finish preprocessing */
+        sharderobj.end_preprocessing();
+        
+        if (preprocessor != NULL) {
+            //preprocessor->reprocess(sharderobj.preprocessed_name(), basefilename);
+            assert(false); // NEED TO REIMPLEMENT
+        }         
         vid_t max_vertex_id = get_option_int("maxvertex", 0);
         if (max_vertex_id > 0) {
             sharderobj.set_max_vertex_id(max_vertex_id);
@@ -579,30 +575,28 @@ namespace graphchi {
         sharder<dummy> sharderobj(basefilename + suffix);
         sharderobj.set_no_edgevalues();
         
-        if (!sharderobj.preprocessed_file_exists()) {
-            std::string file_type_str = get_option_string_interactive("filetype", "edgelist, adjlist, cassovary, binedgelist");
-            if (file_type_str != "adjlist" && file_type_str != "edgelist" && file_type_str != "cassovary"  && file_type_str != "binedgelist") {
-                logstream(LOG_ERROR) << "You need to specify filetype: 'edgelist' or 'adjlist'." << std::endl;
-                assert(false);
-            }
-            
-            /* Start preprocessing */
-            sharderobj.start_preprocessing();
-            
-            if (file_type_str == "adjlist") {
-                convert_adjlist<dummy>(basefilename, sharderobj);
-            } else if (file_type_str == "edgelist") {
-                convert_edgelist<dummy>(basefilename, sharderobj);
-            } else if (file_type_str == "cassovary") {
-                convert_cassovary<dummy>(basefilename, sharderobj);
-            } else if (file_type_str == "binedgelist") {
-                convert_binedgelist<dummy>(basefilename, sharderobj);
-            }
-            
-            /* Finish preprocessing */
-            sharderobj.end_preprocessing();
+        std::string file_type_str = get_option_string_interactive("filetype", "edgelist, adjlist, cassovary, binedgelist");
+        if (file_type_str != "adjlist" && file_type_str != "edgelist" && file_type_str != "cassovary"  && file_type_str != "binedgelist") {
+            logstream(LOG_ERROR) << "You need to specify filetype: 'edgelist' or 'adjlist'." << std::endl;
+            assert(false);
         }
         
+        /* Start preprocessing */
+        sharderobj.start_preprocessing();
+        
+        if (file_type_str == "adjlist") {
+            convert_adjlist<dummy>(basefilename, sharderobj);
+        } else if (file_type_str == "edgelist") {
+            convert_edgelist<dummy>(basefilename, sharderobj);
+        } else if (file_type_str == "cassovary") {
+            convert_cassovary<dummy>(basefilename, sharderobj);
+        } else if (file_type_str == "binedgelist") {
+            convert_binedgelist<dummy>(basefilename, sharderobj);
+        }
+        
+        /* Finish preprocessing */
+        sharderobj.end_preprocessing();
+    
         if (get_option_int("skipsharding", 0) == 1) {
             std::cout << "Skip sharding..." << std::endl;
             exit(0);
@@ -682,17 +676,13 @@ namespace graphchi {
         vid_t * translate_table;
         vid_t max_vertex_id;
         vertex_degree * degarray;
-        binary_adjacency_list_writer<EdgeDataType> * writer;
         OrderByDegree() {
             degarray = NULL;
-            writer = NULL;
         }
         
         ~OrderByDegree() {
             if (degarray != NULL) free(degarray);
             degarray = NULL;
-            if (writer != NULL) delete writer;
-            writer = NULL;
         }
         
         std::string getSuffix() {
@@ -711,17 +701,18 @@ namespace graphchi {
          * Note: this version does not preserve edge values!
          */
         void receive_edge(vid_t from, vid_t to, EdgeDataType value, bool is_value) {
+            assert(false); //REDO
             if (phase == 0) {
                 degarray[from].deg++;
                 degarray[to].deg++;
             } else {
-                writer->add_edge(translate(from), translate(to)); // Value is ignored
+                //writer->add_edge(translate(from), translate(to)); // Value is ignored
             }
         }
         void reprocess(std::string preprocessedFile, std::string baseFilename) {
-            
-            binary_adjacency_list_reader<EdgeDataType> reader(preprocessedFile);
-            max_vertex_id = (vid_t) reader.get_max_vertex_id();
+            assert(false); //REDO
+           // binary_adjacency_list_reader<EdgeDataType> reader(preprocessedFile);
+            //max_vertex_id = (vid_t) reader.get_max_vertex_id();
             
             degarray = (vertex_degree *) calloc(max_vertex_id + 1, sizeof(vertex_degree));
             vid_t nverts = max_vertex_id + 1;
@@ -731,7 +722,7 @@ namespace graphchi {
             
             phase = 0;
             /* Reader will invoke receive_edge() above */
-            reader.read_edges(this);
+           // reader.read_edges(this);
             
             /* Now sort */
             quickSort(degarray, nverts, vertex_degree_less);
@@ -756,15 +747,15 @@ namespace graphchi {
             std::string tmpfilename = preprocessedFile + ".old";
             rename(preprocessedFile.c_str(), tmpfilename.c_str());
             
-            writer = new binary_adjacency_list_writer<EdgeDataType>(preprocessedFile);
-            binary_adjacency_list_reader<EdgeDataType> reader2(tmpfilename);
+          //  writer = new binary_adjacency_list_writer<EdgeDataType>(preprocessedFile);
+        //    binary_adjacency_list_reader<EdgeDataType> reader2(tmpfilename);
             
             phase = 1;
-            reader2.read_edges(this);
+           // reader2.read_edges(this);
             
-            writer->finish();
-            delete writer;
-            writer = NULL;
+           // writer->finish();
+         //   delete writer;
+           // writer = NULL;
             
             delete translate_table;
         }
