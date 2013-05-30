@@ -34,7 +34,11 @@
 using namespace graphchi;
 
 
+enum ContractionType {
+    STAR = 1, BORUVSKA = 2
+};
 
+ContractionType contractionType;
 
 #define MAX_VIDT 0xffffffff
 
@@ -109,8 +113,8 @@ graphchi_engine<VertexDataType, EdgeDataType> * gengine;
 
 size_t MST_OUTPUT;
 size_t CONTRACTED_GRAPH_OUTPUT;
+FILE * complog;
 
-FILE * complog = fopen("msflog.txt", "w");
 
 /**
  * GraphChi programs need to subclass GraphChiProgram<vertex-type, edge-type>
@@ -178,7 +182,8 @@ struct BoruvskaStarContractionStep : public GraphChiProgram<VertexDataType, Edge
                 edata.in_mst = true;
                 vertex.edge(min_edge_idx)->set_data(edata);
             }
-        } else {
+        }
+        if (contractionType == STAR && gcontext.iteration > 0) {
             // Communicate label and check if want to contract
            
             
@@ -209,6 +214,35 @@ struct BoruvskaStarContractionStep : public GraphChiProgram<VertexDataType, Edge
                 edata.my_label(vertex.id(), e->vertex_id()) = my_id;
                 e->set_data(edata);
                 
+            }
+        }
+        
+        if (contractionType == BORUVSKA) {
+            /* Get my component id. It is the minimum label of a neighbor via a mst edge (or my own id) */
+            vid_t min_component_id = vertex.id();
+            for(int i=0; i < vertex.num_edges(); i++) {
+                graphchi_edge<EdgeDataType> * e = vertex.edge(i);
+                if (e->get_data().in_mst) {
+                    min_component_id = std::min(e->get_data().neighbor_label(vertex.id(), e->vertex_id()), min_component_id);
+                }
+            }
+            
+            /* Set component ids and schedule neighbors */
+            for(int i=0; i < vertex.num_edges(); i++) {
+                graphchi_edge<EdgeDataType> * e = vertex.edge(i);
+                bidirectional_component_weight edata = e->get_data();
+                
+                if (edata.my_label(vertex.id(), e->vertex_id()) != min_component_id) {
+                    edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
+                    e->set_data(edata);
+                    
+                    /* Schedule neighbor is connected by MST edge and neighbor has not updated yet */
+                    if (edata.in_mst) {
+                        if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
+                            gcontext.scheduler->add_task(e->vertex_id());
+                        }
+                    }
+                }
             }
         }
     }
@@ -333,9 +367,17 @@ int main(int argc, const char ** argv) {
     
     convert_if_notexists<double, EdgeDataType>(filename, get_option_string("nshards", "10"));
     
+    contractionType = get_option_string("algo", "boruvska") == "boruvska" ? BORUVSKA : STAR;
     
+    if (contractionType == BORUVSKA) {
+        complog = fopen("msflog_boruvska.txt", "w");
+    } else {
+        complog = fopen("msflog_star.txt", "w");
+
+    }
+
     for(int MSF_iteration=0; MSF_iteration < 100; MSF_iteration++) {
-        logstream(LOG_INFO) << "MSF ITERATION " << MSF_iteration << std::endl;
+        logstream(LOG_INFO) << "MSF ITERATION " << MSF_iteration << " contraction: " << contractionType << std::endl;
         /* Step 1: Run boruvska step */
         BoruvskaStarContractionStep boruvska_starcontraction;
         graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m);
