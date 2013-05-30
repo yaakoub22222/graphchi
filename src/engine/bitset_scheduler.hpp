@@ -52,7 +52,7 @@ namespace graphchi {
                 // Swap
                 dense_bitset * tmp = curiteration_bitset;
                 curiteration_bitset = nextiteration_bitset;
-                nextiteration_bitset = curiteration_bitset;
+                nextiteration_bitset = tmp;
                 nextiteration_bitset->clear();
             }   
                 
