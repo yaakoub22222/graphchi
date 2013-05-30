@@ -776,7 +776,7 @@ namespace graphchi {
         
         void createnextshard() {
             assert(shardnum < nshards);
-            intervals.push_back(std::pair<vid_t, vid_t>(this_interval_start, prevvid));
+            intervals.push_back(std::pair<vid_t, vid_t>(this_interval_start, (shardnum == nshards - 1 ? max_vertex_id : prevvid)));
             this_interval_start = prevvid + 1;
             finish_shard(shardnum++, sinkbuffer, cur_shard_counter * sizeof(edge_with_value<EdgeDataType>));
             sinkbuffer = (edge_with_value<EdgeDataType> *) malloc(shard_capacity * sizeof(edge_with_value<EdgeDataType>));
