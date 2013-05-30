@@ -267,6 +267,7 @@ namespace graphchi {
         size_t shoveled_edges;
         bool shovel_sorted;
         edge_with_value<EdgeDataType> * curshovel_buffer;
+        std::vector<pthread_t> shovelthreads;
         
     public:
         
@@ -308,6 +309,7 @@ namespace graphchi {
             shovelsize = (1024 * 1024 * get_option_int("membudget_mb", 1024) / 4 / sizeof(edge_with_value<EdgeDataType>));
             curshovel_idx = 0;
             curshovel_buffer = (edge_with_value<EdgeDataType> *) calloc(shovelsize, sizeof(edge_with_value<EdgeDataType>));
+            shovelthreads.clear();
             
             /* Write the maximum vertex id place holder - to be filled later */
             max_vertex_id = 0;
@@ -329,10 +331,17 @@ namespace graphchi {
             if (!async) {
                 curshovel_buffer = NULL;
                 flushinfo->flush();
+                
+                /* Wait for threads to finish */
+                logstream(LOG_INFO) << "Waiting shoveling threads..." << std::endl;
+                for(int i=0; i < shovelthreads.size(); i++) {
+                    pthread_join(shovelthreads[i], NULL);
+                }
             } else {
                 curshovel_buffer = (edge_with_value<EdgeDataType> *) calloc(shovelsize, sizeof(edge_with_value<EdgeDataType>));
                 pthread_t t;
                 int ret = pthread_create(&t, NULL, shard_flush_run<EdgeDataType>, (void*)flushinfo);
+                shovelthreads.push_back(t);
                 assert(ret>=0);
             }
             numshovels++;
@@ -762,11 +771,20 @@ namespace graphchi {
             cur_shard_counter = 0;
             
             // Adjust edges per hard so that it takes into account how many edges have been spilled now
+            logstream(LOG_INFO) << "Remaining edges: " << (shoveled_edges - sharded_edges) << " remaining shards:" << (nshards - shardnum)
+                << " edges per shard=" << edges_per_shard << std::endl;
             if (shardnum < nshards) edges_per_shard = (shoveled_edges - sharded_edges) / (nshards - shardnum);
+            logstream(LOG_INFO) << "Edges per shard: " << edges_per_shard << std::endl;
+            
         }
         
         virtual void done() {
             createnextshard();
+            if (shoveled_edges != sharded_edges) {
+                logstream(LOG_INFO) << "Shoveled " << shoveled_edges << " but sharded " << sharded_edges << " edges" << std::endl;
+            }
+            assert(shoveled_edges == sharded_edges);
+            
             logstream(LOG_INFO) << "Created " << shardnum << " shards, expected: " << nshards << std::endl;
             assert(shardnum <= nshards);
             free(sinkbuffer);
@@ -1061,10 +1079,11 @@ namespace graphchi {
         
         
         void close() {
-             sharderobj->end_preprocessing();
         }
         
         size_t finish_sharding() {
+            sharderobj->end_preprocessing();
+
             sharderobj->execute_sharding("auto");
             return sharderobj->nshards;
         }
