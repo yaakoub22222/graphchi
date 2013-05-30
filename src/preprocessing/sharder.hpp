@@ -191,8 +191,10 @@ namespace graphchi {
         }
         
         ~shovel_merge_source() {
+            std::cout << "DELETE " << shovelfile << std::endl;
             close(f);
             remove(shovelfile.c_str());
+
             free(buffer);
         }
         
@@ -266,13 +268,13 @@ namespace graphchi {
         
         sharder(std::string basefilename) : basefilename(basefilename), m("sharder") {          
             
-            edgedatasize = sizeof(EdgeDataType);
+            edgedatasize = sizeof(FinalEdgeDataType);
             no_edgevalues = false;
             compressed_block_size = 4096 * 1024;
             filter_max_vertex = 0;
             curshovel_buffer = NULL;
-            while (compressed_block_size % sizeof(EdgeDataType) != 0) compressed_block_size++;
-            edges_per_block = compressed_block_size / sizeof(EdgeDataType);
+            while (compressed_block_size % sizeof(FinalEdgeDataType) != 0) compressed_block_size++;
+            edges_per_block = compressed_block_size / sizeof(FinalEdgeDataType);
             duplicate_edge_filter = NULL;
         }
         
@@ -524,7 +526,7 @@ namespace graphchi {
             logstream(LOG_INFO) << "Starting final processing for shard: " << shard << std::endl;
             
             std::string fname = filename_shard_adj(basefilename, shard, nshards);
-            std::string edfname = filename_shard_edata<EdgeDataType>(basefilename, shard, nshards);
+            std::string edfname = filename_shard_edata<FinalEdgeDataType>(basefilename, shard, nshards);
             std::string edblockdirname = dirname_shard_edata_block(edfname, compressed_block_size);
             
             /* Make the block directory */
@@ -702,7 +704,7 @@ namespace graphchi {
             
             /* Write edata size file */
             if (!no_edgevalues) {
-                edata_flush<EdgeDataType>(ebuf, ebufptr, edfname, tot_edatabytes);
+                edata_flush<FinalEdgeDataType>(ebuf, ebufptr, edfname, tot_edatabytes);
                 
                 std::string sizefilename = edfname + ".size";
                 std::ofstream ofs(sizefilename.c_str());
@@ -835,7 +837,7 @@ namespace graphchi {
             merger.merge();
             
             // Delete sources
-            for(int i=0; i < numshovels; i++) {
+            for(int i=0; i < sources.size(); i++) {
                 delete(sources[i]);
             }
             
@@ -916,7 +918,7 @@ namespace graphchi {
                 sliding_shards[window]->flush();
                 
                 /* Load shard[window] into memory */
-                memshard_t memshard(iomgr, filename_shard_edata<EdgeDataType>(basefilename, window, nshards), filename_shard_adj(basefilename, window, nshards),
+                memshard_t memshard(iomgr, filename_shard_edata<FinalEdgeDataType>(basefilename, window, nshards), filename_shard_adj(basefilename, window, nshards),
                                     interval_st, interval_en, blocksize, m);
                 memshard.only_adjacency = true;
                 logstream(LOG_INFO) << "Interval: " << interval_st << " " << interval_en << std::endl;
@@ -1000,7 +1002,7 @@ namespace graphchi {
         mutex lock;
         
     public:
-        sharded_graph_output(std::string filename, std::vector< std::pair<vid_t, vid_t> > intervals, DuplicateEdgeFilter<ET> * filter = NULL) {
+        sharded_graph_output(std::string filename, DuplicateEdgeFilter<ET> * filter = NULL) {
             sharderobj = new sharder<ET>(filename);
             sharderobj->set_duplicate_filter(filter);
             sharderobj->start_preprocessing();
@@ -1017,9 +1019,7 @@ namespace graphchi {
         void output_edge(vid_t from, vid_t to) {
             assert(false); // Need to use the custom method
         }
-        
-        
-        
+                
         
         virtual void output_edge(vid_t from, vid_t to, float value) {
             assert(false); // Need to use the custom method
@@ -1051,11 +1051,11 @@ namespace graphchi {
         
         
         void close() {
-            //  sharderobj->end_phase();
+             sharderobj->end_preprocessing();
         }
         
         size_t finish_sharding() {
-            // sharderobj->write_shards();
+            sharderobj->execute_sharding("auto");
             return sharderobj->nshards;
         }
         

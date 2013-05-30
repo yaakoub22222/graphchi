@@ -130,7 +130,7 @@ int main(int argc, const char ** argv) {
     bool scheduler       = false;                       // Whether to use selective scheduling
     
     /* Detect the number of shards or preprocess an input to creae them */
-    int nshards          = convert_if_notexists<EdgeDataType>(filename, 
+    int nshards          = convert_if_notexists_novalues<EdgeDataType>(filename,
                                                               get_option_string("nshards", "auto"));
         
     /* Run */
