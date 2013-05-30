@@ -371,6 +371,7 @@ int main(int argc, const char ** argv) {
     
     if (contractionType == BORUVSKA) {
         complog = fopen("msflog_boruvska.txt", "w");
+        scheduler = true;
     } else {
         complog = fopen("msflog_star.txt", "w");
 
