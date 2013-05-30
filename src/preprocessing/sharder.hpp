@@ -182,6 +182,11 @@ namespace graphchi {
         shovelfile(shovelfile), idx(0), bufidx(0) {
             f = open(shovelfile.c_str(), O_RDONLY);
             
+            if (f < 0) {
+                logstream(LOG_ERROR) << "Could not open shovel file: " << shovelfile << std::endl;
+                printf("Error: %d, %s\n", errno, strerror(errno));
+            }
+            
             assert(f>=0);
             
             buffer = (edge_with_value<EdgeDataType> *) malloc(bufsize_bytes);

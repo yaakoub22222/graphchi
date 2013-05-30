@@ -9,7 +9,7 @@
 		);
 		breakpoints = (
 			5FCC250915A392C70003D0E9 /* streaming_pagerank.cpp:267 */,
-			5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:236 */,
+			5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:229 */,
 			5FCB47A8174ACEFC0023D9D7 /* basic_dynamicengine_smoketest2.cpp:165 */,
 			5F71A168175674C300B072B9 /* kwaymerge.hpp:86 */,
 		);
@@ -360,6 +360,16 @@
 			5F71A3121757E73800B072B9 /* PBXTextBookmark */ = 5F71A3121757E73800B072B9 /* PBXTextBookmark */;
 			5F71A3131757E73800B072B9 /* PBXTextBookmark */ = 5F71A3131757E73800B072B9 /* PBXTextBookmark */;
 			5F71A3141757E73800B072B9 /* PBXTextBookmark */ = 5F71A3141757E73800B072B9 /* PBXTextBookmark */;
+			5F71A3151757EAF500B072B9 /* PBXTextBookmark */ = 5F71A3151757EAF500B072B9 /* PBXTextBookmark */;
+			5F71A3161757EAF500B072B9 /* PBXTextBookmark */ = 5F71A3161757EAF500B072B9 /* PBXTextBookmark */;
+			5F71A3171757EAF500B072B9 /* PBXTextBookmark */ = 5F71A3171757EAF500B072B9 /* PBXTextBookmark */;
+			5F71A3181757EAF500B072B9 /* PBXTextBookmark */ = 5F71A3181757EAF500B072B9 /* PBXTextBookmark */;
+			5F71A3191757EAF500B072B9 /* PBXTextBookmark */ = 5F71A3191757EAF500B072B9 /* PBXTextBookmark */;
+			5F71A31C1757EDFA00B072B9 /* PBXTextBookmark */ = 5F71A31C1757EDFA00B072B9 /* PBXTextBookmark */;
+			5F71A31D1757EDFA00B072B9 /* PBXTextBookmark */ = 5F71A31D1757EDFA00B072B9 /* PBXTextBookmark */;
+			5F71A31E1757EDFA00B072B9 /* PBXTextBookmark */ = 5F71A31E1757EDFA00B072B9 /* PBXTextBookmark */;
+			5F71A31F1757EDFA00B072B9 /* PBXTextBookmark */ = 5F71A31F1757EDFA00B072B9 /* PBXTextBookmark */;
+			5F71A3201757EDFA00B072B9 /* PBXTextBookmark */ = 5F71A3201757EDFA00B072B9 /* PBXTextBookmark */;
 			5FCB4719174AB58E0023D9D7 = 5FCB4719174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471B174AB58E0023D9D7 = 5FCB471B174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471C174AB58E0023D9D7 = 5FCB471C174AB58E0023D9D7 /* PBXTextBookmark */;
@@ -436,7 +446,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1103";
 		rLen = 0;
-		rLoc = 38725;
+		rLoc = 38943;
 		rType = 0;
 		vrLen = 447;
 		vrLoc = 42433;
@@ -456,7 +466,7 @@
 		fRef = 5FCC1CD81594F1890003D0E9 /* sharder.hpp */;
 		name = "sharder.hpp: 1038";
 		rLen = 0;
-		rLoc = 36895;
+		rLoc = 37113;
 		rType = 0;
 		vrLen = 2499;
 		vrLoc = 10053;
@@ -661,7 +671,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 401";
 		rLen = 0;
-		rLoc = 14089;
+		rLoc = 13859;
 		rType = 0;
 		vrLen = 2022;
 		vrLoc = 4835;
@@ -752,7 +762,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 401";
 		rLen = 0;
-		rLoc = 14089;
+		rLoc = 13859;
 		rType = 0;
 		vrLen = 1802;
 		vrLoc = 499;
@@ -762,7 +772,7 @@
 		fRef = 5FCC1CD81594F1890003D0E9 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36895;
+		rLoc = 37113;
 		rType = 0;
 		vrLen = 2656;
 		vrLoc = 9986;
@@ -1048,7 +1058,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36895;
+		rLoc = 37113;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1158,7 +1168,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36895;
+		rLoc = 37113;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1328,7 +1338,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36895;
+		rLoc = 37113;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1438,7 +1448,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36895;
+		rLoc = 37113;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1548,7 +1558,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36895;
+		rLoc = 37113;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1847,7 +1857,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1083";
 		rLen = 0;
-		rLoc = 38725;
+		rLoc = 38943;
 		rType = 0;
 		vrLen = 699;
 		vrLoc = 42181;
@@ -1928,7 +1938,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 727";
 		rLen = 0;
-		rLoc = 28557;
+		rLoc = 28775;
 		rType = 0;
 		vrLen = 3231;
 		vrLoc = 24815;
@@ -1938,7 +1948,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 731";
 		rLen = 0;
-		rLoc = 28247;
+		rLoc = 28465;
 		rType = 0;
 		vrLen = 3023;
 		vrLoc = 24867;
@@ -2008,7 +2018,7 @@
 		comments = "There are no arguments to 'preprocessed_file_exists' that depend on a template parameter, so a declaration of 'preprocessed_file_exists' must be available";
 		fRef = 5F71A1CA175689F500B072B9 /* sharder.hpp */;
 		rLen = 1;
-		rLoc = 450;
+		rLoc = 455;
 		rType = 1;
 	};
 	5F71A1CA175689F500B072B9 /* sharder.hpp */ = {
@@ -2023,7 +2033,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 418";
 		rLen = 93;
-		rLoc = 14392;
+		rLoc = 14610;
 		rType = 0;
 		vrLen = 2228;
 		vrLoc = 12100;
@@ -2068,7 +2078,7 @@
 		fRef = 5F71A1CA175689F500B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 406";
 		rLen = 56;
-		rLoc = 13872;
+		rLoc = 14090;
 		rType = 0;
 		vrLen = 2120;
 		vrLoc = 11849;
@@ -2078,7 +2088,7 @@
 		comments = "Void value not ignored as it ought to be";
 		fRef = 5F71A1DC17568B2200B072B9 /* sharder.hpp */;
 		rLen = 1;
-		rLoc = 432;
+		rLoc = 437;
 		rType = 1;
 	};
 	5F71A1DC17568B2200B072B9 /* sharder.hpp */ = {
@@ -2093,7 +2103,7 @@
 		fRef = 5F71A1CA175689F500B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 446";
 		rLen = 0;
-		rLoc = 15713;
+		rLoc = 15931;
 		rType = 0;
 		vrLen = 2223;
 		vrLoc = 12932;
@@ -2103,7 +2113,7 @@
 		comments = "'bufsize' was not declared in this scope";
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		rLen = 1;
-		rLoc = 191;
+		rLoc = 196;
 		rType = 1;
 	};
 	5F71A1E217568B5000B072B9 /* sharder.hpp */ = {
@@ -2128,7 +2138,7 @@
 		fRef = 5F71A1DC17568B2200B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 333";
 		rLen = 0;
-		rLoc = 11343;
+		rLoc = 11561;
 		rType = 0;
 		vrLen = 2763;
 		vrLoc = 7789;
@@ -2168,7 +2178,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 288";
 		rLen = 0;
-		rLoc = 10114;
+		rLoc = 10332;
 		rType = 0;
 		vrLen = 2763;
 		vrLoc = 7789;
@@ -2208,7 +2218,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 286";
 		rLen = 0;
-		rLoc = 10114;
+		rLoc = 10332;
 		rType = 0;
 		vrLen = 2763;
 		vrLoc = 7639;
@@ -2248,7 +2258,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 308";
 		rLen = 0;
-		rLoc = 10392;
+		rLoc = 10610;
 		rType = 0;
 		vrLen = 2609;
 		vrLoc = 7794;
@@ -2288,7 +2298,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 162";
 		rLen = 0;
-		rLoc = 5653;
+		rLoc = 5871;
 		rType = 0;
 		vrLen = 2293;
 		vrLoc = 3158;
@@ -2328,7 +2338,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 293";
 		rLen = 0;
-		rLoc = 10114;
+		rLoc = 10332;
 		rType = 0;
 		vrLen = 2720;
 		vrLoc = 6301;
@@ -2368,7 +2378,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 293";
 		rLen = 0;
-		rLoc = 10114;
+		rLoc = 10332;
 		rType = 0;
 		vrLen = 2707;
 		vrLoc = 6340;
@@ -2418,7 +2428,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 471";
 		rLen = 83;
-		rLoc = 16649;
+		rLoc = 16867;
 		rType = 0;
 		vrLen = 1857;
 		vrLoc = 14614;
@@ -2428,7 +2438,7 @@
 		comments = "Expected primary-expression before '>' token";
 		fRef = 5F71A2271756AD2900B072B9 /* sharder.hpp */;
 		rLen = 1;
-		rLoc = 499;
+		rLoc = 504;
 		rType = 1;
 	};
 	5F71A2271756AD2900B072B9 /* sharder.hpp */ = {
@@ -2443,7 +2453,7 @@
 		fRef = 5F71A1E217568B5000B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 476";
 		rLen = 0;
-		rLoc = 16703;
+		rLoc = 16921;
 		rType = 0;
 		vrLen = 1962;
 		vrLoc = 14665;
@@ -2453,7 +2463,7 @@
 		fRef = 5F71A2271756AD2900B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 294";
 		rLen = 0;
-		rLoc = 10114;
+		rLoc = 10332;
 		rType = 0;
 		vrLen = 2143;
 		vrLoc = 4049;
@@ -2533,7 +2543,7 @@
 		fRef = 5F71A2271756AD2900B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 709";
 		rLen = 0;
-		rLoc = 26437;
+		rLoc = 26655;
 		rType = 0;
 		vrLen = 2972;
 		vrLoc = 24656;
@@ -2597,7 +2607,7 @@
 		fRef = 5F71A2271756AD2900B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 289";
 		rLen = 0;
-		rLoc = 10114;
+		rLoc = 10332;
 		rType = 0;
 		vrLen = 2892;
 		vrLoc = 6535;
@@ -2637,7 +2647,7 @@
 		fRef = 5F71A2271756AD2900B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 261";
 		rLen = 43;
-		rLoc = 8619;
+		rLoc = 8837;
 		rType = 0;
 		vrLen = 1963;
 		vrLoc = 6291;
@@ -2647,7 +2657,7 @@
 		comments = "'class graphchi::metrics' has no member named 'start'";
 		fRef = 5F71A2601756B36A00B072B9 /* sharder.hpp */;
 		rLen = 1;
-		rLoc = 292;
+		rLoc = 297;
 		rType = 1;
 	};
 	5F71A2601756B36A00B072B9 /* sharder.hpp */ = {
@@ -2662,7 +2672,7 @@
 		fRef = 5F71A2271756AD2900B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 276";
 		rLen = 0;
-		rLoc = 9278;
+		rLoc = 9496;
 		rType = 0;
 		vrLen = 1973;
 		vrLoc = 6291;
@@ -2686,7 +2696,7 @@
 		fRef = 5F71A2601756B36A00B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 716";
 		rLen = 0;
-		rLoc = 27403;
+		rLoc = 27621;
 		rType = 0;
 		vrLen = 2970;
 		vrLoc = 24485;
@@ -2696,7 +2706,7 @@
 		fRef = 5F71A2601756B36A00B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 314";
 		rLen = 0;
-		rLoc = 9498;
+		rLoc = 9716;
 		rType = 0;
 		vrLen = 2787;
 		vrLoc = 7083;
@@ -2746,7 +2756,7 @@
 		fRef = 5F71A2601756B36A00B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 227";
 		rLen = 0;
-		rLoc = 6744;
+		rLoc = 6962;
 		rType = 0;
 		vrLen = 1417;
 		vrLoc = 5607;
@@ -2796,7 +2806,7 @@
 		fRef = 5F71A2601756B36A00B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 601";
 		rLen = 0;
-		rLoc = 20829;
+		rLoc = 21047;
 		rType = 0;
 		vrLen = 3692;
 		vrLoc = 18698;
@@ -2876,7 +2886,7 @@
 		comments = "'bufs' was not declared in this scope";
 		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
 		rLen = 1;
-		rLoc = 258;
+		rLoc = 263;
 		rType = 1;
 	};
 	5F71A2941757C41700B072B9 /* sharder.hpp */ = {
@@ -2886,7 +2896,7 @@
 		path = ../src/preprocessing/sharder.hpp;
 		sourceTree = "<group>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1132, 14430}}";
+			sepNavIntBoundsRect = "{{0, 0}, {938, 14859}}";
 			sepNavSelRange = "{3622, 94}";
 			sepNavVisRange = "{2117, 2213}";
 		};
@@ -2896,7 +2906,7 @@
 		fRef = 5F71A2601756B36A00B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 261";
 		rLen = 0;
-		rLoc = 7607;
+		rLoc = 7825;
 		rType = 0;
 		vrLen = 1381;
 		vrLoc = 5836;
@@ -2920,7 +2930,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 399";
 		rLen = 0;
-		rLoc = 14089;
+		rLoc = 13859;
 		rType = 0;
 		vrLen = 3128;
 		vrLoc = 12098;
@@ -2940,7 +2950,7 @@
 		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 779";
 		rLen = 0;
-		rLoc = 28679;
+		rLoc = 28897;
 		rType = 0;
 		vrLen = 3636;
 		vrLoc = 27598;
@@ -2980,7 +2990,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 393";
 		rLen = 0;
-		rLoc = 13837;
+		rLoc = 13607;
 		rType = 0;
 		vrLen = 2969;
 		vrLoc = 8822;
@@ -2990,7 +3000,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 174";
 		rLen = 0;
-		rLoc = 5030;
+		rLoc = 4800;
 		rType = 0;
 		vrLen = 3077;
 		vrLoc = 3651;
@@ -3035,7 +3045,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 174";
 		rLen = 0;
-		rLoc = 5030;
+		rLoc = 4800;
 		rType = 0;
 		vrLen = 1951;
 		vrLoc = 0;
@@ -3184,7 +3194,7 @@
 		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
 		name = "sharder.hpp: 779";
 		rLen = 0;
-		rLoc = 28679;
+		rLoc = 28897;
 		rType = 0;
 		vrLen = 2895;
 		vrLoc = 2883;
@@ -3250,6 +3260,106 @@
 		vrLoc = 2117;
 	};
 	5F71A3141757E73800B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCFFFB11756CE51002644D2 /* radixSort.hpp */;
+		name = "radixSort.hpp: 104";
+		rLen = 0;
+		rLoc = 3517;
+		rType = 0;
+		vrLen = 2152;
+		vrLoc = 1734;
+	};
+	5F71A3151757EAF500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A2DA1757DDE000B072B9 /* bitset_scheduler.hpp */;
+		name = "bitset_scheduler.hpp: 55";
+		rLen = 0;
+		rLoc = 1654;
+		rType = 0;
+		vrLen = 1932;
+		vrLoc = 781;
+	};
+	5F71A3161757EAF500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
+		name = "sharder.hpp: 779";
+		rLen = 0;
+		rLoc = 28897;
+		rType = 0;
+		vrLen = 2027;
+		vrLoc = 0;
+	};
+	5F71A3171757EAF500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
+		name = "minimumspanningforest.cpp: 95";
+		rLen = 0;
+		rLoc = 2347;
+		rType = 0;
+		vrLen = 1768;
+		vrLoc = 891;
+	};
+	5F71A3181757EAF500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
+		name = "sharder.hpp: 133";
+		rLen = 94;
+		rLoc = 3622;
+		rType = 0;
+		vrLen = 2213;
+		vrLoc = 2117;
+	};
+	5F71A3191757EAF500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCFFFB11756CE51002644D2 /* radixSort.hpp */;
+		name = "radixSort.hpp: 104";
+		rLen = 0;
+		rLoc = 3517;
+		rType = 0;
+		vrLen = 2152;
+		vrLoc = 1734;
+	};
+	5F71A31C1757EDFA00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
+		name = "minimumspanningforest.cpp: 95";
+		rLen = 0;
+		rLoc = 2347;
+		rType = 0;
+		vrLen = 1768;
+		vrLoc = 891;
+	};
+	5F71A31D1757EDFA00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
+		name = "sharder.hpp: 779";
+		rLen = 0;
+		rLoc = 28897;
+		rType = 0;
+		vrLen = 2023;
+		vrLoc = 4;
+	};
+	5F71A31E1757EDFA00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
+		name = "sharder.hpp: 187";
+		rLen = 0;
+		rLoc = 5753;
+		rType = 0;
+		vrLen = 2439;
+		vrLoc = 4711;
+	};
+	5F71A31F1757EDFA00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
+		name = "sharder.hpp: 133";
+		rLen = 94;
+		rLoc = 3622;
+		rType = 0;
+		vrLen = 2213;
+		vrLoc = 2117;
+	};
+	5F71A3201757EDFA00B072B9 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 5FCFFFB11756CE51002644D2 /* radixSort.hpp */;
 		name = "radixSort.hpp: 104";
@@ -3708,9 +3818,9 @@
 	};
 	5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1011, 5941}}";
-			sepNavSelRange = "{5030, 0}";
-			sepNavVisRange = "{0, 1951}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 6019}}";
+			sepNavSelRange = "{2347, 0}";
+			sepNavVisRange = "{891, 1768}";
 			sepNavWindowFrame = "{{38, 57}, {1104, 1095}}";
 		};
 	};
@@ -3780,7 +3890,7 @@
 		variableFormatDictionary = {
 		};
 	};
-	5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:236 */ = {
+	5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:229 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -3792,7 +3902,7 @@
 		functionName = "main(int argc, const char ** argv)";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 236;
+		lineNumber = 229;
 		modificationTime = 391636392.525487;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
