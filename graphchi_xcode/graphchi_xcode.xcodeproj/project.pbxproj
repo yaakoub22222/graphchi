@@ -244,6 +244,8 @@
 		5F71A0721756576B00B072B9 /* utiltest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utiltest.h; sourceTree = "<group>"; };
 		5F71A0731756576B00B072B9 /* utiltest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utiltest.cpp; sourceTree = "<group>"; };
 		5F71A07A1756578F00B072B9 /* utiltest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = utiltest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5F71A3211757EF0200B072B9 /* bfs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bfs.cpp; sourceTree = "<group>"; };
+		5F71A3231757EF0C00B072B9 /* directed_bfs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = directed_bfs.cpp; sourceTree = "<group>"; };
 		5F74B03715D349EF00ED3EA9 /* cgs_lda_vertexprogram.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = cgs_lda_vertexprogram.hpp; sourceTree = "<group>"; };
 		5F74B03815D3530A00ED3EA9 /* cgs_lda.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cgs_lda.cpp; sourceTree = "<group>"; };
 		5F74B04215D3532600ED3EA9 /* graphlab_lda */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = graphlab_lda; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -969,6 +971,8 @@
 		5FCC1EBC1599F59A0003D0E9 /* example_apps */ = {
 			isa = PBXGroup;
 			children = (
+				5F71A3211757EF0200B072B9 /* bfs.cpp */,
+				5F71A3231757EF0C00B072B9 /* directed_bfs.cpp */,
 				5FCC1EC8159A03D50003D0E9 /* matrix_factorization */,
 				5FCC1EBD1599F59A0003D0E9 /* application_template.cpp */,
 				5FCC1EBE1599F59A0003D0E9 /* communitydetection.cpp */,
