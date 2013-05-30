@@ -226,13 +226,7 @@ struct BoruvskaStarContractionStep : public GraphChiProgram<VertexDataType, Edge
                 if (edata.my_label(vertex.id(), e->vertex_id()) != min_component_id) {
                     edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
                     e->set_data(edata);
-                    
-                    /* Schedule neighbor is connected by MST edge and neighbor has not updated yet */
-                    if (edata.in_mst) {
-                        if (e->get_data().neighbor_label(vertex.id(), e->vertex_id()) != min_component_id) {
-                            gcontext.scheduler->add_task(e->vertex_id());
-                        }
-                    }
+                   
                 }
             }
         }
@@ -362,7 +356,6 @@ int main(int argc, const char ** argv) {
     
     if (contractionType == BORUVSKA) {
         complog = fopen("msflog_boruvska.txt", "w");
-        scheduler = true;
     } else {
         complog = fopen("msflog_star.txt", "w");
 
