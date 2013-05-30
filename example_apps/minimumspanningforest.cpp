@@ -168,9 +168,7 @@ struct BoruvskaStarContractionStep : public GraphChiProgram<VertexDataType, Edge
                     edata.orig_src = vertex.id();
                     edata.orig_dst = vertex.edge(i)->vertex_id(); // Note: forgets direction
                     vertex.edge(i)->set_data(edata);
-                }
-                
-                
+                }                
                 double w = edata.weight;
                 if (w < min_edge_weight || (w == min_edge_weight && edata.in_mst)) {  // Tie-breaking
                     min_edge_idx = i;

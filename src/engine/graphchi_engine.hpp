@@ -462,8 +462,9 @@ namespace graphchi {
                 chicontext.iteration = iter;
                 userprogram.before_iteration(iter, chicontext);
                 userprogram.before_exec_interval(0, (int)num_vertices(), chicontext);
-
+                
                 if (use_selective_scheduling) {
+                    scheduler->new_iteration(iter);
                     if (iter > 0 && !scheduler->has_new_tasks) {
                         logstream(LOG_INFO) << "No new tasks to run!" << std::endl;
                         break;
@@ -479,7 +480,6 @@ namespace graphchi {
                     }
                     
                     scheduler->has_new_tasks = false; // Kind of misleading since scheduler may still have tasks - but no new tasks.
-                    scheduler->remove_tasks(0, (int)num_vertices());
                 } else {
                     nupdates += num_vertices();
                     work += num_edges();
@@ -809,7 +809,7 @@ namespace graphchi {
                         
                         /* Now clear scheduler bits for the interval */
                         if (scheduler != NULL)
-                            scheduler->remove_tasks(sub_interval_st, sub_interval_en);
+                            scheduler->new_iteration(iter);
                         
                         /* Load data */
                         load_before_updates(vertices);                        
