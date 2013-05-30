@@ -190,11 +190,17 @@ namespace graphchi {
             load_next();
         }
         
+        virtual ~shovel_merge_source() {
+            if (buffer != NULL) free(buffer);
+            buffer == NULL;
+        }
+        
         void finish() {
             close(f);
             remove(shovelfile.c_str());
 
             free(buffer);
+            buffer = NULL;
         }
         
         void load_next() {
@@ -482,11 +488,11 @@ namespace graphchi {
                 double max_shardsize = membudget_mb * 1024. * 1024. / 8;
                 logstream(LOG_INFO) << "Determining maximum shard size: " << (max_shardsize / 1024. / 1024.) << " MB." << std::endl;
                 
-                nshards = (int) ( 1 + (numedges * sizeof(EdgeDataType) / max_shardsize) + 0.5);
+                nshards = (int) ( 1 + (numedges * sizeof(FinalEdgeDataType) / max_shardsize) + 0.5);
                 
 #ifdef DYNAMICEDATA
                 // For dynamic edge data, more working memory is needed, thus the number of shards is larger.
-                nshards = (int) ( 2 + 4 * (numedges * sizeof(EdgeDataType) / max_shardsize) + 0.5);
+                nshards = (int) ( 2 + 4 * (numedges * sizeof(FinalEdgeDataType) / max_shardsize) + 0.5);
 #endif
                 
             } else {
