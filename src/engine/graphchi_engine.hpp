@@ -756,6 +756,10 @@ namespace graphchi {
                     }
                 }
                 
+                /* Now clear scheduler bits for the interval */
+                if (scheduler != NULL)
+                    scheduler->new_iteration(iter);
+                
                 /* Interval loop */
                 for(exec_interval=0; exec_interval < nshards; ++exec_interval) {
                     /* Determine interval limits */
@@ -807,9 +811,7 @@ namespace graphchi {
                         std::vector<svertex_t> vertices(nvertices, svertex_t());
                         init_vertices(vertices, edata);
                         
-                        /* Now clear scheduler bits for the interval */
-                        if (scheduler != NULL)
-                            scheduler->new_iteration(iter);
+                    
                         
                         /* Load data */
                         load_before_updates(vertices);                        
