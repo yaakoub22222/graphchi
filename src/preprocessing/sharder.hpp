@@ -334,7 +334,7 @@ namespace graphchi {
                 
                 /* Wait for threads to finish */
                 logstream(LOG_INFO) << "Waiting shoveling threads..." << std::endl;
-                for(int i=0; i < shovelthreads.size(); i++) {
+                for(int i=0; i < (int)shovelthreads.size(); i++) {
                     pthread_join(shovelthreads[i], NULL);
                 }
             } else {
@@ -866,8 +866,8 @@ namespace graphchi {
             merger.merge();
             
             // Delete sources
-            for(int i=0; i < sources.size(); i++) {
-                delete sources[i];
+            for(int i=0; i < (int)sources.size(); i++) {
+                delete (shovel_merge_source<EdgeDataType> *)sources[i];
             }
             
             
