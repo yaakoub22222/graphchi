@@ -60,7 +60,7 @@
 #include "shards/slidingshard.hpp"
 #include "output/output.hpp"
 #include "util/ioutil.hpp"
-#include "util/qsort.hpp"
+#include "util/radixSort.hpp"
 #include "util/kwaymerge.hpp"
 
 namespace graphchi {
@@ -126,21 +126,29 @@ namespace graphchi {
         return a.dst < b.dst;
     }
     
+    template <class EdgeDataType>
+    struct dstF {inline vid_t operator() (edge_with_value<EdgeDataType> a) {return a.dst;} };
+    
+    template <class EdgeDataType>
+    struct srcF {inline vid_t operator() (edge_with_value<EdgeDataType> a) {return a.src;} };
+    
+  
+    
     template <typename EdgeDataType>
     struct shard_flushinfo {
         std::string shovelname;
         int numedges;
         edge_with_value<EdgeDataType> * buffer;
-
+        vid_t max_vertex;
         
-        shard_flushinfo(std::string shovelname, int numedges, edge_with_value<EdgeDataType> * buffer) :
-        shovelname(shovelname), numedges(numedges), buffer(buffer){}
+        shard_flushinfo(std::string shovelname, vid_t max_vertex, int numedges, edge_with_value<EdgeDataType> * buffer) :
+        shovelname(shovelname), numedges(numedges), buffer(buffer), max_vertex(max_vertex) {}
         
         void flush() {
             /* Sort */
             // TODO: remove duplicates here!
             logstream(LOG_INFO) << "Sorting shovel: " << shovelname << std::endl;
-            quickSort(buffer, numedges, edge_t_dst_less<EdgeDataType>);
+            iSort(buffer, numedges, max_vertex, dstF<EdgeDataType>());
             logstream(LOG_INFO) << "Sort done." << shovelname << std::endl;
             int f = open(shovelname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
             writea(f, buffer, numedges * sizeof(edge_with_value<EdgeDataType>));
@@ -271,7 +279,7 @@ namespace graphchi {
         
         
         virtual ~sharder() {
-            if (curshovel_buffer = NULL) free(curshovel_buffer);
+            if (curshovel_buffer == NULL) free(curshovel_buffer);
         }
         
         void set_duplicate_filter(DuplicateEdgeFilter<EdgeDataType> * filter) {
@@ -311,7 +319,7 @@ namespace graphchi {
         
         void flush_shovel(bool async=true) {
             /* Flush in separate thread unless the last one */
-            shard_flushinfo<EdgeDataType> * flushinfo = new shard_flushinfo<EdgeDataType>(shovel_filename(numshovels), curshovel_idx, curshovel_buffer);
+            shard_flushinfo<EdgeDataType> * flushinfo = new shard_flushinfo<EdgeDataType>(shovel_filename(numshovels), max_vertex_id, curshovel_idx, curshovel_buffer);
             
             if (!async) {
                 curshovel_buffer = NULL;
@@ -528,7 +536,7 @@ namespace graphchi {
             logstream(LOG_DEBUG) << "Shovel size:" << shovelsize << " edges: " << numedges << std::endl;
             
             m.start_time("finish_shard.sort");
-            quickSort(shovelbuf, (int)numedges, edge_t_src_less<EdgeDataType>);
+            iSort(shovelbuf, (int)numedges, max_vertex_id, srcF<EdgeDataType>());
             m.stop_time("finish_shard.sort");
 
             // Remove duplicates
