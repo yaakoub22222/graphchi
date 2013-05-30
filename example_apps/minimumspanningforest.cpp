@@ -52,6 +52,13 @@ struct bidirectional_component_weight {
         orig_src = orig_dst = 0;
     }
     
+    bidirectional_component_weight(double x) {
+        smaller_component = larger_component = MAX_VIDT;
+        in_mst = false;
+        weight = x;
+        orig_src = orig_dst = 0;
+    }
+    
     
     vid_t & neighbor_label(vid_t myid, vid_t nbid) {
         if (myid < nbid) {
@@ -103,7 +110,7 @@ graphchi_engine<VertexDataType, EdgeDataType> * gengine;
 size_t MST_OUTPUT;
 size_t CONTRACTED_GRAPH_OUTPUT;
 
-FILE * log = fopen("msflog.txt", "w");
+FILE * complog = fopen("msflog.txt", "w");
 
 /**
  * GraphChi programs need to subclass GraphChiProgram<vertex-type, edge-type>
@@ -217,7 +224,7 @@ struct BoruvskaStarContractionStep : public GraphChiProgram<VertexDataType, Edge
         logstream(LOG_INFO) << "To contract: " << num_contract << ", tails=" << num_tails << " heads=" << num_heads <<
             " active=" << num_active_vertices << std::endl;
         if (iteration == 1) {
-            fprintf(log, "%d,%d,%ld\n", num_contract, num_active_vertices, num_edges);
+            fprintf(complog, "%d,%d,%ld\n", num_contract, num_active_vertices, num_edges);
         }
     }
     void before_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &gcontext) {}
@@ -303,25 +310,7 @@ struct ContractionStep : public GraphChiProgram<VertexDataType, EdgeDataType> {
     
 };
 
-// As the number of edges is reduced every iteration by at least half, we can reduce the number
-// of shards by two as well.
-std::vector< std::pair<vid_t, vid_t> > halve_intervals(std::vector< std::pair<vid_t, vid_t> >  ints);
-std::vector< std::pair<vid_t, vid_t> > halve_intervals(std::vector< std::pair<vid_t, vid_t> >  ints) {
-    // Halve the intervals
-    if (ints.size() == 1) {
-        return ints;
-    }
-    std::vector< std::pair<vid_t, vid_t> > newints;
-    for(int j=0; j < (int)ints.size(); j += 2) {
-        if (j + 1 < (int)ints.size()) {
-            newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j + 1].second));
-        } else {
-            newints.push_back(std::pair<vid_t, vid_t>(ints[j].first, ints[j].second));
-            
-        }
-    }
-    return newints;
-}
+ 
 
 
 int main(int argc, const char ** argv) {
@@ -342,7 +331,7 @@ int main(int argc, const char ** argv) {
     int nshards          = get_option_int("nshards", 10);
     delete_shards<EdgeDataType>(filename, nshards);
     
-    convert_if_notexists<EdgeDataType>(filename, get_option_string("nshards", "10"));
+    convert_if_notexists<double, EdgeDataType>(filename, get_option_string("nshards", "10"));
     
     
     for(int MSF_iteration=0; MSF_iteration < 100; MSF_iteration++) {
@@ -363,11 +352,9 @@ int main(int argc, const char ** argv) {
         /* Initialize output */
         basic_text_output<VertexDataType, EdgeDataType> mstout(filename + ".mst", "\t");
         
-        int orig_numshards = engine.get_intervals().size();
+        int orig_numshards = (int) engine.get_intervals().size();
         std::string contractedname = filename + "C";
-        std::vector< std::pair<vid_t, vid_t> > new_intervals = halve_intervals(engine.get_intervals());
-        delete_shards<EdgeDataType>(contractedname, (int)new_intervals.size());
-        sharded_graph_output<VertexDataType, EdgeDataType> shardedout(contractedname, new_intervals, new AcceptMinimum());
+        sharded_graph_output<VertexDataType, EdgeDataType> shardedout(contractedname, new AcceptMinimum());
         MST_OUTPUT = engine.add_output(&mstout);
         CONTRACTED_GRAPH_OUTPUT = engine.add_output(&shardedout);
         
@@ -396,6 +383,6 @@ int main(int argc, const char ** argv) {
     m.stop_time("msf-total-runtime");
     /* Report execution metrics */
     metrics_report(m);
-    fclose(log);
+    fclose(complog);
     return 0;
 }
