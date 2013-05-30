@@ -192,7 +192,7 @@ namespace graphchi {
         
         virtual ~shovel_merge_source() {
             if (buffer != NULL) free(buffer);
-            buffer == NULL;
+            buffer = NULL;
         }
         
         void finish() {
