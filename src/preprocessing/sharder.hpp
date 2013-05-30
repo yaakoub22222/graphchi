@@ -190,8 +190,7 @@ namespace graphchi {
             load_next();
         }
         
-        ~shovel_merge_source() {
-            std::cout << "DELETE " << shovelfile << std::endl;
+        void finish() {
             close(f);
             remove(shovelfile.c_str());
 
@@ -213,6 +212,11 @@ namespace graphchi {
                 load_next();
             }
             idx++;
+            if (idx == numedges) {
+                edge_with_value<EdgeDataType> x = buffer[bufidx++];
+                finish();
+                return x;
+            }
             return buffer[bufidx++];
         }
     };
@@ -469,7 +473,7 @@ namespace graphchi {
                 double max_shardsize = membudget_mb * 1024. * 1024. / 8;
                 logstream(LOG_INFO) << "Determining maximum shard size: " << (max_shardsize / 1024. / 1024.) << " MB." << std::endl;
                 
-                nshards = (int) ( 2 + (numedges * sizeof(EdgeDataType) / max_shardsize) + 0.5);
+                nshards = (int) ( 1 + (numedges * sizeof(EdgeDataType) / max_shardsize) + 0.5);
                 
 #ifdef DYNAMICEDATA
                 // For dynamic edge data, more working memory is needed, thus the number of shards is larger.
@@ -726,6 +730,7 @@ namespace graphchi {
         size_t edges_per_shard;
         size_t cur_shard_counter;
         size_t shard_capacity;
+        size_t sharded_edges;
         int shardnum;
         edge_with_value<EdgeDataType> * sinkbuffer;
         vid_t prevvid;
@@ -745,6 +750,7 @@ namespace graphchi {
             
             sinkbuffer[cur_shard_counter++] = val;
             prevvid = val.dst;
+            sharded_edges++;
         }
         
         void createnextshard() {
@@ -754,11 +760,15 @@ namespace graphchi {
             finish_shard(shardnum++, sinkbuffer, cur_shard_counter * sizeof(edge_with_value<EdgeDataType>));
             sinkbuffer = (edge_with_value<EdgeDataType> *) malloc(shard_capacity * sizeof(edge_with_value<EdgeDataType>));
             cur_shard_counter = 0;
+            
+            // Adjust edges per hard so that it takes into account how many edges have been spilled now
+            if (shardnum < nshards) edges_per_shard = (shoveled_edges - sharded_edges) / (nshards - shardnum);
         }
         
         virtual void done() {
             createnextshard();
-            assert(shardnum == nshards);
+            logstream(LOG_INFO) << "Created " << shardnum << " shards, expected: " << nshards << std::endl;
+            assert(shardnum <= nshards);
             free(sinkbuffer);
             sinkbuffer = NULL;
             
@@ -815,11 +825,12 @@ namespace graphchi {
             }
             
             // KWAY MERGE
+            sharded_edges = 0;
             edges_per_shard = shoveled_edges / nshards + 1;
             shard_capacity = edges_per_shard / 2 * 3;  // Shard can go 50% over
             shardnum = 0;
             this_interval_start = 0;
-            sinkbuffer = (edge_with_value<EdgeDataType> *) calloc(edges_per_shard, sizeof(edge_with_value<EdgeDataType>));
+            sinkbuffer = (edge_with_value<EdgeDataType> *) calloc(shard_capacity, sizeof(edge_with_value<EdgeDataType>));
             logstream(LOG_DEBUG) << "Edges per shard: " << edges_per_shard << " nshards=" << nshards << " total: " << shoveled_edges << std::endl;
             cur_shard_counter = 0;
             
@@ -838,7 +849,7 @@ namespace graphchi {
             
             // Delete sources
             for(int i=0; i < sources.size(); i++) {
-                delete(sources[i]);
+                delete sources[i];
             }
             
             
@@ -1041,7 +1052,6 @@ namespace graphchi {
         void output_edgeval(vid_t from, vid_t to, ET value) {
             lock.lock();
             sharderobj->preprocessing_add_edge(from, to, value);
-            assert(false);
             lock.unlock();
         }
         

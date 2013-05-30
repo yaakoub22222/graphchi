@@ -71,7 +71,7 @@ class kway_merge {
     binary_minheap<value_source<T> > tip;
 
 public:
-    kway_merge(std::vector<merge_source<T> *> sources, merge_sink<T> * sink): sources(sources), sink(sink), tip(sources.size()) {
+    kway_merge(std::vector<merge_source<T> *> sources, merge_sink<T> * sink): sources(sources), sink(sink), tip((int)sources.size()) {
         K = sources.size();
     }
     
