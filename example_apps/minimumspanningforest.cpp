@@ -92,14 +92,7 @@ class AcceptMinimum : public DuplicateEdgeFilter<bidirectional_component_weight>
     }
 };
 
-static void parse(bidirectional_component_weight &x, const char * s) {
-    x.smaller_component = MAX_VIDT;
-    x.larger_component = MAX_VIDT;
-    x.in_mst = false;
-    x.weight = (float) atof(s);
-    x.orig_dst = x.orig_src = 0;
-}
-
+ 
 
 /**
  * Type definitions. Remember to create suitable graph shards using the
