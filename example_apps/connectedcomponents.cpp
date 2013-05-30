@@ -119,6 +119,7 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
      * Called before an iteration starts.
      */
     void before_iteration(int iteration, graphchi_context &info) {
+        logstream(LOG_INFO) << "Iteration " << iteration << " starts, tasks: " << info.scheduler->num_tasks() << std::endl;;
     }
     
     /**
@@ -152,7 +153,7 @@ int main(int argc, const char ** argv) {
     
     /* Basic arguments for application */
     std::string filename = get_option_string("file");  // Base filename
-    int niters           = get_option_int("niters", 10); // Number of iterations (max)
+    int niters           = get_option_int("niters", 50); // Number of iterations (max)
     bool scheduler       = true;    // Always run with scheduler
     
     /* Process input file - if not already preprocessed */
@@ -164,7 +165,11 @@ int main(int argc, const char ** argv) {
         graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m); 
         engine.run(program, niters);
     }
-     
+    
+    /* Analyze labels */
+    analyze_labels<vid_t>(filename);
+
+    
     /* Report execution metrics */
     metrics_report(m);
     return 0;

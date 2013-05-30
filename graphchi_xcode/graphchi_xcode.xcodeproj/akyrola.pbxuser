@@ -2,14 +2,14 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Release;
-		activeExecutable = 5FCC20DD159DBC9E0003D0E9 /* test_smoketest */;
-		activeTarget = 5FB782E6159D268500816BDE /* test_smoketest */;
+		activeExecutable = 5FCC20ED159DE4660003D0E9 /* connectedcomponents */;
+		activeTarget = 5F8DD040159DDABC0034C889 /* connectedcomponents */;
 		addToTargets = (
 			5FB782E6159D268500816BDE /* test_smoketest */,
 		);
 		breakpoints = (
 			5FCC250915A392C70003D0E9 /* streaming_pagerank.cpp:267 */,
-			5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:238 */,
+			5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:236 */,
 			5FCB47A8174ACEFC0023D9D7 /* basic_dynamicengine_smoketest2.cpp:165 */,
 			5F71A168175674C300B072B9 /* kwaymerge.hpp:86 */,
 		);
@@ -327,6 +327,20 @@
 			5F71A2B41757D65000B072B9 /* PBXTextBookmark */ = 5F71A2B41757D65000B072B9 /* PBXTextBookmark */;
 			5F71A2B51757D65000B072B9 /* PBXBookmark */ = 5F71A2B51757D65000B072B9 /* PBXBookmark */;
 			5F71A2B61757D65000B072B9 /* PBXTextBookmark */ = 5F71A2B61757D65000B072B9 /* PBXTextBookmark */;
+			5F71A2C41757DD3500B072B9 /* PBXTextBookmark */ = 5F71A2C41757DD3500B072B9 /* PBXTextBookmark */;
+			5F71A2C51757DD3500B072B9 /* PBXTextBookmark */ = 5F71A2C51757DD3500B072B9 /* PBXTextBookmark */;
+			5F71A2C61757DD3500B072B9 /* PBXTextBookmark */ = 5F71A2C61757DD3500B072B9 /* PBXTextBookmark */;
+			5F71A2C71757DD3500B072B9 /* PBXTextBookmark */ = 5F71A2C71757DD3500B072B9 /* PBXTextBookmark */;
+			5F71A2C81757DD3500B072B9 /* PBXTextBookmark */ = 5F71A2C81757DD3500B072B9 /* PBXTextBookmark */;
+			5F71A2C91757DD3500B072B9 /* PBXTextBookmark */ = 5F71A2C91757DD3500B072B9 /* PBXTextBookmark */;
+			5F71A2CA1757DD3500B072B9 /* PBXTextBookmark */ = 5F71A2CA1757DD3500B072B9 /* PBXTextBookmark */;
+			5F71A2D11757DDD300B072B9 /* PBXTextBookmark */ = 5F71A2D11757DDD300B072B9 /* PBXTextBookmark */;
+			5F71A2D21757DDD300B072B9 /* XCBuildMessageTextBookmark */ = 5F71A2D21757DDD300B072B9 /* XCBuildMessageTextBookmark */;
+			5F71A2D41757DDD300B072B9 /* PBXTextBookmark */ = 5F71A2D41757DDD300B072B9 /* PBXTextBookmark */;
+			5F71A2D71757DDE000B072B9 /* PBXTextBookmark */ = 5F71A2D71757DDE000B072B9 /* PBXTextBookmark */;
+			5F71A2D81757DDE000B072B9 /* PBXTextBookmark */ = 5F71A2D81757DDE000B072B9 /* PBXTextBookmark */;
+			5F71A2D91757DDE000B072B9 /* XCBuildMessageTextBookmark */ = 5F71A2D91757DDE000B072B9 /* XCBuildMessageTextBookmark */;
+			5F71A2DB1757DDE000B072B9 /* PBXTextBookmark */ = 5F71A2DB1757DDE000B072B9 /* PBXTextBookmark */;
 			5FCB4719174AB58E0023D9D7 = 5FCB4719174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471B174AB58E0023D9D7 = 5FCB471B174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471C174AB58E0023D9D7 = 5FCB471C174AB58E0023D9D7 /* PBXTextBookmark */;
@@ -351,7 +365,7 @@
 		fRef = 5F7A10311589266800748D0D /* ischeduler.hpp */;
 		name = "ischeduler.hpp: 65";
 		rLen = 49;
-		rLoc = 1993;
+		rLoc = 1903;
 		rType = 0;
 		vrLen = 1795;
 		vrLoc = 267;
@@ -372,13 +386,18 @@
 		name = bitset_scheduler.hpp;
 		path = ../src/engine/bitset_scheduler.hpp;
 		sourceTree = "<group>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 1339}}";
+			sepNavSelRange = "{2196, 0}";
+			sepNavVisRange = "{784, 1945}";
+		};
 	};
 	5F092D90174BD3B20062FDC1 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 5F092D7A174BCD7D0062FDC1 /* bitset_scheduler.hpp */;
 		name = "bitset_scheduler.hpp: 78";
 		rLen = 0;
-		rLoc = 2094;
+		rLoc = 2629;
 		rType = 0;
 		vrLen = 1434;
 		vrLoc = 718;
@@ -398,9 +417,9 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1103";
 		rLen = 0;
-		rLoc = 38681;
+		rLoc = 38725;
 		rType = 0;
-		vrLen = 1654;
+		vrLen = 447;
 		vrLoc = 42433;
 	};
 	5F092DC41754FD650062FDC1 /* PBXTextBookmark */ = {
@@ -418,7 +437,7 @@
 		fRef = 5FCC1CD81594F1890003D0E9 /* sharder.hpp */;
 		name = "sharder.hpp: 1038";
 		rLen = 0;
-		rLoc = 36851;
+		rLoc = 36895;
 		rType = 0;
 		vrLen = 2499;
 		vrLoc = 10053;
@@ -623,7 +642,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 401";
 		rLen = 0;
-		rLoc = 14107;
+		rLoc = 14089;
 		rType = 0;
 		vrLen = 2022;
 		vrLoc = 4835;
@@ -714,7 +733,7 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 401";
 		rLen = 0;
-		rLoc = 14107;
+		rLoc = 14089;
 		rType = 0;
 		vrLen = 1802;
 		vrLoc = 499;
@@ -724,7 +743,7 @@
 		fRef = 5FCC1CD81594F1890003D0E9 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36851;
+		rLoc = 36895;
 		rType = 0;
 		vrLen = 2656;
 		vrLoc = 9986;
@@ -1010,7 +1029,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36851;
+		rLoc = 36895;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1120,7 +1139,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36851;
+		rLoc = 36895;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1290,7 +1309,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36851;
+		rLoc = 36895;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1400,7 +1419,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36851;
+		rLoc = 36895;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1510,7 +1529,7 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1037";
 		rLen = 0;
-		rLoc = 36851;
+		rLoc = 36895;
 		rType = 0;
 		vrLen = 1756;
 		vrLoc = 1617;
@@ -1809,9 +1828,9 @@
 		fRef = 5F78366C15DD718A00954509 /* sharder.hpp */;
 		name = "sharder.hpp: 1083";
 		rLen = 0;
-		rLoc = 38681;
+		rLoc = 38725;
 		rType = 0;
-		vrLen = 2218;
+		vrLen = 699;
 		vrLoc = 42181;
 	};
 	5F71A1A1175680FE00B072B9 /* PBXTextBookmark */ = {
@@ -2847,6 +2866,11 @@
 		name = sharder.hpp;
 		path = ../src/preprocessing/sharder.hpp;
 		sourceTree = "<group>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1132, 13962}}";
+			sepNavSelRange = "{28679, 0}";
+			sepNavVisRange = "{27598, 3636}";
+		};
 	};
 	5F71A2951757C41700B072B9 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -2877,10 +2901,160 @@
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 399";
 		rLen = 0;
-		rLoc = 14107;
+		rLoc = 14089;
 		rType = 0;
 		vrLen = 3128;
 		vrLoc = 12098;
+	};
+	5F71A2C41757DD3500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCC1D65159503890003D0E9 /* conversions.hpp */;
+		name = "conversions.hpp: 713";
+		rLen = 0;
+		rLoc = 27552;
+		rType = 0;
+		vrLen = 3209;
+		vrLoc = 15422;
+	};
+	5F71A2C51757DD3500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A2941757C41700B072B9 /* sharder.hpp */;
+		name = "sharder.hpp: 779";
+		rLen = 0;
+		rLoc = 28679;
+		rType = 0;
+		vrLen = 3636;
+		vrLoc = 27598;
+	};
+	5F71A2C61757DD3500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F78362815DD706900954509 /* graphchi_engine.hpp */;
+		name = "graphchi_engine.hpp: 814";
+		rLen = 0;
+		rLoc = 33274;
+		rType = 0;
+		vrLen = 4272;
+		vrLoc = 31584;
+	};
+	5F71A2C71757DD3500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F7A10311589266800748D0D /* ischeduler.hpp */;
+		name = "ischeduler.hpp: 45";
+		rLen = 13;
+		rLoc = 1263;
+		rType = 0;
+		vrLen = 2026;
+		vrLoc = 0;
+	};
+	5F71A2C81757DD3500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F092D7A174BCD7D0062FDC1 /* bitset_scheduler.hpp */;
+		name = "bitset_scheduler.hpp: 52";
+		rLen = 0;
+		rLoc = 1493;
+		rType = 0;
+		vrLen = 2200;
+		vrLoc = 431;
+	};
+	5F71A2C91757DD3500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
+		name = "minimumspanningforest.cpp: 393";
+		rLen = 0;
+		rLoc = 13837;
+		rType = 0;
+		vrLen = 2969;
+		vrLoc = 8822;
+	};
+	5F71A2CA1757DD3500B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
+		name = "minimumspanningforest.cpp: 174";
+		rLen = 0;
+		rLoc = 5030;
+		rType = 0;
+		vrLen = 3077;
+		vrLoc = 3651;
+	};
+	5F71A2D11757DDD300B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F092D7A174BCD7D0062FDC1 /* bitset_scheduler.hpp */;
+		name = "bitset_scheduler.hpp: 90";
+		rLen = 67;
+		rLoc = 2541;
+		rType = 0;
+		vrLen = 1481;
+		vrLoc = 1196;
+	};
+	5F71A2D21757DDD300B072B9 /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "'bitset' was not declared in this scope";
+		fRef = 5F71A2D31757DDD300B072B9 /* bitset_scheduler.hpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 89;
+		rType = 1;
+	};
+	5F71A2D31757DDD300B072B9 /* bitset_scheduler.hpp */ = {
+		isa = PBXFileReference;
+		name = bitset_scheduler.hpp;
+		path = ../src/engine/bitset_scheduler.hpp;
+		sourceTree = "<group>";
+	};
+	5F71A2D41757DDD300B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F092D7A174BCD7D0062FDC1 /* bitset_scheduler.hpp */;
+		name = "bitset_scheduler.hpp: 91";
+		rLen = 0;
+		rLoc = 2650;
+		rType = 0;
+		vrLen = 1509;
+		vrLoc = 1196;
+	};
+	5F71A2D71757DDE000B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
+		name = "minimumspanningforest.cpp: 174";
+		rLen = 0;
+		rLoc = 5030;
+		rType = 0;
+		vrLen = 1951;
+		vrLoc = 0;
+	};
+	5F71A2D81757DDE000B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F092D7A174BCD7D0062FDC1 /* bitset_scheduler.hpp */;
+		name = "bitset_scheduler.hpp: 85";
+		rLen = 43;
+		rLoc = 2423;
+		rType = 0;
+		vrLen = 1533;
+		vrLoc = 784;
+	};
+	5F71A2D91757DDE000B072B9 /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "Expected type-specifier before 'bitset'";
+		fRef = 5F71A2DA1757DDE000B072B9 /* bitset_scheduler.hpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 45;
+		rType = 1;
+	};
+	5F71A2DA1757DDE000B072B9 /* bitset_scheduler.hpp */ = {
+		isa = PBXFileReference;
+		name = bitset_scheduler.hpp;
+		path = ../src/engine/bitset_scheduler.hpp;
+		sourceTree = "<group>";
+	};
+	5F71A2DB1757DDE000B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F092D7A174BCD7D0062FDC1 /* bitset_scheduler.hpp */;
+		name = "bitset_scheduler.hpp: 73";
+		rLen = 0;
+		rLoc = 2196;
+		rType = 0;
+		vrLen = 1945;
+		vrLoc = 784;
 	};
 	5F74B03A15D3532600ED3EA9 /* graphlab_lda */ = {
 		activeExec = 0;
@@ -2969,6 +3143,11 @@
 		name = graphchi_engine.hpp;
 		path = /Users/akyrola/Projects/GraphCHI/graphchi_research/graphchi/graphchi_xcode/../src/engine/graphchi_engine.hpp;
 		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1216, 13923}}";
+			sepNavSelRange = "{33274, 0}";
+			sepNavVisRange = "{31584, 4272}";
+		};
 	};
 	5F78366C15DD718A00954509 /* sharder.hpp */ = {
 		isa = PBXFileReference;
@@ -3059,9 +3238,9 @@
 	};
 	5F7A10311589266800748D0D /* ischeduler.hpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1094, 962}}";
-			sepNavSelRange = "{1993, 49}";
-			sepNavVisRange = "{267, 1795}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 1008}}";
+			sepNavSelRange = "{1263, 13}";
+			sepNavVisRange = "{0, 2026}";
 			sepNavWindowFrame = "{{61, 65}, {813, 1066}}";
 		};
 	};
@@ -3326,9 +3505,9 @@
 	};
 	5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1011, 5746}}";
-			sepNavSelRange = "{14107, 0}";
-			sepNavVisRange = "{12098, 3128}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 5941}}";
+			sepNavSelRange = "{5030, 0}";
+			sepNavVisRange = "{0, 1951}";
 			sepNavWindowFrame = "{{38, 57}, {1104, 1095}}";
 		};
 	};
@@ -3398,7 +3577,7 @@
 		variableFormatDictionary = {
 		};
 	};
-	5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:238 */ = {
+	5FCB46EF174AB3EF0023D9D7 /* minimumspanningforest.cpp:236 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -3410,7 +3589,7 @@
 		functionName = "main(int argc, const char ** argv)";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 238;
+		lineNumber = 236;
 		modificationTime = 391542243.607321;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
@@ -3641,6 +3820,11 @@
 		name = conversions.hpp;
 		path = ../src/preprocessing/conversions.hpp;
 		sourceTree = "<group>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1125, 10608}}";
+			sepNavSelRange = "{27552, 0}";
+			sepNavVisRange = "{15422, 3209}";
+		};
 	};
 	5FCC1DD71599194B0003D0E9 /* graphchi_basic_includes.hpp */ = {
 		uiCtxt = {
@@ -3848,7 +4032,7 @@
 			file,
 			"/Users/akyrola/graphs/web-Google.txt",
 			nshards,
-			1,
+			2,
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 1;
