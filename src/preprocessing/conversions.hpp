@@ -708,7 +708,7 @@ namespace graphchi {
     int convert_if_notexists(std::string basefilename, std::string nshards_string,
                              SharderPreprocessor<EdgeDataType> * preprocessor = NULL) {
         bool b;
-        return convert_if_notexists<EdgeDataType, FinalEdgeType>(basefilename, nshards_string, preprocessor);
+        return convert_if_notexists<EdgeDataType, FinalEdgeType>(basefilename, nshards_string, b, preprocessor);
     }
     
     template <typename EdgeDataType>
