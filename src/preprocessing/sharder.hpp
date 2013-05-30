@@ -312,9 +312,15 @@ namespace graphchi {
         void start_preprocessing() {
             m.start_time("preprocessing");
             numshovels = 0;
-            shovelsize = (1024 * 1024 * get_option_int("membudget_mb", 1024) / 4 / sizeof(edge_with_value<EdgeDataType>));
+            shovelsize = (1024l * 1024l * size_t(get_option_int("membudget_mb", 1024)) / 4l / sizeof(edge_with_value<EdgeDataType>));
             curshovel_idx = 0;
+            
+            logstream(LOG_INFO) << "Starting preprocessing, shovel size: " << shovelsize << std::endl;
+            
             curshovel_buffer = (edge_with_value<EdgeDataType> *) calloc(shovelsize, sizeof(edge_with_value<EdgeDataType>));
+            
+            assert(curshovel_buffer != NULL);
+            
             shovelthreads.clear();
             
             /* Write the maximum vertex id place holder - to be filled later */

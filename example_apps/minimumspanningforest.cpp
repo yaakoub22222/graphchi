@@ -362,7 +362,7 @@ int main(int argc, const char ** argv) {
     bool scheduler       = false; // Whether to use selective scheduling
     
     /* Detect the number of shards or preprocess an input to create them */
-    int nshards          = get_option_int("nshards", 10);
+    int nshards          = get_option_int("nshards", 0);
     delete_shards<EdgeDataType>(filename, nshards);
     
     convert_if_notexists<double, EdgeDataType>(filename, get_option_string("nshards", "10"));
