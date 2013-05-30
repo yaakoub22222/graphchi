@@ -169,14 +169,14 @@ namespace graphchi {
     template <typename EdgeDataType>
     struct shovel_merge_source : public merge_source<edge_with_value<EdgeDataType> > {
         
-        size_t bufsize_bytes;
-        size_t bufsize_edges;
+        int bufsize_bytes;
+        int bufsize_edges;
         std::string shovelfile;
         int idx;
         int bufidx;
         edge_with_value<EdgeDataType> * buffer;
         int f;
-        size_t numedges;
+        int numedges;
         
         shovel_merge_source(size_t bufsize_bytes, std::string shovelfile) : bufsize_bytes(bufsize_bytes), 
         shovelfile(shovelfile), idx(0), bufidx(0) {
@@ -185,8 +185,8 @@ namespace graphchi {
             assert(f>=0);
             
             buffer = (edge_with_value<EdgeDataType> *) malloc(bufsize_bytes);
-            numedges = get_filesize(shovelfile) / sizeof(edge_with_value<EdgeDataType> );
-            bufsize_edges = bufsize_bytes / sizeof(edge_with_value<EdgeDataType>);
+            numedges = (int) (get_filesize(shovelfile) / sizeof(edge_with_value<EdgeDataType> ));
+            bufsize_edges = (int) (bufsize_bytes / sizeof(edge_with_value<EdgeDataType>));
             load_next();
         }
         
@@ -197,7 +197,7 @@ namespace graphchi {
         }
         
         void load_next() {
-            size_t len = std::min(bufsize_bytes, (numedges - idx) * sizeof(edge_with_value<EdgeDataType>));
+            size_t len = std::min(bufsize_bytes, (int) ((numedges - idx) * sizeof(edge_with_value<EdgeDataType>)));
             preada(f, buffer, len, idx * sizeof(edge_with_value<EdgeDataType>));
             bufidx = 0;
         }
@@ -207,7 +207,6 @@ namespace graphchi {
         }
         
         edge_with_value<EdgeDataType> next() {
-            assert(idx < numedges);
             if (bufidx == bufsize_edges) {
                 load_next();
             }
@@ -770,7 +769,7 @@ namespace graphchi {
                 strerror(errno) << std::endl;
             }
             assert(f != NULL);
-            for(int i=0; i<intervals.size(); i++) {
+            for(int i=0; i<(int)intervals.size(); i++) {
                fprintf(f, "%u\n", intervals[i].second);
             }
             fclose(f);
