@@ -101,6 +101,8 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
          */
         vid_t label = vertex.get_data();
         
+        std::cout << gcontext.iteration << ":" << vertex.id() << " =======> " << label << std::endl;
+        
         if (gcontext.iteration > 0) {
             for(int i=0; i < vertex.num_edges(); i++) {
                 if (label < vertex.edge(i)->get_data()) {
