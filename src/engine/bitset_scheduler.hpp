@@ -54,6 +54,7 @@ namespace graphchi {
                 curiteration_bitset = nextiteration_bitset;
                 nextiteration_bitset = tmp;
                 nextiteration_bitset->clear();
+		std::cout<<"num tasks = "<<num_tasks()<<std::endl;
             }   
                 
         }
