@@ -51,47 +51,39 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
    *  Vertex update function.
    */
   uint root;
-  BFSProgram() : root(0) {}
   BFSProgram(uint _root) : root(_root) {}
   void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
-
     if (gcontext.iteration == 0) {
       vertex.set_data(INT_MAX);
       for(int i=0; i < vertex.num_outedges(); i++) {
 	vertex.outedge(i)->set_data(INT_MAX); 
       }
-      
-    } 
-    else if (gcontext.iteration == 1 && vertex.id() == root) {
- std::cout << "vertex " << vertex.id() << " "<<vertex.get_data()<<std::endl;	
- 	vertex.set_data(0); //source vertex 
-      	for(int i=0; i < vertex.num_edges(); i++) {
-      	  vertex.edge(i)->set_data(0);
-      	  gcontext.scheduler->add_task(vertex.edge(i)->vertex_id()); //add neighbors
-	      cout<<"scheduled "<<vertex.edge(i)->vertex_id()<<endl;
-
-      	}
+    }
+    else if(gcontext.iteration == 1){ //root places neighbors
+      vertex.set_data(0);
+      for(int i=0;i<vertex.num_edges();i++){
+	vertex.edge(i)->set_data(0);
+	gcontext.scheduler->add_task(vertex.edge(i)->vertex_id());
+      }
     }
     else {
-      std::cout << "vertex " << vertex.id() << " "<<vertex.get_data()<<std::endl;	
+      //std::cout << "vertex " << vertex.id() << " "<<vertex.get_data()<<std::endl;	
       /* Do computation */ 
       //if(vertex.get_data() == -1) {
-      int ownLevel = vertex.get_data();
-	int minLevel = INT_MAX;
-	for(int i=0;i<vertex.num_edges();i++) {	      
-	  minLevel = min(minLevel,vertex.edge(i)->get_data());
-	}
-
-	if(minLevel+1 < ownLevel) {
-	  vertex.set_data(minLevel+1);
-	  for(int i=0;i<vertex.num_edges();i++)
-	    if(vertex.edge(i)->get_data() > vertex.get_data()){
-	      vertex.edge(i)->set_data(vertex.get_data());
-	      /* Schedule neighbor for update */
-	      gcontext.scheduler->add_task(vertex.edge(i)->vertex_id());
-	      cout<<"scheduled "<<vertex.edge(i)->vertex_id()<<endl;
-	    }
-	}
+      int minLevel = INT_MAX;
+      for(int i=0;i<vertex.num_edges();i++) {	      
+	minLevel = min(minLevel,vertex.edge(i)->get_data());
+      }
+      if(minLevel < INT_MAX) {
+	vertex.set_data(minLevel+1);
+	for(int i=0;i<vertex.num_edges();i++)
+	  if(vertex.edge(i)->get_data() == INT_MAX){
+	    vertex.edge(i)->set_data(vertex.get_data());
+	    /* Schedule neighbor for update */
+	    gcontext.scheduler->add_task(vertex.edge(i)->vertex_id());
+	    //cout<<vertex.get_data()<<" scheduled "<<vertex.edge(i)->vertex_id()<<endl;
+	  }
+      }
 	// }
     }
   }
@@ -100,11 +92,6 @@ struct BFSProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
    * Called before an iteration starts.
    */
   void before_iteration(int iteration, graphchi_context &gcontext) {
-    cout<<"iteration = "<<iteration<<", numtasks = "<<gcontext.scheduler->num_tasks()<<endl;
-    // if(iteration == 0) {
-    // 	//remove all tasks except task 0
-    // 	gcontext.scheduler->remove_tasks(1, gcontext.nvertices-1);
-    // }
   }
     
   /**
