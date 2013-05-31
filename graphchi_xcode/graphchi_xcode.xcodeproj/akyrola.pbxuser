@@ -388,6 +388,10 @@
 			5F71A33D17580ADC00B072B9 /* PBXTextBookmark */ = 5F71A33D17580ADC00B072B9 /* PBXTextBookmark */;
 			5F71A33E17580ADC00B072B9 /* PBXTextBookmark */ = 5F71A33E17580ADC00B072B9 /* PBXTextBookmark */;
 			5F71A33F17580ADC00B072B9 /* PBXTextBookmark */ = 5F71A33F17580ADC00B072B9 /* PBXTextBookmark */;
+			5F71A3441758D68D00B072B9 /* PBXTextBookmark */ = 5F71A3441758D68D00B072B9 /* PBXTextBookmark */;
+			5F71A3451758D68D00B072B9 /* PBXTextBookmark */ = 5F71A3451758D68D00B072B9 /* PBXTextBookmark */;
+			5F71A3461758D68D00B072B9 /* PBXTextBookmark */ = 5F71A3461758D68D00B072B9 /* PBXTextBookmark */;
+			5F71A3471758D68D00B072B9 /* PBXTextBookmark */ = 5F71A3471758D68D00B072B9 /* PBXTextBookmark */;
 			5FCB4719174AB58E0023D9D7 = 5FCB4719174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471B174AB58E0023D9D7 = 5FCB471B174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471C174AB58E0023D9D7 = 5FCB471C174AB58E0023D9D7 /* PBXTextBookmark */;
@@ -1674,7 +1678,7 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 86;
-		modificationTime = 391644124.472167;
+		modificationTime = 391645965.101424;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
 	};
@@ -1895,7 +1899,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3433;
 		vrLoc = 5926;
@@ -1996,7 +2000,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3433;
 		vrLoc = 5926;
@@ -2186,7 +2190,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3224;
 		vrLoc = 6167;
@@ -2226,7 +2230,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3224;
 		vrLoc = 6167;
@@ -2266,7 +2270,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3224;
 		vrLoc = 6167;
@@ -2306,7 +2310,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3198;
 		vrLoc = 6297;
@@ -2346,7 +2350,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3297;
 		vrLoc = 6297;
@@ -2386,7 +2390,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3150;
 		vrLoc = 6485;
@@ -2426,7 +2430,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3123;
 		vrLoc = 6524;
@@ -2511,7 +2515,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3060;
 		vrLoc = 6678;
@@ -2551,7 +2555,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3066;
 		vrLoc = 6739;
@@ -2591,7 +2595,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3073;
 		vrLoc = 6948;
@@ -2655,7 +2659,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3271;
 		vrLoc = 7153;
@@ -2764,7 +2768,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3383;
 		vrLoc = 7276;
@@ -2814,7 +2818,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3352;
 		vrLoc = 7325;
@@ -2884,7 +2888,7 @@
 		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
 		name = "memoryshard.hpp: 223";
 		rLen = 0;
-		rLoc = 8061;
+		rLoc = 8074;
 		rType = 0;
 		vrLen = 3325;
 		vrLoc = 7486;
@@ -3586,6 +3590,46 @@
 		vrLen = 3282;
 		vrLoc = 4533;
 	};
+	5F71A3441758D68D00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
+		name = "minimumspanningforest.cpp: 229";
+		rLen = 0;
+		rLoc = 7490;
+		rType = 0;
+		vrLen = 3229;
+		vrLoc = 4586;
+	};
+	5F71A3451758D68D00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F7B64DB158A747A0032CE47 /* slidingshard.hpp */;
+		name = "slidingshard.hpp: 265";
+		rLen = 0;
+		rLoc = 8809;
+		rType = 0;
+		vrLen = 3886;
+		vrLoc = 7116;
+	};
+	5F71A3461758D68D00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
+		name = "memoryshard.hpp: 223";
+		rLen = 0;
+		rLoc = 8074;
+		rType = 0;
+		vrLen = 3403;
+		vrLoc = 7421;
+	};
+	5F71A3471758D68D00B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
+		name = "memoryshard.hpp: 219";
+		rLen = 0;
+		rLoc = 7797;
+		rType = 0;
+		vrLen = 3345;
+		vrLoc = 7030;
+	};
 	5F74B03A15D3532600ED3EA9 /* graphlab_lda */ = {
 		activeExec = 0;
 		executables = (
@@ -3807,9 +3851,9 @@
 	};
 	5F7A10471589266800748D0D /* memoryshard.hpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1043, 5603}}";
-			sepNavSelRange = "{8061, 0}";
-			sepNavVisRange = "{7486, 3325}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 5434}}";
+			sepNavSelRange = "{7797, 0}";
+			sepNavVisRange = "{7030, 3345}";
 			sepNavWindowFrame = "{{15, 78}, {1104, 1095}}";
 		};
 	};
@@ -3872,9 +3916,9 @@
 	};
 	5F7B64DB158A747A0032CE47 /* slidingshard.hpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1267, 5837}}";
-			sepNavSelRange = "{11890, 0}";
-			sepNavVisRange = "{10127, 1990}";
+			sepNavIntBoundsRect = "{{0, 0}, {1146, 6708}}";
+			sepNavSelRange = "{8809, 0}";
+			sepNavVisRange = "{7116, 3886}";
 			sepNavWindowFrame = "{{61, 155}, {999, 976}}";
 		};
 	};
@@ -4038,7 +4082,7 @@
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1011, 5473}}";
 			sepNavSelRange = "{7490, 0}";
-			sepNavVisRange = "{4533, 3282}";
+			sepNavVisRange = "{4586, 3229}";
 			sepNavWindowFrame = "{{38, 57}, {1104, 1095}}";
 		};
 	};
@@ -4121,7 +4165,7 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 229;
-		modificationTime = 391644124.472146;
+		modificationTime = 391645965.101264;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
 	};
@@ -4235,7 +4279,7 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 165;
-		modificationTime = 391645668.165343;
+		modificationTime = 391698049.518291;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -4843,7 +4887,7 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 267;
-		modificationTime = 391645668.165317;
+		modificationTime = 391698049.518264;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
