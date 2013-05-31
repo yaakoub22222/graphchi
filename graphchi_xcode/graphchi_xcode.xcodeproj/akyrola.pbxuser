@@ -2,9 +2,10 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Release;
-		activeExecutable = 5FCB46CF174AB1E70023D9D7 /* mst */;
-		activeTarget = 5FCB46C6174AB1E70023D9D7 /* mst */;
+		activeExecutable = 5FCC20ED159DE4660003D0E9 /* connectedcomponents */;
+		activeTarget = 5F8DD040159DDABC0034C889 /* connectedcomponents */;
 		addToTargets = (
+			5F8DD040159DDABC0034C889 /* connectedcomponents */,
 		);
 		breakpoints = (
 			5FCC250915A392C70003D0E9 /* streaming_pagerank.cpp:267 */,
@@ -392,6 +393,8 @@
 			5F71A3451758D68D00B072B9 /* PBXTextBookmark */ = 5F71A3451758D68D00B072B9 /* PBXTextBookmark */;
 			5F71A3461758D68D00B072B9 /* PBXTextBookmark */ = 5F71A3461758D68D00B072B9 /* PBXTextBookmark */;
 			5F71A3471758D68D00B072B9 /* PBXTextBookmark */ = 5F71A3471758D68D00B072B9 /* PBXTextBookmark */;
+			5F71A3511759390900B072B9 /* PBXTextBookmark */ = 5F71A3511759390900B072B9 /* PBXTextBookmark */;
+			5F71A3521759390900B072B9 /* PBXTextBookmark */ = 5F71A3521759390900B072B9 /* PBXTextBookmark */;
 			5FCB4719174AB58E0023D9D7 = 5FCB4719174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471B174AB58E0023D9D7 = 5FCB471B174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471C174AB58E0023D9D7 = 5FCB471C174AB58E0023D9D7 /* PBXTextBookmark */;
@@ -1678,7 +1681,7 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 86;
-		modificationTime = 391645965.101424;
+		modificationTime = 391724354.740807;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
 	};
@@ -3100,8 +3103,8 @@
 		sourceTree = "<group>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {954, 1261}}";
-			sepNavSelRange = "{2634, 0}";
-			sepNavVisRange = "{1196, 1492}";
+			sepNavSelRange = "{2766, 0}";
+			sepNavVisRange = "{1111, 1534}";
 		};
 	};
 	5F71A2DB1757DDE000B072B9 /* PBXTextBookmark */ = {
@@ -3157,7 +3160,7 @@
 		fRef = 5FCC1EBF1599F59A0003D0E9 /* connectedcomponents.cpp */;
 		name = "connectedcomponents.cpp: 156";
 		rLen = 0;
-		rLoc = 5631;
+		rLoc = 5741;
 		rType = 0;
 		vrLen = 2647;
 		vrLoc = 3668;
@@ -3401,9 +3404,9 @@
 	};
 	5F71A3231757EF0C00B072B9 /* directed_bfs.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1011, 2106}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 2028}}";
 			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 1480}";
+			sepNavVisRange = "{0, 2414}";
 		};
 	};
 	5F71A3241757EF8A00B072B9 /* PBXTextBookmark */ = {
@@ -3630,6 +3633,33 @@
 		vrLen = 3345;
 		vrLoc = 7030;
 	};
+	5F71A3511759390900B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F7A10471589266800748D0D /* memoryshard.hpp */;
+		name = "memoryshard.hpp: 219";
+		rLen = 0;
+		rLoc = 7797;
+		rType = 0;
+		vrLen = 3397;
+		vrLoc = 7134;
+	};
+	5F71A3521759390900B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCC1EBF1599F59A0003D0E9 /* connectedcomponents.cpp */;
+		name = "connectedcomponents.cpp: 104";
+		rLen = 0;
+		rLoc = 3841;
+		rType = 0;
+		vrLen = 2117;
+		vrLoc = 2156;
+	};
+	5F71A35A175939BF00B072B9 /* research_cc.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1139, 2522}}";
+			sepNavSelRange = "{6049, 0}";
+			sepNavVisRange = "{3677, 2673}";
+		};
+	};
 	5F74B03A15D3532600ED3EA9 /* graphlab_lda */ = {
 		activeExec = 0;
 		executables = (
@@ -3851,9 +3881,9 @@
 	};
 	5F7A10471589266800748D0D /* memoryshard.hpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1011, 5434}}";
-			sepNavSelRange = "{7797, 0}";
-			sepNavVisRange = "{7030, 3345}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 5369}}";
+			sepNavSelRange = "{9417, 0}";
+			sepNavVisRange = "{7134, 3375}";
 			sepNavWindowFrame = "{{15, 78}, {1104, 1095}}";
 		};
 	};
@@ -4080,9 +4110,9 @@
 	};
 	5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1011, 5473}}";
-			sepNavSelRange = "{7490, 0}";
-			sepNavVisRange = "{4586, 3229}";
+			sepNavIntBoundsRect = "{{0, 0}, {1043, 5655}}";
+			sepNavSelRange = "{6510, 1013}";
+			sepNavVisRange = "{5728, 2880}";
 			sepNavWindowFrame = "{{38, 57}, {1104, 1095}}";
 		};
 	};
@@ -4165,7 +4195,7 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 229;
-		modificationTime = 391645965.101264;
+		modificationTime = 391724354.740653;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
 	};
@@ -4279,9 +4309,9 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 165;
-		modificationTime = 391698049.518291;
+		modificationTime = 391724354.740797;
 		originalNumberOfMultipleMatches = 1;
-		state = 1;
+		state = 0;
 	};
 	5FCB47B7174ACFD10023D9D7 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -4318,7 +4348,7 @@
 		fRef = 5FCC1EBF1599F59A0003D0E9 /* connectedcomponents.cpp */;
 		name = "connectedcomponents.cpp: 151";
 		rLen = 20;
-		rLoc = 5434;
+		rLoc = 5544;
 		rType = 0;
 		vrLen = 1914;
 		vrLoc = 4209;
@@ -4396,9 +4426,9 @@
 		path = ../src/preprocessing/conversions.hpp;
 		sourceTree = "<group>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1125, 10608}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1125, 10686}}";
 			sepNavSelRange = "{27552, 0}";
-			sepNavVisRange = "{15422, 3209}";
+			sepNavVisRange = "{29296, 3006}";
 		};
 	};
 	5FCC1DD71599194B0003D0E9 /* graphchi_basic_includes.hpp */ = {
@@ -4433,9 +4463,9 @@
 	};
 	5FCC1EBF1599F59A0003D0E9 /* connectedcomponents.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1011, 2314}}";
-			sepNavSelRange = "{5631, 0}";
-			sepNavVisRange = "{3668, 2647}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 2340}}";
+			sepNavSelRange = "{4429, 0}";
+			sepNavVisRange = "{1986, 2888}";
 			sepNavWindowFrame = "{{84, 44}, {813, 1066}}";
 		};
 	};
@@ -4602,12 +4632,24 @@
 			YES,
 			YES,
 			YES,
+			YES,
+			YES,
+			YES,
+			YES,
+			YES,
+			YES,
 		);
 		argumentStrings = (
 			file,
-			"/Users/akyrola/graphs/web-Google.txt",
+			/Users/akyrola/graphs/julianscomb20,
 			nshards,
 			2,
+			filetype,
+			edgelist,
+			execthreads,
+			1,
+			niters,
+			20,
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 1;
@@ -4720,6 +4762,11 @@
 		name = graphchi_context.hpp;
 		path = ../src/api/graphchi_context.hpp;
 		sourceTree = "<group>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1061, 1547}}";
+			sepNavSelRange = "{1955, 18}";
+			sepNavVisRange = "{1191, 1817}";
+		};
 	};
 	5FCC2216159DFA880003D0E9 /* graph_objects.hpp */ = {
 		isa = PBXFileReference;
@@ -4887,9 +4934,9 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 267;
-		modificationTime = 391698049.518264;
+		modificationTime = 391724354.74063;
 		originalNumberOfMultipleMatches = 1;
-		state = 1;
+		state = 0;
 	};
 	5FCFFFB11756CE51002644D2 /* radixSort.hpp */ = {
 		uiCtxt = {
