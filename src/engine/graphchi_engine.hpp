@@ -99,6 +99,7 @@ namespace graphchi {
         bool disable_vertexdata_storage;
         bool preload_commit; //alow storing of modified edge data on preloaded data into memory
         bool randomization;
+        bool initialize_edges_before_run;
         
         size_t blocksize;
         int membudget_mb;
@@ -177,6 +178,7 @@ namespace graphchi {
             only_adjacency = false;
             disable_outedges = false;
             reset_vertexdata = false;
+            initialize_edges_before_run = false;
             blocksize = get_option_long("blocksize", 4096 * 1024);
 #ifndef DYNAMICEDATA
             while (blocksize % sizeof(EdgeDataType) != 0) blocksize++;
@@ -387,6 +389,9 @@ namespace graphchi {
                     /* Load edges from a sliding shard */
                     if (!disable_outedges) {
                         if (p != exec_interval) {
+                            if (randomization) {
+                              sliding_shards[p]->set_disable_async_writes(true); // Cannot write async if we use randomization, because async assumes we can write previous vertices edgedata because we won't touch them this iteration  
+                            }
                             sliding_shards[p]->read_next_vertices((int) vertices.size(), sub_interval_st, vertices,
                                                                   scheduler != NULL && chicontext.iteration == 0);
                             
@@ -702,6 +707,12 @@ namespace graphchi {
 
             randomization = get_option_int("randomization", 0) == 1;
             
+            if (randomization) {
+                uint32_t seed = (uint32_t) get_option_int("seed", (int)time(NULL));
+                std::cout << "SEED: " << seed << std::endl;
+                srand(seed);
+            }
+            
             niters = _niters;
             logstream(LOG_INFO) << "GraphChi starting" << std::endl;
             logstream(LOG_INFO) << "Licensed under the Apache License 2.0" << std::endl;
@@ -716,6 +727,9 @@ namespace graphchi {
             /* Setup */
             if (sliding_shards.size() == 0) {
                 initialize_sliding_shards();
+                if (initialize_edges_before_run) {
+                    for(int j=0; j<(int)sliding_shards.size(); j++) sliding_shards[j]->initdata();
+                }
             } else {
                 logstream(LOG_DEBUG) << "Engine being restarted, do not reinitialize." << std::endl;
             }
@@ -773,7 +787,7 @@ namespace graphchi {
                 if (scheduler != NULL)
                     scheduler->new_iteration(iter);
                 
-                srand((uint32_t)time(NULL));
+                
                 std::vector<int> intshuffle(nshards);
                 
                 if (randomization) {
@@ -806,6 +820,7 @@ namespace graphchi {
                     if (memoryshard != NULL) delete memoryshard;
                     memoryshard = create_memshard(interval_st, interval_en);
                     memoryshard->only_adjacency = only_adjacency;
+                    memoryshard->set_disable_async_writes(randomization);
                     
                     sub_interval_st = interval_st;
                     logstream(LOG_INFO) << chicontext.runtime() << "s: Starting: " 
@@ -837,8 +852,6 @@ namespace graphchi {
                         
                         std::vector<svertex_t> vertices(nvertices, svertex_t());
                         init_vertices(vertices, edata);
-                        
-                    
                         
                         /* Load data */
                         load_before_updates(vertices);                        
@@ -1096,6 +1109,9 @@ namespace graphchi {
             this->save_edgesfiles_after_inmemmode = b;
         }
 
+        virtual void set_initialize_edges_before_run(bool b) {
+            this->initialize_edges_before_run = b;
+        }
         
         
         /**

@@ -83,6 +83,7 @@ namespace graphchi {
         
         bool async_edata_loading;
         bool is_loaded;
+        bool disable_async_writes;
         size_t blocksize;
         metrics &m;
         
@@ -104,6 +105,7 @@ namespace graphchi {
             adj_session = -1;
             edgedata = NULL;
             doneptr = NULL;
+            disable_async_writes = false;
             async_edata_loading = !svertex_t().computational_edges();
 #ifdef SUPPORT_DELETIONS
             async_edata_loading = false; // See comment above for memshard, async_edata_loading = false;
@@ -131,6 +133,10 @@ namespace graphchi {
             }
         }
         
+        void set_disable_async_writes(bool b) {
+            disable_async_writes = b;
+        }
+        
         void commit(bool commit_inedges, bool commit_outedges) {
             if (block_edatasessions.size() == 0 || only_adjacency) return;
             assert(is_loaded);
@@ -150,7 +156,7 @@ namespace graphchi {
                 for(int i=0; i < nblocks; i++) {
                     /* Write asynchronously blocks that will not be needed by the sliding windows on
                      this iteration. */
-                    if (i >= start_stream_block) {
+                    if (i >= start_stream_block || disable_async_writes) {
                         iomgr->managed_pwritea_now(block_edatasessions[i], &edgedata[i], blocksizes[i], 0);
                         iomgr->managed_release(block_edatasessions[i], &edgedata[i]);
                         iomgr->close_session(block_edatasessions[i]);

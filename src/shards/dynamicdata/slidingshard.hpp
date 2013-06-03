@@ -165,6 +165,7 @@ namespace graphchi {
         std::map<int, indexentry> sparse_index; // Sparse index that can be created in the fly
         bool disable_writes;
         bool async_edata_loading;
+        bool disable_async_writes;
         // bool need_read_outedges; // Disabled - does not work with compressed data: whole block needs to be read.
         
         
@@ -189,7 +190,7 @@ namespace graphchi {
             curblock = NULL;
             curadjblock = NULL;
             window_start_edataoffset = 0;
-            
+            disable_async_writes = false;
             
             while(blocksize % sizeof(int) != 0) blocksize++;
             assert(blocksize % sizeof(int)==0);
@@ -230,6 +231,7 @@ namespace graphchi {
         size_t num_edges() {
             return edatafilesize / sizeof(ET);
         }
+     
         
     protected:
         size_t get_adjoffset() { return adjoffset; }
@@ -431,6 +433,7 @@ namespace graphchi {
          * Commit modifications.
          */
         void commit(sblock<ET> &b, bool synchronously, bool disable_writes=false) {
+            if (disable_async_writes) synchronously = true;
             if (synchronously) {
                 metrics_entry me = m.start_time();
                 if (!disable_writes) b.commit_now(iomgr);
@@ -479,6 +482,11 @@ namespace graphchi {
                     activeblocks.erase(activeblocks.begin() + (unsigned int)i);
                 }
             }
+        }
+        
+        
+        void set_disable_async_writes(bool b) {
+            disable_async_writes = b;
         }
         
         std::string get_info_json() {
