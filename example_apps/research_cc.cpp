@@ -91,6 +91,8 @@ size_t num_disagree = 0;
 int contracted = 0;
 double contracted_after1 = 0, contracted_after2 = 0;
 int finish_iterations=0;
+bool visualize;
+FILE * graphvizout = NULL;
 
 /**
  * GraphChi programs need to subclass GraphChiProgram<vertex-type, edge-type>
@@ -105,9 +107,7 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
         if (gcontext.iteration % 2 == 1) {
             /* Get my component id. It is the minimum label of a neighbor via a mst edge (or my own id) */
             vid_t min_component_id = vertex.id();
-            
-          
-            
+                        
             for(int i=0; i < vertex.num_edges(); i++) {
                 graphchi_edge<EdgeDataType> * e = vertex.edge(i);
                 min_component_id = std::min(e->get_data().neighbor_label(vertex.id(), e->vertex_id()), min_component_id);
@@ -120,6 +120,8 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 std::cout << vertex.id() << " -----> " << min_component_id << " deg:" << vertex.num_inedges() << "," << vertex.num_outedges() << std::endl;
             }
             
+            
+            
             /* Set component ids and schedule neighbors */
             for(int i=0; i < vertex.num_edges(); i++) {
                 graphchi_edge<EdgeDataType> * e = vertex.edge(i);
@@ -130,6 +132,7 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                     e->set_data(edata);
                     
                 }
+                
             }
         } else { // NOTE, iteration 0 is redundant, but takes into account the fact that on first iteration intervals are not randomized
             bool counted_as_contracting = false;
@@ -143,8 +146,9 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                     counted_as_contracting = true;
                 }
                 
-                if (gcontext.iteration > 280*2 && !edata.labels_agree()) {
-                    std::cout << "Disagree: " << vertex.id() << ":" << edata.my_label(vertex.id(), e->vertex_id()) << " != " << e->vertex_id() << ":" << edata.neighbor_label(vertex.id(), e->vertex_id()) << std::endl;
+                if (visualize) {
+                    //				output_graphviz += "%s -> %s [ label = \"%d\" ];" % ('S%d' % (i+1),  'S%d' % (j+1), edge)
+                    fprintf(graphvizout, "%d -> %d [label = \"%d/%d\"];\n", vertex.id(), e->vertex_id(), edata.my_label(vertex.id(), e->vertex_id()), edata.neighbor_label(vertex.id(), e->vertex_id()));
                 }
             }
         }
@@ -156,17 +160,40 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
      */
     void before_iteration(int iteration, graphchi_context &info) {
         num_agree = num_disagree = contracted = 0;
+        if (iteration % 2 == 1 && visualize) {
+            char vizname[255];
+            sprintf(vizname, "graph%d.gv", iteration / 2);
+            graphvizout = fopen(vizname, "w");
+            /*
+             output_graphviz = """
+             digraph assembly {
+             rankdir=LR;
+             size="8,5"
+             
+             node [shape = circle];
+             """*/
+            fprintf(graphvizout, "digraph assembly {\nrankdir=LR;\nsize=\"8,5\"\n\nnode = [shape=circle];\n");
+        }
     }
     
     /**
      * Called after an iteration has finished.
      */
     void after_iteration(int iteration, graphchi_context &ginfo) {
+        if (graphvizout != NULL) {
+            fprintf(graphvizout, "\n}");
+            fclose(graphvizout);
+            graphvizout = NULL;
+        }
+        
         // NOTE: first iteration is "dummy" iteration
         if (iteration % 2 == 0 && iteration > 0) {
             iteration -= 1;
-            std::cout << "STATUS ON PROPAGATION ITERATION: " << iteration / 2 << " agree: " << num_agree << " disagree: " << num_disagree
-            << " vertices contracting: " << contracted << std::endl;
+            
+            if (iteration/2 % 40 == 0) {
+                //std::cout << "STATUS ON PROPAGATION ITERATION: " << iteration / 2 << " agree: " << num_agree << " disagree: " << num_disagree
+               // << " vertices contracting: " << contracted << std::endl;
+            }
             if (iteration / 2 == 1) contracted_after1 = contracted * 1.0 / ginfo.nvertices;
             if (iteration / 2 == 2) contracted_after2 = contracted * 1.0 / ginfo.nvertices;
             
@@ -209,7 +236,7 @@ int main(int argc, const char ** argv) {
     std::string filename = get_option_string("file");  // Base filename
     int niters           = get_option_int("niters") * 2; // Number of iterations (odd iterations count agreements)
     bool scheduler       = false;    // Always run with scheduler
-    
+    visualize            = get_option_int("visualize", 0) == 1;
     
     char contr_log_fname[255];
     sprintf(contr_log_fname, "%s.contraction_log.txt", filename.c_str());
