@@ -64,12 +64,10 @@ struct bidirectional_component_weight {
     }
     
     
-    vid_t & neighbor_label(vid_t myid, vid_t nbid) {
-        if (myid < nbid) {
-            return larger_component;
-        } else {
-            return smaller_component;
-        }
+    vid_t neighbor_label(vid_t myid, vid_t nbid) {
+        vid_t label = (myid < nbid ? larger_component : smaller_component);
+        if (label == MAX_VIDT) label = nbid;  // NOTE: important optimization (for random orders!)
+        return label;
     }
     
     vid_t & my_label(vid_t myid, vid_t nbid) {

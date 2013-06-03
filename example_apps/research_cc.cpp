@@ -36,6 +36,7 @@
  */
 
 #define OUTPUTLEVEL LOG_ERROR
+#define GRAPHCHI_DISABLE_COMPRESSION
 
 #include <cmath>
 #include <string>
@@ -58,12 +59,10 @@ struct bidirectional_component_weight {
     }
     
     
-    vid_t & neighbor_label(vid_t myid, vid_t nbid) {
-        if (myid < nbid) {
-            return larger_component;
-        } else {
-            return smaller_component;
-        }
+    vid_t neighbor_label(vid_t myid, vid_t nbid) {
+        vid_t label = (myid < nbid ? larger_component : smaller_component);
+        if (label == MAX_VIDT) label = nbid;  // NOTE: important optimization (for random orders!)
+        return label;
     }
     
     vid_t & my_label(vid_t myid, vid_t nbid) {
@@ -133,6 +132,10 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 if (edata.labels_agree() && !counted_as_contracting) {
                     contracted++;
                     counted_as_contracting = true;
+                }
+                
+                if (gcontext.iteration > 40 && !edata.labels_agree()) {
+                    std::cout << "Disagree: " << vertex.id() << ":" << edata.my_label(vertex.id(), e->vertex_id()) << " != " << e->vertex_id() << ":" << edata.neighbor_label(vertex.id(), e->vertex_id()) << std::endl;
                 }
             }
         }
@@ -205,12 +208,19 @@ int main(int argc, const char ** argv) {
     contracted_after1 = contracted_after2 = 0;
     
     /* Process input file - and delete previous ones*/
-    int nshards             = (int) convert<EdgeDataType, EdgeDataType>(filename, get_option_string("nshards", "auto"));
-    
+    bool existed = false;
+    int nshards             = (int) convert_if_notexists<EdgeDataType, EdgeDataType>(filename, get_option_string("nshards", "auto"), existed);
+   
     
     /* Run */
     ResearchCC program;
     graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m);
+    
+    if (existed) {
+        /* Clear edge values before run */
+        engine.set_initialize_edges_before_run(true);
+    }
+    
     engine.run(program, niters);
     
     /* Report execution metrics */
