@@ -760,8 +760,20 @@ namespace graphchi {
                 if (scheduler != NULL)
                     scheduler->new_iteration(iter);
                 
+                srand(time(NULL));
+                std::vector<int> intshuffle(nshards);
+                for(int i=0; i<nshards; i++) intshuffle[i] = i;
+                std::random_shuffle(intshuffle.begin(), intshuffle.end());
+                
                 /* Interval loop */
-                for(exec_interval=0; exec_interval < nshards; ++exec_interval) {
+                for(int interval_idx=0; interval_idx < nshards; ++interval_idx) {
+                    exec_interval = interval_idx;
+                    
+                    if (get_option_int("randomization", 0) == 1) {
+                        exec_interval = intshuffle[interval_idx];
+                        std::cout << "Randomized interval: " << exec_interval << " / " << interval_idx << std::endl;
+                    }
+                    
                     /* Determine interval limits */
                     vid_t interval_st = get_interval_start(exec_interval);
                     vid_t interval_en = get_interval_end(exec_interval);
