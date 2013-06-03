@@ -102,14 +102,23 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
      */
     void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
         // Even iterations propagate, odd count agreements
-        if (gcontext.iteration % 2 == 0) {
+        if (gcontext.iteration % 2 == 1) {
             /* Get my component id. It is the minimum label of a neighbor via a mst edge (or my own id) */
             vid_t min_component_id = vertex.id();
+            
+          
+            
             for(int i=0; i < vertex.num_edges(); i++) {
                 graphchi_edge<EdgeDataType> * e = vertex.edge(i);
                 min_component_id = std::min(e->get_data().neighbor_label(vertex.id(), e->vertex_id()), min_component_id);
+                if (vertex.id() == 454379 || vertex.id() == 48601) {
+                    std::cout << " ... " << vertex.id() << " " << e->vertex_id() << ":" << e->get_data().neighbor_label(vertex.id(), e->vertex_id()) << std::endl;
+                }
             }
             
+            if (vertex.id() == 454379 || vertex.id() == 48601) {
+                std::cout << vertex.id() << " -----> " << min_component_id << " deg:" << vertex.num_inedges() << "," << vertex.num_outedges() << std::endl;
+            }
             
             /* Set component ids and schedule neighbors */
             for(int i=0; i < vertex.num_edges(); i++) {
@@ -122,7 +131,7 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                     
                 }
             }
-        } else {
+        } else { // NOTE, iteration 0 is redundant, but takes into account the fact that on first iteration intervals are not randomized
             bool counted_as_contracting = false;
             for(int i=0; i < vertex.num_inedges(); i++) { // only in neighbor counts
                 graphchi_edge<EdgeDataType> * e = vertex.inedge(i);
@@ -134,7 +143,7 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                     counted_as_contracting = true;
                 }
                 
-                if (gcontext.iteration > 40 && !edata.labels_agree()) {
+                if (gcontext.iteration > 280*2 && !edata.labels_agree()) {
                     std::cout << "Disagree: " << vertex.id() << ":" << edata.my_label(vertex.id(), e->vertex_id()) << " != " << e->vertex_id() << ":" << edata.neighbor_label(vertex.id(), e->vertex_id()) << std::endl;
                 }
             }
@@ -153,11 +162,13 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
      * Called after an iteration has finished.
      */
     void after_iteration(int iteration, graphchi_context &ginfo) {
-        if (iteration % 2 == 1) {
+        // NOTE: first iteration is "dummy" iteration
+        if (iteration % 2 == 0 && iteration > 0) {
+            iteration -= 1;
             std::cout << "STATUS ON PROPAGATION ITERATION: " << iteration / 2 << " agree: " << num_agree << " disagree: " << num_disagree
             << " vertices contracting: " << contracted << std::endl;
-            if (iteration / 2 == 0) contracted_after1 = contracted * 1.0 / ginfo.nvertices;
-            if (iteration / 2 == 1) contracted_after2 = contracted * 1.0 / ginfo.nvertices;
+            if (iteration / 2 == 1) contracted_after1 = contracted * 1.0 / ginfo.nvertices;
+            if (iteration / 2 == 2) contracted_after2 = contracted * 1.0 / ginfo.nvertices;
             
             if (num_disagree == 0) {
                 ginfo.set_last_iteration(ginfo.iteration);

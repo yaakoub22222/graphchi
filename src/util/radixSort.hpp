@@ -75,17 +75,17 @@ namespace graphchi {
         intT operator() (E p) {return _mask&(_f(p)>>_offset);}
     };
     
-    inline int log2(int i) {
+    template <class T>
+    int log2Up(T i) {
         int a=0;
-        int b=i-1;
-        while (b > 0) {b = b >> 1; a++;}
+        while ((1 << a) <= i) a++;
         return a;
     }
     
     // Radix sort with low order bits first
     template <class E, class F>
     void iSort(E *A, intT n, intT m, F f) {
-        intT bits = log2(m);
+        intT bits = log2Up(m);
         
         // temporary space
         E* B = (E*) malloc(sizeof(E)*n);

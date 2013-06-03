@@ -9,7 +9,6 @@
 #include <iostream>
 #include <vector>
 
-#include "utiltest.h"
 
 #include "binary_minheap.hpp"
 #include "kwaymerge.hpp"
@@ -53,20 +52,19 @@ struct ident {inline int operator() (int a) {return a;} };
 
  
 int main() {
-    int * A = (int*) calloc(100, sizeof(int));
-    for(int i=0; i<50; i++) {
-        A[i] = 61578415 - i;
-    }
-    for(int i=0; i<50; i++) {
-        A[50 - i] = 3453305 + i;
+    int * A = (int*) calloc(1024, sizeof(int));
+    for(int i=0; i<1024; i++) {
+        A[i] = 1024 - i;
     }
     
-    iSort(A, 100, 61578415, ident());
-    for(int i=1; i<100; i++) {
+    iSort(A, 1024, 1024, ident());
+    
+    std::cout << A[0] << std::endl;
+    for(int i=1; i<1024; i++) {
         std::cout << A[i] << std::endl;
         assert(A[i] >= A[i-1]);
     }
-    assert(A[99] == 61578415);
+    assert(A[1023] == 1024);
     
     exit(0);
     
