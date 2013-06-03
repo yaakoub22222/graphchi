@@ -98,7 +98,8 @@ namespace graphchi {
         bool store_inedges;
         bool disable_vertexdata_storage;
         bool preload_commit; //alow storing of modified edge data on preloaded data into memory
-
+        bool randomization;
+        
         size_t blocksize;
         int membudget_mb;
         int load_threads;
@@ -405,15 +406,25 @@ namespace graphchi {
             if (!enable_deterministic_parallelism) {
                 for(int i=0; i < (int)nvertices; i++) vertices[i].parallel_safe = true;
             }
+            int sub_interval_len = sub_interval_en - sub_interval_st;
+
+            std::vector<vid_t> random_order(randomization ? sub_interval_len + 1 : 0);
+            if (randomization) {
+                // Randomize vertex-vector
+                for(int idx=0; idx <= (int)sub_interval_len; idx++) random_order[idx] = idx;
+                std::random_shuffle(random_order.begin(), random_order.end());
+            }
             
             omp_set_num_threads(exec_threads);
+            
             
 #pragma omp parallel sections 
             {
 #pragma omp section
                 {
 #pragma omp parallel for schedule(dynamic)
-                    for(int vid=sub_interval_st; vid <= (int)sub_interval_en; vid++) {
+                    for(int idx=0; idx <= (int)sub_interval_len; idx++) {
+                        vid_t vid = sub_interval_st + (randomization ? random_order[idx] : idx);
                         svertex_t & v = vertices[vid - sub_interval_st];
                         
                         if (exec_threads == 1 || v.parallel_safe) {
@@ -428,7 +439,8 @@ namespace graphchi {
                 {
                     if (exec_threads > 1 && enable_deterministic_parallelism) {
                         int nonsafe_count = 0;
-                        for(int vid=sub_interval_st; vid <= (int)sub_interval_en; vid++) {
+                        for(int idx=0; idx <= (int)sub_interval_len; idx++) {
+                            vid_t vid = sub_interval_st + (randomization ? random_order[idx] : idx);
                             svertex_t & v = vertices[vid - sub_interval_st];
                             if (!v.parallel_safe && v.scheduled) {
                                 if (!disable_vertexdata_storage)
@@ -688,7 +700,8 @@ namespace graphchi {
             if (degree_handler == NULL)
                 degree_handler = create_degree_handler();
 
-
+            randomization = get_option_int("randomization", 0) == 1;
+            
             niters = _niters;
             logstream(LOG_INFO) << "GraphChi starting" << std::endl;
             logstream(LOG_INFO) << "Licensed under the Apache License 2.0" << std::endl;
@@ -760,18 +773,20 @@ namespace graphchi {
                 if (scheduler != NULL)
                     scheduler->new_iteration(iter);
                 
-                srand(time(NULL));
+                srand((uint32_t)time(NULL));
                 std::vector<int> intshuffle(nshards);
-                for(int i=0; i<nshards; i++) intshuffle[i] = i;
-                std::random_shuffle(intshuffle.begin(), intshuffle.end());
+                
+                if (randomization) {
+                    for(int i=0; i<nshards; i++) intshuffle[i] = i;
+                    std::random_shuffle(intshuffle.begin(), intshuffle.end());
+                }
                 
                 /* Interval loop */
                 for(int interval_idx=0; interval_idx < nshards; ++interval_idx) {
                     exec_interval = interval_idx;
                     
-                    if (get_option_int("randomization", 0) == 1) {
+                    if (randomization) {
                         exec_interval = intshuffle[interval_idx];
-                        std::cout << "Randomized interval: " << exec_interval << " / " << interval_idx << std::endl;
                     }
                     
                     /* Determine interval limits */

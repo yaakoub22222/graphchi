@@ -676,8 +676,8 @@ namespace graphchi {
             int mplex = (int) thread_infos.size();
             for(int i=0; i<mplex; i++) {
                 while(thread_infos[i]->pending_reads > 0) {
-                    usleep(10000);
                     loops++;
+                    usleep(loops * 50);
                 }
             }
             m.stop_time(me, "stripedio_wait_for_reads", false);
