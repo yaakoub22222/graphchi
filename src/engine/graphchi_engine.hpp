@@ -419,45 +419,48 @@ namespace graphchi {
                 for(int idx=0; idx <= (int)sub_interval_len; idx++) random_order[idx] = idx;
                 std::random_shuffle(random_order.begin(), random_order.end());
             }
+            int rinseIterations = get_option_int("rinse", 0);
             
-            omp_set_num_threads(exec_threads);
-            
-            
-#pragma omp parallel sections 
-            {
-#pragma omp section
+            for(int ri=0; ri<=rinseIterations; ri++) {
+                omp_set_num_threads(exec_threads);
+                
+                
+    #pragma omp parallel sections 
                 {
-#pragma omp parallel for schedule(dynamic)
-                    for(int idx=0; idx <= (int)sub_interval_len; idx++) {
-                        vid_t vid = sub_interval_st + (randomization ? random_order[idx] : idx);
-                        svertex_t & v = vertices[vid - sub_interval_st];
-                        
-                        if (exec_threads == 1 || v.parallel_safe) {
-                            if (!disable_vertexdata_storage)
-                                v.dataptr = vertex_data_handler->vertex_data_ptr(vid);
-                            if (v.scheduled) 
-                                userprogram.update(v, chicontext);
-                        }
-                    }
-                }
-#pragma omp section
-                {
-                    if (exec_threads > 1 && enable_deterministic_parallelism) {
-                        int nonsafe_count = 0;
+    #pragma omp section
+                    {
+    #pragma omp parallel for schedule(dynamic)
                         for(int idx=0; idx <= (int)sub_interval_len; idx++) {
                             vid_t vid = sub_interval_st + (randomization ? random_order[idx] : idx);
                             svertex_t & v = vertices[vid - sub_interval_st];
-                            if (!v.parallel_safe && v.scheduled) {
+                            
+                            if (exec_threads == 1 || v.parallel_safe) {
                                 if (!disable_vertexdata_storage)
                                     v.dataptr = vertex_data_handler->vertex_data_ptr(vid);
-                                userprogram.update(v, chicontext);
-                                nonsafe_count++;
+                                if (v.scheduled) 
+                                    userprogram.update(v, chicontext);
                             }
                         }
-                        
-                        m.add("serialized-updates", nonsafe_count);
                     }
-                }
+    #pragma omp section
+                    {
+                        if (exec_threads > 1 && enable_deterministic_parallelism) {
+                            int nonsafe_count = 0;
+                            for(int idx=0; idx <= (int)sub_interval_len; idx++) {
+                                vid_t vid = sub_interval_st + (randomization ? random_order[idx] : idx);
+                                svertex_t & v = vertices[vid - sub_interval_st];
+                                if (!v.parallel_safe && v.scheduled) {
+                                    if (!disable_vertexdata_storage)
+                                        v.dataptr = vertex_data_handler->vertex_data_ptr(vid);
+                                    userprogram.update(v, chicontext);
+                                    nonsafe_count++;
+                                }
+                            }
+                            
+                            m.add("serialized-updates", nonsafe_count);
+                        }
+                    }
+            }
             }
             m.stop_time(me, "execute-updates");
         }
@@ -708,7 +711,9 @@ namespace graphchi {
             randomization = get_option_int("randomization", 0) == 1;
             
             if (randomization) {
-                uint32_t seed = (uint32_t) get_option_int("seed", (int)time(NULL));
+                timeval tt;
+                gettimeofday(&tt, NULL);
+                uint32_t seed = (uint32_t) get_option_int("seed", (int)tt.tv_usec);
                 std::cout << "SEED: " << seed << std::endl;
                 srand(seed);
             }
