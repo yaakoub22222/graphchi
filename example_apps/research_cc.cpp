@@ -203,7 +203,6 @@ int main(int argc, const char ** argv) {
     FILE * contrlog = fopen(contr_log_fname, "a");
     
     contracted_after1 = contracted_after2 = 0;
-    std::cout << "RUN " << T << std::endl;
     
     /* Process input file - and delete previous ones*/
     int nshards             = (int) convert<EdgeDataType, EdgeDataType>(filename, get_option_string("nshards", "auto"));
