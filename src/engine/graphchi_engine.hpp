@@ -799,8 +799,16 @@ namespace graphchi {
                 for(int interval_idx=0; interval_idx < nshards; ++interval_idx) {
                     exec_interval = interval_idx;
                     
-                    if (randomization) {
+                    if (randomization && iter > 0) { // NOTE: only randomize shard order after first iteration so we can compute indices
+                        int last_exec_interval = exec_interval;
                         exec_interval = intshuffle[interval_idx];
+                        // Hack to make system work if we jump backwards
+                        if (interval_idx > 0 && last_exec_interval> exec_interval) {
+                            for(int p=0; p<nshards; p++) {
+                                sliding_shards[p]->flush();
+                                sliding_shards[p]->set_offset(0, 0, 0);
+                            }
+                        }
                     }
                     
                     /* Determine interval limits */
