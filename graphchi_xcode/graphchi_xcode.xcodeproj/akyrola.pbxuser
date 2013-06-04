@@ -160,6 +160,12 @@
 			5F71A3DD175E726400B072B9 /* PBXTextBookmark */ = 5F71A3DD175E726400B072B9 /* PBXTextBookmark */;
 			5F71A3DE175E726400B072B9 /* PBXTextBookmark */ = 5F71A3DE175E726400B072B9 /* PBXTextBookmark */;
 			5F71A3DF175E726400B072B9 /* PBXTextBookmark */ = 5F71A3DF175E726400B072B9 /* PBXTextBookmark */;
+			5F71A3E0175E735700B072B9 /* PBXTextBookmark */ = 5F71A3E0175E735700B072B9 /* PBXTextBookmark */;
+			5F71A3E1175E735700B072B9 /* PBXTextBookmark */ = 5F71A3E1175E735700B072B9 /* PBXTextBookmark */;
+			5F71A3E2175E735700B072B9 /* PBXTextBookmark */ = 5F71A3E2175E735700B072B9 /* PBXTextBookmark */;
+			5F71A3E3175E735700B072B9 /* PBXTextBookmark */ = 5F71A3E3175E735700B072B9 /* PBXTextBookmark */;
+			5F71A3E4175E735700B072B9 /* PBXTextBookmark */ = 5F71A3E4175E735700B072B9 /* PBXTextBookmark */;
+			5F71A3E5175E735700B072B9 /* PBXTextBookmark */ = 5F71A3E5175E735700B072B9 /* PBXTextBookmark */;
 			5FCB471B174AB58E0023D9D7 = 5FCB471B174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471D174AB58E0023D9D7 = 5FCB471D174AB58E0023D9D7 /* PBXTextBookmark */;
 			5FCB471F174AB58E0023D9D7 = 5FCB471F174AB58E0023D9D7 /* PBXTextBookmark */;
@@ -677,9 +683,9 @@
 	};
 	5F71A35A175939BF00B072B9 /* research_cc.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1419, 3510}}";
-			sepNavSelRange = "{8793, 0}";
-			sepNavVisRange = "{6977, 2869}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 3848}}";
+			sepNavSelRange = "{1257, 0}";
+			sepNavVisRange = "{0, 2292}";
 		};
 	};
 	5F71A36617593C4600B072B9 /* PBXBookmark */ = {
@@ -755,7 +761,7 @@
 		fRef = 5F71A35A175939BF00B072B9 /* research_cc.cpp */;
 		name = "research_cc.cpp: 146";
 		rLen = 0;
-		rLoc = 4272;
+		rLoc = 4271;
 		rType = 0;
 		vrLen = 2805;
 		vrLoc = 2082;
@@ -874,7 +880,7 @@
 		fRef = 5F71A35A175939BF00B072B9 /* research_cc.cpp */;
 		name = "research_cc.cpp: 159";
 		rLen = 0;
-		rLoc = 5496;
+		rLoc = 5495;
 		rType = 0;
 		vrLen = 3266;
 		vrLoc = 3511;
@@ -944,7 +950,7 @@
 		fRef = 5F71A35A175939BF00B072B9 /* research_cc.cpp */;
 		name = "research_cc.cpp: 159";
 		rLen = 0;
-		rLoc = 5530;
+		rLoc = 5529;
 		rType = 0;
 		vrLen = 3270;
 		vrLoc = 3511;
@@ -1004,7 +1010,7 @@
 		fRef = 5F71A35A175939BF00B072B9 /* research_cc.cpp */;
 		name = "research_cc.cpp: 251";
 		rLen = 0;
-		rLoc = 8793;
+		rLoc = 8792;
 		rType = 0;
 		vrLen = 2869;
 		vrLoc = 6977;
@@ -1050,6 +1056,66 @@
 		vrLoc = 23385;
 	};
 	5F71A3DF175E726400B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
+		name = "minimumspanningforest.cpp: 207";
+		rLen = 1013;
+		rLoc = 6510;
+		rType = 0;
+		vrLen = 2974;
+		vrLoc = 5667;
+	};
+	5F71A3E0175E735700B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A35A175939BF00B072B9 /* research_cc.cpp */;
+		name = "research_cc.cpp: 38";
+		rLen = 0;
+		rLoc = 1257;
+		rType = 0;
+		vrLen = 2292;
+		vrLoc = 0;
+	};
+	5F71A3E1175E735700B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCC21AB159DF62F0003D0E9 /* graphchi_context.hpp */;
+		name = "graphchi_context.hpp: 101";
+		rLen = 0;
+		rLoc = 2726;
+		rType = 0;
+		vrLen = 1794;
+		vrLoc = 1214;
+	};
+	5F71A3E2175E735700B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F359BF81596B76200AF7672 /* graphchi_program.hpp */;
+		name = "graphchi_program.hpp: 66";
+		rLen = 93;
+		rLoc = 2035;
+		rType = 0;
+		vrLen = 2086;
+		vrLoc = 648;
+	};
+	5F71A3E3175E735700B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5F71A387175D305800B072B9 /* graphchi_engine.hpp */;
+		name = "graphchi_engine.hpp: 853";
+		rLen = 0;
+		rLoc = 35504;
+		rType = 0;
+		vrLen = 3968;
+		vrLoc = 33246;
+	};
+	5F71A3E4175E735700B072B9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5FCC1D65159503890003D0E9 /* conversions.hpp */;
+		name = "conversions.hpp: 713";
+		rLen = 0;
+		rLoc = 27552;
+		rType = 0;
+		vrLen = 3337;
+		vrLoc = 23385;
+	};
+	5F71A3E5175E735700B072B9 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 5FCB46B9174AA8B30023D9D7 /* minimumspanningforest.cpp */;
 		name = "minimumspanningforest.cpp: 207";
