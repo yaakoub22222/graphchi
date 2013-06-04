@@ -60,6 +60,14 @@ namespace graphchi {
         }
         
         /**
+          * Support for the new "rinse" method. An app can ask the vertices currently in
+          * memory be updated again before moving to new interval or iteration.
+          */
+        virtual bool repeat_updates(graphchi_context &gcontext) {
+            return false;
+        }
+        
+        /**
          * Called before an execution interval is started.
          */
         virtual void before_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &gcontext) {        
@@ -75,6 +83,8 @@ namespace graphchi {
          * Update function.
          */
         virtual void update(vertex_t &v, graphchi_context &gcontext)  = 0;    
+        
+    
     };
 
 }
