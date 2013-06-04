@@ -35,7 +35,7 @@
  * @author Aapo Kyrola
  */
 
-#define OUTPUTLEVEL LOG_ERROR
+#define OUTPUTLEVEL LOG_INFO
 #define GRAPHCHI_DISABLE_COMPRESSION
 
 #include <cmath>
