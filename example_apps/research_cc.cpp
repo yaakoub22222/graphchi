@@ -211,8 +211,8 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
             
             if (num_disagree == 0) {
                 ginfo.set_last_iteration(ginfo.iteration);
-                finish_iterations = iteration / 2;
-                std::cout << "Converged in " << iteration / 2 <<  " iterations" << std::endl;
+                finish_iterations = 1 + iteration / 2;
+                std::cout << "Converged in " << 1 + iteration / 2 <<  " iterations" << std::endl;
             }
         }
         
