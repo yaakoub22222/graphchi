@@ -866,13 +866,13 @@ namespace graphchi {
             shardnum = 0;
             this_interval_start = 0;
             sinkbuffer = (edge_with_value<EdgeDataType> *) calloc(shard_capacity, sizeof(edge_with_value<EdgeDataType>));
-            logstream(LOG_DEBUG) << "Edges per shard: " << edges_per_shard << " nshards=" << nshards << " total: " << shoveled_edges << std::endl;
+            logstream(LOG_INFO) << "Edges per shard: " << edges_per_shard << " nshards=" << nshards << " total: " << shoveled_edges << std::endl;
             cur_shard_counter = 0;
             
             /* Initialize kway merge sources */
             size_t B = membudget_mb * 1024 * 1024 / 2 / numshovels;
             while (B % sizeof(edge_with_value<EdgeDataType>) != 0) B++;
-            logstream(LOG_DEBUG) << "Buffer size in merge phase: " << B << std::endl;
+            logstream(LOG_INFO) << "Buffer size in merge phase: " << B << std::endl;
             prevvid = (-1);
             std::vector< merge_source<edge_with_value<EdgeDataType> > *> sources;
             for(int i=0; i < numshovels; i++) {
