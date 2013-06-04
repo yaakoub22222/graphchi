@@ -100,6 +100,13 @@ FILE * graphvizout = NULL;
  */
 struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
     
+    bool did_change;
+    bool rinse;
+    
+    ResearchCC() {
+        rinse = get_option_int("rinse", 0) == 1;
+    }   
+    
     /**
      */
     void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
@@ -111,15 +118,7 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
             for(int i=0; i < vertex.num_edges(); i++) {
                 graphchi_edge<EdgeDataType> * e = vertex.edge(i);
                 min_component_id = std::min(e->get_data().neighbor_label(vertex.id(), e->vertex_id()), min_component_id);
-                if (vertex.id() == 454379 || vertex.id() == 48601) {
-                    std::cout << " ... " << vertex.id() << " " << e->vertex_id() << ":" << e->get_data().neighbor_label(vertex.id(), e->vertex_id()) << std::endl;
-                }
             }
-            
-            if (vertex.id() == 454379 || vertex.id() == 48601) {
-                std::cout << vertex.id() << " -----> " << min_component_id << " deg:" << vertex.num_inedges() << "," << vertex.num_outedges() << std::endl;
-            }
-            
             
             
             /* Set component ids and schedule neighbors */
@@ -130,7 +129,7 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 if (edata.my_label(vertex.id(), e->vertex_id()) != min_component_id) {
                     edata.my_label(vertex.id(), e->vertex_id()) = min_component_id;
                     e->set_data(edata);
-                    
+                    did_change = true;
                 }
                 
             }
@@ -155,6 +154,19 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
         
         
     }
+    
+    virtual bool repeat_updates(graphchi_context &gcontext) {
+        if (gcontext.iteration % 2 == 1) {
+            bool should_repeat = (rinse && did_change);
+            did_change = false;
+            if (should_repeat) std::cout << "Repeat... (rinse)" << std::endl;
+            return should_repeat;
+        } else {
+            return false;
+        }
+    }
+    
+    
     /**
      * Called before an iteration starts.
      */
@@ -210,6 +222,7 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
      * Called before an execution interval is started.
      */
     void before_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &ginfo) {
+        did_change = false;
     }
     
     /**
@@ -235,7 +248,7 @@ int main(int argc, const char ** argv) {
     assert(get_option_int("execthreads") == 1);
     std::string filename = get_option_string("file");  // Base filename
     int niters           = get_option_int("niters") * 2; // Number of iterations (odd iterations count agreements)
-    bool scheduler       = false;    // Always run with scheduler
+    bool scheduler       = false;    // Always run without scheduler
     visualize            = get_option_int("visualize", 0) == 1;
     
     char contr_log_fname[255];
