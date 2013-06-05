@@ -32,6 +32,10 @@
 #ifndef GRAPHCHI_DEF_ALLBASIC_INCLUDES
 #define GRAPHCHI_DEF_ALLBASIC_INCLUDES
 
+#ifndef GRAPHCHI_ENABLE_COMPRESSION
+#define GRAPHCHI_DISABLE_COMPRESSION
+##endif
+
 #include <omp.h>
 #include <sstream>
 
