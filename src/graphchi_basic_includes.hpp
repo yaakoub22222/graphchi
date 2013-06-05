@@ -34,7 +34,7 @@
 
 #ifndef GRAPHCHI_ENABLE_COMPRESSION
 #define GRAPHCHI_DISABLE_COMPRESSION
-##endif
+#endif
 
 #include <omp.h>
 #include <sstream>
