@@ -67,6 +67,15 @@ typedef vid_t EdgeDataType;
  */
 struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
     
+    bool did_change;
+    bool rinse;
+    
+    ConnectedComponentsProgram() {
+        // New rinse functionality which allows repeating updates on the in-memory subgraph after
+        // it does not change anymore.
+        rinse = get_option_int("rinse", 0) == 1;
+    }
+    
     /**
      *  Vertex update function.
      *  On first iteration ,each vertex chooses a label = the vertex id.
@@ -100,15 +109,13 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
          * overwriting data (this is kind of a subtle point)
          */
         vid_t label = vertex.get_data();
-        
-        std::cout << gcontext.iteration << ":" << vertex.id() << " =======> " << label << std::endl;
-        
         if (gcontext.iteration > 0) {
             for(int i=0; i < vertex.num_edges(); i++) {
                 if (label < vertex.edge(i)->get_data()) {
                     vertex.edge(i)->set_data(label);
                     /* Schedule neighbor for update */
                     gcontext.scheduler->add_task(vertex.edge(i)->vertex_id()); 
+                    did_change = true;
                 }
             }
         } else if (gcontext.iteration == 0) {
@@ -117,11 +124,24 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
             }
         }
     }    
+    
+    /**
+      * New "rinse" functionality
+      */
+    virtual bool repeat_updates(graphchi_context &gcontext) {
+        bool should_repeat = (rinse && did_change);
+        did_change = false;
+        if (should_repeat) logstream(LOG_DEBUG) << "Repeat... (rinse)" << std::endl;
+        return should_repeat;
+    }
+    
+    
     /**
      * Called before an iteration starts.
      */
     void before_iteration(int iteration, graphchi_context &info) {
-        logstream(LOG_INFO) << "Iteration " << iteration << " starts, tasks: " << info.scheduler->num_tasks() << std::endl;;
+        logstream(LOG_INFO) << "Iteration " << iteration << " starts, tasks: " << info.scheduler->num_tasks() << std::endl;
+        did_change = false;
     }
     
     /**

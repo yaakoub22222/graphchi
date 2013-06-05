@@ -525,6 +525,11 @@
 		name = sharder.hpp;
 		path = ../src/preprocessing/sharder.hpp;
 		sourceTree = "<group>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1048, 14170}}";
+			sepNavSelRange = "{43632, 0}";
+			sepNavVisRange = "{31011, 3616}";
+		};
 	};
 	5F71A2B41757D65000B072B9 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -689,9 +694,9 @@
 	};
 	5F71A35A175939BF00B072B9 /* research_cc.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1419, 3562}}";
-			sepNavSelRange = "{7542, 0}";
-			sepNavVisRange = "{5857, 2954}";
+			sepNavIntBoundsRect = "{{0, 0}, {1419, 3757}}";
+			sepNavSelRange = "{2402, 0}";
+			sepNavVisRange = "{8184, 1773}";
 		};
 	};
 	5F71A36617593C4600B072B9 /* PBXBookmark */ = {
@@ -727,7 +732,7 @@
 		fRef = 5FCC1EBF1599F59A0003D0E9 /* connectedcomponents.cpp */;
 		name = "connectedcomponents.cpp: 116";
 		rLen = 0;
-		rLoc = 4429;
+		rLoc = 4392;
 		rType = 0;
 		vrLen = 2888;
 		vrLoc = 1986;
@@ -1816,7 +1821,7 @@
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1153, 1105}}";
 			sepNavSelRange = "{2323, 0}";
-			sepNavVisRange = "{646, 2251}";
+			sepNavVisRange = "{74, 2824}";
 			sepNavWindowFrame = "{{61, 155}, {999, 976}}";
 		};
 	};
@@ -1904,9 +1909,9 @@
 	};
 	5FCC1EBF1599F59A0003D0E9 /* connectedcomponents.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1011, 2340}}";
-			sepNavSelRange = "{4429, 0}";
-			sepNavVisRange = "{1986, 2888}";
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 2548}}";
+			sepNavSelRange = "{5151, 0}";
+			sepNavVisRange = "{2584, 2132}";
 			sepNavWindowFrame = "{{84, 44}, {813, 1066}}";
 		};
 	};
@@ -2079,18 +2084,14 @@
 			YES,
 			YES,
 			YES,
-			YES,
-			YES,
 		);
 		argumentStrings = (
 			file,
-			/Users/akyrola/graphs/julianscomb20,
+			"/Users/akyrola/graphs/soc-LiveJournal1.txt",
 			nshards,
 			2,
 			filetype,
 			edgelist,
-			execthreads,
-			1,
 			niters,
 			20,
 			rinse,
