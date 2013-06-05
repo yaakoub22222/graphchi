@@ -140,7 +140,11 @@ namespace graphchi {
     static std::string filename_shard_adj(std::string basefilename, int p, int nshards) {
         std::stringstream ss;
         ss << basefilename;
+#ifndef GRAPHCHI_DISABLE_COMPRESSION
         ss << ".edata_azv.";
+#else
+        ss << ".edata_azv_noncomp.";
+#endif
         ss << p << "_" << nshards << ".adj";
         return ss.str();
     }
