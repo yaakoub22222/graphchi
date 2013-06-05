@@ -147,7 +147,7 @@ namespace graphchi {
         void flush() {
             /* Sort */
             // TODO: remove duplicates here!
-            logstream(LOG_INFO) << "Sorting shovel: " << shovelname << std::endl;
+            logstream(LOG_INFO) << "Sorting shovel: " << shovelname << ", max:" << max_vertex << std::endl;
             iSort(buffer, numedges, max_vertex, dstF<EdgeDataType>());
             logstream(LOG_INFO) << "Sort done." << shovelname << std::endl;
             int f = open(shovelname.c_str(), O_WRONLY | O_CREAT, S_IROTH | S_IWOTH | S_IWUSR | S_IRUSR);
@@ -355,6 +355,14 @@ namespace graphchi {
                     pthread_join(shovelthreads[i], NULL);
                 }
             } else {
+                if (shovelthreads.size() > 2) {
+                    logstream(LOG_INFO) << "Too many outstanding shoveling threads..." << std::endl;
+
+                    for(int i=0; i < (int)shovelthreads.size(); i++) {
+                        pthread_join(shovelthreads[i], NULL);
+                    }
+                    shovelthreads.clear();
+                }
                 curshovel_buffer = (edge_with_value<EdgeDataType> *) calloc(shovelsize, sizeof(edge_with_value<EdgeDataType>));
                 pthread_t t;
                 int ret = pthread_create(&t, NULL, shard_flush_run<EdgeDataType>, (void*)flushinfo);
@@ -620,6 +628,7 @@ namespace graphchi {
             size_t istart = 0;
             size_t tot_edatabytes = 0;
             for(size_t i=0; i <= numedges; i++) {
+                if (i % 10000000 == 0) logstream(LOG_DEBUG) << i << " / " << numedges << std::endl;
 #ifdef DYNAMICEDATA
                 i += jumpover;  // With dynamic values, there might be several values for one edge, and thus the edge repeated in the data.
                 jumpover = 0;

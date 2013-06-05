@@ -35,7 +35,7 @@
  * @author Aapo Kyrola
  */
 
-#define OUTPUTLEVEL LOG_INFO
+//#define OUTPUTLEVEL LOG_INFO
 #define GRAPHCHI_DISABLE_COMPRESSION
 
 #include <cmath>
@@ -51,6 +51,9 @@ struct bidirectional_component_weight {
     vid_t smaller_component;
     vid_t larger_component;
     bidirectional_component_weight() {
+        smaller_component = larger_component = MAX_VIDT;
+    }
+    bidirectional_component_weight(dummy d) {
         smaller_component = larger_component = MAX_VIDT;
     }
     
@@ -260,7 +263,7 @@ int main(int argc, const char ** argv) {
     
     /* Process input file - and delete previous ones*/
     bool existed = false;
-    int nshards             = (int) convert_if_notexists<EdgeDataType, EdgeDataType>(filename, get_option_string("nshards", "auto"), existed);
+    int nshards             = (int) convert_if_notexists<dummy, EdgeDataType>(filename, get_option_string("nshards", "auto"), existed);
    
     
     /* Run */

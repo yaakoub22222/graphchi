@@ -78,7 +78,7 @@ namespace graphchi {
     template <class T>
     int log2Up(T i) {
         int a=0;
-        while ((1 << a) <= i) a++;
+        while ((1L << a) <= i) a++;
         return a;
     }
     
