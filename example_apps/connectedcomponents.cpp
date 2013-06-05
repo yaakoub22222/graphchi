@@ -69,11 +69,13 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
     
     bool did_change;
     bool rinse;
+    int schedule_all_iterations;
     
     ConnectedComponentsProgram() {
         // New rinse functionality which allows repeating updates on the in-memory subgraph after
         // it does not change anymore.
         rinse = get_option_int("rinse", 0) == 1;
+        schedule_all_iterations = get_option_int("schedule_all_iterations", 2);
     }
     
     /**
@@ -88,7 +90,10 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
         
         if (gcontext.iteration == 0) {
             vertex.set_data(vertex.id());
-            gcontext.scheduler->add_task(vertex.id()); 
+        }
+        // Schedule myself 
+        if (gcontext.iteration == 0 || gcontext.iteration < schedule_all_iterations) {
+            gcontext.scheduler->add_task(vertex.id());
         }
         
         /* On subsequent iterations, find the minimum label of my neighbors */
@@ -114,7 +119,9 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
                 if (label < vertex.edge(i)->get_data()) {
                     vertex.edge(i)->set_data(label);
                     /* Schedule neighbor for update */
-                    gcontext.scheduler->add_task(vertex.edge(i)->vertex_id()); 
+                    if (gcontext.iteration >= schedule_all_iterations) {
+                        gcontext.scheduler->add_task(vertex.edge(i)->vertex_id()); 
+                    }
                     did_change = true;
                 }
             }
