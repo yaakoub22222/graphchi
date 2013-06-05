@@ -61,6 +61,9 @@ using namespace graphchi;
 typedef vid_t VertexDataType;       // vid_t is the vertex id type
 typedef vid_t EdgeDataType;
 
+// Handle to the engine
+graphchi_engine<VertexDataType, EdgeDataType> * gengine;
+
 /**
  * GraphChi programs need to subclass GraphChiProgram<vertex-type, edge-type> 
  * class. The main logic is usually in the update function.
@@ -148,7 +151,13 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
      */
     void before_iteration(int iteration, graphchi_context &info) {
         logstream(LOG_INFO) << "Iteration " << iteration << " starts, tasks: " << info.scheduler->num_tasks() << std::endl;
-        did_change = false;
+        
+        // Optimization
+        if (iteration == 0) {
+            gengine->set_modifies_outedges(false);
+        } else {
+            gengine->set_modifies_outedges(true);
+        }   
     }
     
     /**
@@ -160,7 +169,8 @@ struct ConnectedComponentsProgram : public GraphChiProgram<VertexDataType, EdgeD
     /**
      * Called before an execution interval is started.
      */
-    void before_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &ginfo) {        
+    void before_exec_interval(vid_t window_st, vid_t window_en, graphchi_context &ginfo) {
+        did_change = false;
     }
     
     /**
@@ -192,6 +202,7 @@ int main(int argc, const char ** argv) {
         /* Run */
         ConnectedComponentsProgram program;
         graphchi_engine<VertexDataType, EdgeDataType> engine(filename, nshards, scheduler, m); 
+        gengine = &engine;
         engine.run(program, niters);
     }
     
