@@ -808,12 +808,12 @@ namespace graphchi {
                         int last_exec_interval = exec_interval;
                         exec_interval = intshuffle[interval_idx];
                         // Hack to make system work if we jump backwards
-                        if (interval_idx > 0 && last_exec_interval> exec_interval) {
+                       // if (interval_idx > 0 && last_exec_interval> exec_interval) {
                             for(int p=0; p<nshards; p++) {
                                 sliding_shards[p]->flush();
                                 sliding_shards[p]->set_offset(0, 0, 0);
                             }
-                        }
+                      //  }
                     }
                     
                     /* Determine interval limits */
@@ -902,10 +902,11 @@ namespace graphchi {
                         logstream(LOG_INFO) << "Commit memshard" << std::endl;
 
                         memoryshard->commit(modifies_inedges, modifies_outedges & !disable_outedges);
-
-                        sliding_shards[exec_interval]->set_offset(memoryshard->offset_for_stream_cont(), memoryshard->offset_vid_for_stream_cont(),
-                                                                  memoryshard->edata_ptr_for_stream_cont());
                         
+                        if (!randomization) {
+                            sliding_shards[exec_interval]->set_offset(memoryshard->offset_for_stream_cont(), memoryshard->offset_vid_for_stream_cont(),
+                                                                  memoryshard->edata_ptr_for_stream_cont());
+                        }
                         delete memoryshard;
                         memoryshard = NULL;
                     }     

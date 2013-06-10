@@ -40,6 +40,7 @@
 
 #include <cmath>
 #include <string>
+#include <set>
 
 #include "graphchi_basic_includes.hpp"
 
@@ -77,6 +78,7 @@ struct bidirectional_component_weight {
     }
     
     bool labels_agree() {
+        assert(smaller_component != MAX_VIDT);
         return smaller_component == larger_component;
     }
     
@@ -91,11 +93,12 @@ typedef bidirectional_component_weight EdgeDataType;
 
 size_t num_agree = 0;
 size_t num_disagree = 0;
-int contracted = 0;
+int nonsingletons = 0;
 double contracted_after1 = 0, contracted_after2 = 0;
 int finish_iterations=0;
 bool visualize;
 FILE * graphvizout = NULL;
+std::set<vid_t> contrlabels;
 
 /**
  * GraphChi programs need to subclass GraphChiProgram<vertex-type, edge-type>
@@ -136,18 +139,22 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 }
                 
             }
-        } else { // NOTE, iteration 0 is redundant, but takes into account the fact that on first iteration intervals are not randomized
+        } else if (gcontext.iteration > 0) { // NOTE, iteration 0 is redundant, but takes into account the fact that on first iteration intervals are not randomized
             bool counted_as_contracting = false;
-            for(int i=0; i < vertex.num_inedges(); i++) { // only in neighbor counts
-                graphchi_edge<EdgeDataType> * e = vertex.inedge(i);
+            if (vertex.num_edges() > 0) {
+                nonsingletons++;
+            }
+            for(int i=0; i < vertex.num_edges(); i++) { // only in neighbor counts
+                graphchi_edge<EdgeDataType> * e = vertex.edge(i);
                 bidirectional_component_weight edata = e->get_data();
                 num_agree += edata.labels_agree();
                 num_disagree += !edata.labels_agree();
-                if (edata.labels_agree() && !counted_as_contracting) {
-                    contracted++;
+                if (edata.labels_agree() && edata.my_label(vertex.id(), e->vertex_id()) != vertex.id() && !counted_as_contracting) {
+                    contrlabels.insert(edata.my_label(vertex.id(), e->vertex_id()));          //          std::cout << vertex.id() << " contracts to " << edata.my_label(vertex.id(), e->vertex_id()) << std::endl;
                     counted_as_contracting = true;
                 }
                 
+              
                 if (visualize) {
                     //				output_graphviz += "%s -> %s [ label = \"%d\" ];" % ('S%d' % (i+1),  'S%d' % (j+1), edge)
                     fprintf(graphvizout, "%d -> %d [label = \"%d/%d\"];\n", vertex.id(), e->vertex_id(), edata.my_label(vertex.id(), e->vertex_id()), edata.neighbor_label(vertex.id(), e->vertex_id()));
@@ -174,7 +181,9 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
      * Called before an iteration starts.
      */
     void before_iteration(int iteration, graphchi_context &info) {
-        num_agree = num_disagree = contracted = 0;
+        num_agree = num_disagree = 0;
+        nonsingletons = 0;
+        contrlabels.clear();
         if (iteration % 2 == 1 && visualize) {
             char vizname[255];
             sprintf(vizname, "graph%d.gv", iteration / 2);
@@ -209,8 +218,17 @@ struct ResearchCC : public GraphChiProgram<VertexDataType, EdgeDataType> {
                 //std::cout << "STATUS ON PROPAGATION ITERATION: " << iteration / 2 << " agree: " << num_agree << " disagree: " << num_disagree
                // << " vertices contracting: " << contracted << std::endl;
             }
-            if (iteration / 2 == 1) contracted_after1 = contracted * 1.0 / ginfo.nvertices;
-            if (iteration / 2 == 2) contracted_after2 = contracted * 1.0 / ginfo.nvertices;
+            int contracted = nonsingletons - contrlabels.size();
+            
+    /*        for(std::set<vid_t>::iterator it=contrlabels.begin(); it != contrlabels.end(); ++it) {
+                std::cout << " remaining label: " << *it << std::endl;
+            }
+     */         
+            std::cout << " Contracted: " << contracted << " out of " << nonsingletons << std::endl;
+            
+            
+            if (iteration / 2 == 1) contracted_after1 = contracted * 1.0 / nonsingletons;
+            if (iteration / 2 == 2) contracted_after2 = contracted * 1.0 / nonsingletons;
             
             if (num_disagree == 0) {
                 ginfo.set_last_iteration(ginfo.iteration);
@@ -279,7 +297,7 @@ int main(int argc, const char ** argv) {
     
     /* Report execution metrics */
     // metrics_report(m);
-    fprintf(contrlog, "%d,%lf,%lf\n", finish_iterations, contracted_after1, contracted_after2);
+    fprintf(contrlog, "%d,%d,%d,%lf,%lf\n", get_option_int("randomization", 0), nshards, finish_iterations, contracted_after1, contracted_after2);
     fflush(contrlog);
     
     fclose(contrlog);
