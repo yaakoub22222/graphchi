@@ -11,6 +11,7 @@
 		5F56F71D159B78D300423ECE /* bulksync_functional_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F56F703159B771900423ECE /* bulksync_functional_test.cpp */; };
 		5F71A07E175657A000B072B9 /* utiltest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F71A0731756576B00B072B9 /* utiltest.cpp */; };
 		5F71A3ED175F9B6300B072B9 /* connectedcomponents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FCC1EBF1599F59A0003D0E9 /* connectedcomponents.cpp */; };
+		5F71A409176625D800B072B9 /* erdosrenyi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F71A3FF176625A500B072B9 /* erdosrenyi.cpp */; };
 		5F74B04415D3533200ED3EA9 /* cgs_lda.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F74B03815D3530A00ED3EA9 /* cgs_lda.cpp */; };
 		5F74B04915D35BD200ED3EA9 /* random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F74B04615D35B6400ED3EA9 /* random.cpp */; };
 		5F74B05C15D6CF5E00ED3EA9 /* blocksplitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F74B04F15D6CEE200ED3EA9 /* blocksplitter.cpp */; };
@@ -247,6 +248,8 @@
 		5F71A3211757EF0200B072B9 /* bfs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bfs.cpp; sourceTree = "<group>"; };
 		5F71A3231757EF0C00B072B9 /* directed_bfs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = directed_bfs.cpp; sourceTree = "<group>"; };
 		5F71A35A175939BF00B072B9 /* research_cc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = research_cc.cpp; sourceTree = "<group>"; };
+		5F71A3FF176625A500B072B9 /* erdosrenyi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = erdosrenyi.cpp; sourceTree = "<group>"; };
+		5F71A405176625C800B072B9 /* erdosrenyi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = erdosrenyi; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F74B03715D349EF00ED3EA9 /* cgs_lda_vertexprogram.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = cgs_lda_vertexprogram.hpp; sourceTree = "<group>"; };
 		5F74B03815D3530A00ED3EA9 /* cgs_lda.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cgs_lda.cpp; sourceTree = "<group>"; };
 		5F74B04215D3532600ED3EA9 /* graphlab_lda */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = graphlab_lda; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -441,6 +444,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F71A0781756578F00B072B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5F71A403176625C700B072B9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -751,6 +761,14 @@
 			path = dynamicdata;
 			sourceTree = "<group>";
 		};
+		5F71A3FE176625A500B072B9 /* graphgen */ = {
+			isa = PBXGroup;
+			children = (
+				5F71A3FF176625A500B072B9 /* erdosrenyi.cpp */,
+			);
+			path = graphgen;
+			sourceTree = "<group>";
+		};
 		5F74B03515D349EF00ED3EA9 /* graphlab_toolkit_ports */ = {
 			isa = PBXGroup;
 			children = (
@@ -809,6 +827,7 @@
 				5F8D8B7216BF7B8500F54662 /* test_dynamicedata copy */,
 				5FCB46CE174AB1E70023D9D7 /* mst */,
 				5F71A07A1756578F00B072B9 /* utiltest */,
+				5F71A405176625C800B072B9 /* erdosrenyi */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -902,6 +921,7 @@
 		5F7A104A1589266800748D0D /* util */ = {
 			isa = PBXGroup;
 			children = (
+				5F71A3FE176625A500B072B9 /* graphgen */,
 				5F7A104B1589266800748D0D /* atomic.hpp */,
 				5F7A104D1589266800748D0D /* cmdopts.hpp */,
 				5F9EBAAD1593FB130092F7E2 /* configfile.hpp */,
@@ -1194,6 +1214,22 @@
 			productReference = 5F71A07A1756578F00B072B9 /* utiltest */;
 			productType = "com.apple.product-type.tool";
 		};
+		5F71A404176625C700B072B9 /* erdosrenyi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5F71A40A176625F600B072B9 /* Build configuration list for PBXNativeTarget "erdosrenyi" */;
+			buildPhases = (
+				5F71A402176625C700B072B9 /* Sources */,
+				5F71A403176625C700B072B9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = erdosrenyi;
+			productName = erdosrenyi;
+			productReference = 5F71A405176625C800B072B9 /* erdosrenyi */;
+			productType = "com.apple.product-type.tool";
+		};
 		5F74B03A15D3532600ED3EA9 /* graphlab_lda */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5F74B03F15D3532600ED3EA9 /* Build configuration list for PBXNativeTarget "graphlab_lda" */;
@@ -1442,6 +1478,7 @@
 				5F8D8B6A16BF7B8500F54662 /* gensgd */,
 				5FCB46C6174AB1E70023D9D7 /* mst */,
 				5F71A0791756578F00B072B9 /* utiltest */,
+				5F71A404176625C700B072B9 /* erdosrenyi */,
 			);
 		};
 /* End PBXProject section */
@@ -1468,6 +1505,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F71A07E175657A000B072B9 /* utiltest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5F71A402176625C700B072B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F71A409176625D800B072B9 /* erdosrenyi.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1759,6 +1804,36 @@
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = utiltest;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		5F71A407176625C800B072B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = erdosrenyi;
+			};
+			name = Debug;
+		};
+		5F71A408176625C800B072B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = erdosrenyi;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2166,6 +2241,15 @@
 			buildConfigurations = (
 				5F71A07C1756578F00B072B9 /* Debug */,
 				5F71A07D1756578F00B072B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5F71A40A176625F600B072B9 /* Build configuration list for PBXNativeTarget "erdosrenyi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5F71A407176625C800B072B9 /* Debug */,
+				5F71A408176625C800B072B9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

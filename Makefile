@@ -31,6 +31,8 @@ example_apps/% : example_apps/%.cpp $(HEADERS)
 	$(CPP) $(CPPFLAGS) -Iexample_apps/ $@.cpp -o bin/$@ $(LINKERFLAGS) 
 
 
+erdosrenyi:
+	$(CPP) -O2 src/util/graphgen/erdosrenyi.cpp -o bin/erdosrenyi
 
 myapps/% : myapps/%.cpp $(HEADERS)
 	@mkdir -p bin/$(@D)
