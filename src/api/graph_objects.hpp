@@ -65,7 +65,7 @@ namespace graphchi {
         
 #ifndef DYNAMICEDATA
         EdgeDataType get_data() {
-            return * data_ptr;
+            return  *data_ptr;
         }
         
         void set_data(EdgeDataType x) {

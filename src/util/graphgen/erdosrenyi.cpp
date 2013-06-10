@@ -8,22 +8,28 @@
 
 #include <stdlib.h>
 #include <cstdio>
+#include <sys/time.h>
 #include <time.h>
 
 int main(int argc, const char ** argv) {
-    if (argc < 3) {
-        printf("Usage: erdosrenyi n p\n");
+    if (argc < 4) {
+        printf("Usage: erdosrenyi nameprefix n p\n");
         return 1;
     }   
-    int n = atoi(argv[1]);
-    double p = atof(argv[2]);
+    
+    const char * nameprefix = argv[1];
+    int n = atoi(argv[2]);
+    double p = atof(argv[3]);
     
     printf("Number of vertices=%d, edge probability=%lf\n", n, p);
     
     char filename[1024];
-    sprintf(filename, "erdosrenyi_%d_%.4f.edgelist", n, p);
+    sprintf(filename, "erdosrenyi_%s_%d_%.4f.edgelist", nameprefix, n, p);
     
-    srandom(time(NULL));
+    timeval tt;
+    gettimeofday(&tt, NULL);
+    
+    srandom(time(NULL) +  (int)tt.tv_usec);
 
     size_t K = 10000;
     
